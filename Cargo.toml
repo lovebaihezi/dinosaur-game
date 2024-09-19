@@ -5,6 +5,10 @@ edition = "2021"
 
 [dependencies]
 bevy = { version = "0.14.2", features = ["dynamic_linking"] }
+log = { version = "*", features = [
+    "max_level_debug",
+    "release_max_level_warn",
+] }
 
 [profile.dev]
 opt-level = 1
