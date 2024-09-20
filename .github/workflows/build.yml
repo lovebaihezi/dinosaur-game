@@ -29,7 +29,7 @@ jobs:
           lfs: ${{ env.use_git_lfs }}
       - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
-          targets: wasm32-unknown-unknown
+          target: wasm32-unknown-unknown
       - name: install wasm-bindgen-cli
         run: |
           rustup component add rustc-codegen-cranelift-preview --toolchain nightly
@@ -78,7 +78,7 @@ jobs:
           lfs: ${{ env.use_git_lfs }}
       - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
-          targets: x86_64-unknown-linux-gnu
+          target: x86_64-unknown-linux-gnu
       - name: install dependencies
         run: |
           rustup component add rustc-codegen-cranelift-preview --toolchain nightly
@@ -128,7 +128,7 @@ jobs:
           lfs: ${{ env.use_git_lfs }}
       - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
-          targets: x86_64-pc-windows-msvc
+          target: x86_64-pc-windows-msvc
 
       - name: Build
         run: |
@@ -175,7 +175,7 @@ jobs:
           lfs: ${{ env.use_git_lfs }}
       - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
-          targets: x86_64-apple-darwin
+          target: x86_64-apple-darwin
       - name: Environment Setup
         run: |
           export CFLAGS="-fno-stack-check"
@@ -226,7 +226,7 @@ jobs:
           lfs: ${{ env.use_git_lfs }}
       - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
-          targets: aarch64-apple-darwin
+          target: aarch64-apple-darwin
       - name: Environment
         # macOS 11 was the first version to support ARM
         run: |
@@ -260,4 +260,3 @@ jobs:
           asset_name: ${{ env.binary }}-macOS-apple-silicon-${{ steps.get_version.outputs.tag }}.dmg
           tag: ${{ github.ref }}
           overwrite: true
-
