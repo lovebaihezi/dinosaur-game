@@ -9,7 +9,7 @@ on:
 env:
   # update with the name of the main binary
   binary: dinosaur
-  add_binaries_to_github_release: true
+  add_binaries_to_github_release: false
   CARGO_TERM_COLOR: always
 
   # Before enabling LFS, please take a look at GitHub's documentation for costs and quota limits:
