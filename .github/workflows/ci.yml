@@ -30,8 +30,7 @@ jobs:
           key: ${{ runner.os }}-cargo-test-${{ hashFiles('**/Cargo.toml') }}
       - run: |
           rustup component add rustc-codegen-cranelift-preview --toolchain nightly
-      - name: Install stable toolchain
-        uses: dtolnay/rust-toolchain@stable
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
       - name: Install Dependencies
         run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev clang mold
       - name: Run cargo test
@@ -55,8 +54,7 @@ jobs:
             ~/.cargo/git/db/
             target/
           key: ${{ runner.os }}-cargo-clippy-${{ hashFiles('**/Cargo.toml') }}
-      - name: Install stable toolchain
-        uses: dtolnay/rust-toolchain@stable
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           components: clippy
       - run: |
@@ -74,8 +72,7 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
-      - name: Install stable toolchain
-        uses: dtolnay/rust-toolchain@stable
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           components: rustfmt
       - run: |
