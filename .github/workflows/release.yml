@@ -17,6 +17,7 @@ env:
 
 jobs:
   # Build for wasm
+  # TODO(chaibowen): use wasm-opt optimize wasm
   release-wasm:
     runs-on: ubuntu-latest
 
@@ -31,6 +32,7 @@ jobs:
           targets: wasm32-unknown-unknown
       - name: install wasm-bindgen-cli
         run: |
+          rustup component add rustc-codegen-cranelift-preview --toolchain nightly
           cargo install wasm-bindgen-cli
 
       - name: Build
@@ -39,7 +41,7 @@ jobs:
 
       - name: Prepare package
         run: |
-          wasm-bindgen --no-typescript --out-name bevy_game --out-dir wasm --target web target/wasm32-unknown-unknown/release/${{ env.binary }}.wasm
+          wasm-bindgen --no-typescript --out-name dinosaur-game --out-dir wasm --target web target/wasm32-unknown-unknown/release/${{ env.binary }}.wasm
           cp -r assets web/ || true # Try to copy, but ignore if it can't copy if source directory does not exist
 
       - name: Package as a zip
@@ -79,6 +81,7 @@ jobs:
           targets: x86_64-unknown-linux-gnu
       - name: install dependencies
         run: |
+          rustup component add rustc-codegen-cranelift-preview --toolchain nightly
           sudo apt-get update; sudo apt-get install pkg-config libx11-dev libasound2-dev libudev-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev
 
       - name: Build
@@ -129,6 +132,7 @@ jobs:
 
       - name: Build
         run: |
+          rustup component add rustc-codegen-cranelift-preview --toolchain nightly
           cargo build --release --target x86_64-pc-windows-msvc
 
       - name: Prepare package
@@ -179,6 +183,7 @@ jobs:
 
       - name: Build
         run: |
+          rustup component add rustc-codegen-cranelift-preview --toolchain nightly
           cargo build --release --target x86_64-apple-darwin
 
       - name: Prepare Package
@@ -225,6 +230,7 @@ jobs:
 
       - name: Build
         run: |
+          rustup component add rustc-codegen-cranelift-preview --toolchain nightly
           cargo build --release --target aarch64-apple-darwin
 
       - name: Prepare Package
@@ -250,53 +256,3 @@ jobs:
           asset_name: ${{ env.binary }}-macOS-apple-silicon-${{ steps.get_version.outputs.tag }}.dmg
           tag: ${{ github.ref }}
           overwrite: true
-
-  check-if-upload-to-itch-is-configured:
-    runs-on: ubuntu-latest
-    outputs:
-      should-upload: ${{ steps.check-env.outputs.has-itch-target }}
-    steps:
-      - id: check-env
-        run: |
-          if [[ -z "$itch_target" ]]; then
-            echo "has-itch-target=no" >> $GITHUB_OUTPUT
-          else
-            echo "has-itch-target=yes" >> $GITHUB_OUTPUT
-          fi
-
-  upload-to-itch:
-    runs-on: ubuntu-latest
-    needs:
-      - check-if-upload-to-itch-is-configured
-      - release-wasm
-      - release-linux
-      - release-windows
-      - release-macOS-intel
-      - release-macOS-apple-silicon
-    if: ${{ needs.check-if-upload-to-itch-is-configured.outputs.should-upload == 'yes' }}
-
-    steps:
-      - name: Download artifacts
-        uses: actions/download-artifact@v3
-        with:
-          path: ./builds
-
-      - name: Install butler
-        run: |
-          curl -L -o butler.zip https://broth.itch.ovh/butler/linux-amd64/LATEST/archive/default
-          unzip butler.zip
-          chmod +x butler
-          ./butler -V
-      - uses: olegtarasov/get-tag@v2.1.2
-        id: get_version
-      - name: Upload to itch.io
-        env:
-          BUTLER_API_KEY: ${{ secrets.BUTLER_CREDENTIALS }}
-        run: |
-          for channel in $(ls builds); do
-            ./butler push \
-                --fix-permissions \
-                --userversion="${{ steps.get_version.outputs.tag }}" \
-                builds/$channel/* \
-                ${{ env.itch_target }}:$channel
-          done
