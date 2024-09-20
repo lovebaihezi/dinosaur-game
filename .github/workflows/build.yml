@@ -181,7 +181,6 @@ jobs:
       - name: Build
         run: |
           cargo clean
-          cargo build -Zbuild-std
           cargo build --release --target x86_64-apple-darwin
 
       - name: Prepare Package
