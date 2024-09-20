@@ -1,4 +1,4 @@
-name: Release
+name: Build All On All Possible Platforms
 
 on:
   push:
