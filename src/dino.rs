@@ -6,21 +6,14 @@ use bevy::{
     window::Window,
 };
 
-pub fn setup_ground(mut commands: Commands, window: Query<&Window>) {
-    // Spawn the camera
-    commands.spawn(Camera2dBundle::default());
-
-    // the ground width is the same as the window width
-    // the ground height is 100 pixels
-    // the ground x at 0, y at center of the window
+pub fn setup_dino(mut commands: Commands, window: Query<&Window>) {
     let window = window.iter().next().unwrap();
-    let window_width = window.width();
     let window_height = window.height();
 
     commands.spawn((SpriteBundle {
         sprite: Sprite {
             color: Color::srgb(0.95, 0.95, 0.95),
-            custom_size: Some(Vec2::new(window_width, 1.0)),
+            custom_size: Some(Vec2::new(10.0, 10.0 / 0.618)),
             ..default()
         },
         transform: Transform::from_translation(Vec3::new(0.0, -window_height / 2.0, 0.0)),

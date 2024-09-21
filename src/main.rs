@@ -1,11 +1,10 @@
 use bevy::prelude::*;
-use dinosaur::{move_rectangle, setup};
+use dinosaur::{setup_dino, setup_ground};
 
 fn main() {
     let exit = App::new()
         .add_plugins(DefaultPlugins)
-        .add_systems(Startup, setup)
-        .add_systems(Update, move_rectangle)
+        .add_systems(Startup, (setup_ground, setup_dino))
         .run();
     match exit {
         AppExit::Success => {}
