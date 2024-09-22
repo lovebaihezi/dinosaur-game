@@ -63,7 +63,7 @@ pub fn dino_jump_system(
                 return;
             } else {
                 info!("Begin Jump Animation");
-                dino.in_air_start_time = Some(time.clone());
+                dino.in_air_start_time = Some(*time);
             }
         }
     }
@@ -79,9 +79,9 @@ pub fn dino_jump_animation(time: Res<Time>, mut query: Query<(&mut Transform, &m
                 dino.in_air_start_time = None;
                 DINO_WIDTH
             } else {
-                let x = elapsed.as_millis() as f64 / 500.0 * 3.1415926;
+                let x = elapsed.as_millis() as f64 / 500.0 * std::f64::consts::PI;
                 let x = x as f32;
-                let y = x.sin() * JUMP_HIGH as f32;
+                let y = x.sin() * JUMP_HIGH;
                 info!("Jump TO: {}", y);
                 y
             };
