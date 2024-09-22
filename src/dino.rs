@@ -3,10 +3,13 @@ use bevy::{
     input::ButtonInput,
     log::info,
     math::{Vec2, Vec3},
-    prelude::{default, Commands, KeyCode, Query, Res, Transform},
+    prelude::{default, Commands, Component, KeyCode, Query, Res, Transform, With},
     sprite::{Sprite, SpriteBundle},
     window::Window,
 };
+
+#[derive(Component)]
+pub struct Dino;
 
 const DINO_WIDTH: f32 = 20.0;
 const DINO_SIZE: Vec2 = Vec2::new(DINO_WIDTH, DINO_WIDTH / 0.618);
@@ -25,7 +28,7 @@ pub fn setup_dino(mut commands: Commands) {
 
 /// Dino will jump when user press space, w, Up, k, or left mouse button
 pub fn dino_jump_system(
-    mut query: Query<(&mut Transform, &Sprite)>,
+    mut query: Query<(&mut Transform, &Sprite), With<Dino>>,
     keyboard: Res<ButtonInput<KeyCode>>,
     window: Query<&Window>,
 ) {
