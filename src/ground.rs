@@ -22,11 +22,11 @@ pub fn setup_ground(mut commands: Commands, window: Query<&Window>) {
 
     commands.spawn((SpriteBundle {
         sprite: Sprite {
-            color: Color::srgba(1.0, 0.0, 0.0, 0.9),
-            custom_size: Some(Vec2::new(window_width, 1.0)),
+            color: Color::srgba(0.0, 0.0, 0.0, 0.9),
+            custom_size: Some(Vec2::new(window_width, 10.0)),
             ..default()
         },
-        transform: Transform::from_translation(Vec3::new(0.0, -window_height / 2.0, 0.0)),
+        transform: Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),
         ..default()
     },));
 }
@@ -41,7 +41,7 @@ pub fn update_ground(
             let sprite_width = sprite.custom_size.unwrap().x;
             transform.scale.x = resize_event.width / sprite_width;
             transform.translation.x = 0.0;
-            transform.translation.y = -resize_event.height / 2.0;
+            transform.translation.y = resize_event.height / 2.0;
             info!(
                 "ground transform to {} {} {}",
                 0.0,
