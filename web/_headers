@@ -1,0 +1,6 @@
+/*.wasm
+    Content-Type: application/wasm
+    Content-Encoding: br
+
+/*.js
+    Content-Type: application/javascript
