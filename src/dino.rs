@@ -1,7 +1,6 @@
 use bevy::{
     color::Color,
     input::ButtonInput,
-    log::info,
     math::{Vec2, Vec3},
     prelude::{default, Commands, Component, EventReader, KeyCode, Query, Res, Transform, With},
     sprite::{Sprite, SpriteBundle},
