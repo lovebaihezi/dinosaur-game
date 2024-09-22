@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-bevy = "0.14.2"
+bevy = { version = "0.14.2", features = ["wayland"] }
 log = { version = "*", features = [
     "max_level_debug",
     "release_max_level_warn",
