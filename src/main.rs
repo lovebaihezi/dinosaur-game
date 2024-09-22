@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use dinosaur::{
-    dino_jump_system, dino_pos_fix_system, setup_camera, setup_dino, setup_ground, update_ground,
+    dino_jump_animation, dino_jump_system, dino_pos_fix_system, setup_camera, setup_dino,
+    setup_ground, update_ground,
 };
 
 fn main() {
@@ -10,7 +11,11 @@ fn main() {
         .add_systems(Startup, (setup_ground, setup_dino, setup_camera))
         .add_systems(
             Update,
-            (update_ground, dino_jump_system, dino_pos_fix_system),
+            (
+                update_ground,
+                dino_jump_system,
+                (dino_pos_fix_system, dino_jump_animation).chain(),
+            ),
         )
         .run();
     match exit {

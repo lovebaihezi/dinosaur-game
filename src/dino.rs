@@ -1,23 +1,27 @@
+use std::time::Duration;
+
 use bevy::{
     color::Color,
     input::ButtonInput,
     log::info,
     math::{Vec2, Vec3},
     prelude::{default, Commands, Component, EventReader, KeyCode, Query, Res, Transform, With},
+    reflect::Reflect,
     sprite::{Sprite, SpriteBundle},
+    time::{Time, Virtual},
     window::{Window, WindowResized},
 };
 
 #[derive(Component)]
-pub struct Dino;
+pub struct Dino {
+    in_air_start_time: Option<Time<Virtual>>,
+}
 
 const DINO_WIDTH: f32 = 20.0;
 const DINO_SIZE: Vec2 = Vec2::new(DINO_WIDTH, DINO_WIDTH / 0.618);
+const JUMP_HIGH: f32 = 100.0;
 
-pub fn setup_dino(mut commands: Commands, window: Query<&Window>) {
-    let window = window.single();
-    let width = window.width();
-
+pub fn setup_dino(mut commands: Commands) {
     commands.spawn((
         SpriteBundle {
             sprite: Sprite {
@@ -28,7 +32,9 @@ pub fn setup_dino(mut commands: Commands, window: Query<&Window>) {
             transform: Transform::from_translation(Vec3::new(0.0, DINO_WIDTH, 0.0)),
             ..default()
         },
-        Dino,
+        Dino {
+            in_air_start_time: None,
+        },
     ));
 }
 
@@ -46,23 +52,43 @@ pub fn dino_pos_fix_system(
 
 /// Dino will jump when user press space, w, Up, k, or left mouse button
 pub fn dino_jump_system(
-    mut query: Query<(&mut Transform, &Sprite), With<Dino>>,
+    mut query: Query<&mut Dino>,
     keyboard: Res<ButtonInput<KeyCode>>,
-    window: Query<&Window>,
+    time: Res<Time<Virtual>>,
 ) {
     if keyboard.just_pressed(KeyCode::Space)
         || keyboard.just_pressed(KeyCode::KeyW)
         || keyboard.just_pressed(KeyCode::ArrowUp)
         || keyboard.just_pressed(KeyCode::KeyK)
     {
-        let window = window.single();
-        let window_height = window.height();
-        info!("Jump: {} {}", window.width(), window_height);
-
-        for (mut transform, _sprite) in query.iter_mut() {
-            if transform.translation.y == -window_height / 2.0 {
-                transform.translation.y = -window_height / 2.0 + 1.0;
+        for mut dino in query.iter_mut() {
+            if dino.in_air_start_time.is_some() {
+                return;
+            } else {
+                info!("Begin Jump Animation");
+                dino.in_air_start_time = Some(time.clone());
             }
+        }
+    }
+}
+
+pub fn dino_jump_animation(time: Res<Time>, mut query: Query<(&mut Transform, &mut Dino)>) {
+    for (mut transform, mut dino) in query.iter_mut() {
+        if let Some(start_time) = dino.in_air_start_time {
+            let elapsed = time.elapsed() - start_time.elapsed();
+            info!("time spend {}", elapsed.as_millis());
+            // Over
+            let y = if elapsed.as_millis() > 500 {
+                dino.in_air_start_time = None;
+                DINO_WIDTH
+            } else {
+                let x = elapsed.as_millis() as f64 / 500.0 * 3.1415926;
+                let x = x as f32;
+                let y = x.sin() * JUMP_HIGH as f32;
+                info!("Jump TO: {}", y);
+                y
+            };
+            transform.translation.y = y;
         }
     }
 }
