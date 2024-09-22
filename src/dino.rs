@@ -2,12 +2,15 @@ use bevy::{
     color::Color,
     input::ButtonInput,
     math::{Vec2, Vec3},
-    prelude::{default, Commands, KeyCode, MouseButton, Query, Res, Transform},
+    prelude::{default, Commands, Component, KeyCode, MouseButton, Query, Res, Transform},
     sprite::{Sprite, SpriteBundle},
     window::Window,
 };
 
 const DINO_SIZE: Vec2 = Vec2::new(20.0, 20.0 / 0.618);
+
+#[derive(Component)]
+pub struct Dino;
 
 pub fn setup_dino(mut commands: Commands, window: Query<&Window>) {
     let window = window.iter().next().unwrap();
@@ -40,7 +43,7 @@ pub fn dino_jump_system(
         let window = window.iter().next().unwrap();
         let window_height = window.height();
 
-        for (mut transform, sprite) in query.iter_mut() {
+        for (mut transform, _sprite) in query.iter_mut() {
             if transform.translation.y == -window_height / 2.0 {
                 transform.translation.y = -window_height / 2.0 + 1.0;
             }
