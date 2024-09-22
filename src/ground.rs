@@ -2,7 +2,7 @@ use bevy::{
     color::Color,
     log::info,
     math::{Vec2, Vec3},
-    prelude::{default, Camera2dBundle, Commands, Component, EventReader, Query, Transform, With},
+    prelude::{default, Commands, Component, EventReader, Query, Transform, With},
     sprite::{Sprite, SpriteBundle},
     window::{Window, WindowResized},
 };

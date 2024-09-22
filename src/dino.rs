@@ -1,15 +1,12 @@
-use std::time::Duration;
-
 use bevy::{
     color::Color,
     input::ButtonInput,
     log::info,
     math::{Vec2, Vec3},
     prelude::{default, Commands, Component, EventReader, KeyCode, Query, Res, Transform, With},
-    reflect::Reflect,
     sprite::{Sprite, SpriteBundle},
     time::{Time, Virtual},
-    window::{Window, WindowResized},
+    window::WindowResized,
 };
 
 #[derive(Component)]
