@@ -60,9 +60,8 @@ pub fn dino_jump_system(
     {
         for mut dino in query.iter_mut() {
             if dino.in_air_start_time.is_some() {
-                return;
+                continue;
             } else {
-                info!("Begin Jump Animation");
                 dino.in_air_start_time = Some(*time);
             }
         }
@@ -73,7 +72,6 @@ pub fn dino_jump_animation(time: Res<Time>, mut query: Query<(&mut Transform, &m
     for (mut transform, mut dino) in query.iter_mut() {
         if let Some(start_time) = dino.in_air_start_time {
             let elapsed = time.elapsed() - start_time.elapsed();
-            info!("time spend {}", elapsed.as_millis());
             // Over
             let y = if elapsed.as_millis() > 500 {
                 dino.in_air_start_time = None;
@@ -81,8 +79,7 @@ pub fn dino_jump_animation(time: Res<Time>, mut query: Query<(&mut Transform, &m
             } else {
                 let x = elapsed.as_millis() as f64 / 500.0 * std::f64::consts::PI;
                 let x = x as f32;
-                let y = x.sin() * JUMP_HIGH;
-                info!("Jump TO: {}", y);
+                let y = x.sin() * JUMP_HIGH + DINO_WIDTH;
                 y
             };
             transform.translation.y = y;
