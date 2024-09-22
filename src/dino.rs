@@ -78,8 +78,7 @@ pub fn dino_jump_animation(time: Res<Time>, mut query: Query<(&mut Transform, &m
             } else {
                 let x = elapsed.as_millis() as f64 / 500.0 * std::f64::consts::PI;
                 let x = x as f32;
-                let y = x.sin() * JUMP_HIGH + DINO_WIDTH;
-                y
+                x.sin() * JUMP_HIGH + DINO_WIDTH
             };
             transform.translation.y = y;
         }
