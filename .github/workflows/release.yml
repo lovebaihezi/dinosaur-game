@@ -43,12 +43,12 @@ jobs:
         run: |
           # Gen Wasm and js loader
           wasm-bindgen --no-typescript --out-name ${{ env.binary }} --out-dir wasm --target web target/wasm32-unknown-unknown/release/${{ env.binary }}.wasm
+          wasm-opt -O wasm/${{ env.binary }}_bg.wasm -o ${{ env.binary }}.wasm
           # Compress Wasm using brotli
-          brotli wasm/${{ env.binary }}_bg.wasm -o web/${{ env.binary }}.wasm
-          mv wasm/${{ env.binary }}.js web.
+          brotli wasm/${{ env.binary }}_bg.wasm -o web/${{ env.binary }}_bg.wasm
+          mv wasm/${{ env.binary }}.js web/
           cp -r assets web/ || true # Try to copy, but ignore if it can't copy if source directory does not exist
-          echo ${{ github.event.pull_request.head.ref }}
-          du -hs web
+
       - name: Package as a zip
         working-directory: ./wasm
         run: |
