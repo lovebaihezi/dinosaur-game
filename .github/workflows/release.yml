@@ -2,8 +2,7 @@ name: Release
 
 on:
   push:
-    tags:
-      - "*"
+    branches: [main]
 
 env:
   # update with the name of the main binary
@@ -12,7 +11,7 @@ env:
   #itch_target: <itch.io-username>/<game-name>
 
   # Before enabling LFS, please take a look at GitHub's documentation for costs and quota limits:
-  # https://docs.github.com/en/repositories/working-with-files/managing-large-files/about-storage-and-bandwidth-usage
+  # https://docs.github.com/en/repositories/working-with-filess/managing-large-filess/about-storage-and-bandwidth-usage
   use_git_lfs: false
 
 jobs:
@@ -21,7 +20,7 @@ jobs:
   release-wasm:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       deployments: write
 
     steps:
@@ -63,7 +62,7 @@ jobs:
       - name: Upload binaries to release
         uses: softprops/action-gh-release@v2
         with:
-          file: ${{ env.binary }}.zip
+          files: ${{ env.binary }}.zip
           name: ${{ env.binary }}-wasm-${{ steps.get_version.outputs.tag }}.zip
           draft: true
 
@@ -83,6 +82,8 @@ jobs:
   # Build for Linux
   release-linux:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - uses: olegtarasov/get-tag@v2.1.2
@@ -121,13 +122,15 @@ jobs:
       - name: Upload binaries to release
         uses: softprops/action-gh-release@v2
         with:
-          file: ${{ env.binary }}.zip
+          files: ${{ env.binary }}.zip
           name: ${{ env.binary }}-linux-${{ steps.get_version.outputs.tag }}.zip
           draft: true
 
   # Build for Windows
   release-windows:
     runs-on: windows-latest
+    permissions:
+      contents: write
 
     steps:
       - uses: olegtarasov/get-tag@v2.1.2
@@ -160,13 +163,15 @@ jobs:
       - name: Upload binaries to release
         uses: softprops/action-gh-release@v2
         with:
-          file: ${{ env.binary }}.zip
+          files: ${{ env.binary }}.zip
           name: ${{ env.binary }}-windows-${{ steps.get_version.outputs.tag }}.zip
           draft: true
 
   # Build for MacOS x86_64
   release-macOS-intel:
     runs-on: macOS-latest
+    permissions:
+      contents: write
 
     steps:
       - uses: olegtarasov/get-tag@v2.1.2
@@ -200,13 +205,15 @@ jobs:
       - name: Upload binaries to release
         uses: softprops/action-gh-release@v2
         with:
-          file: ${{ env.binary }}-macOS-intel.dmg
+          files: ${{ env.binary }}-macOS-intel.dmg
           name: ${{ env.binary }}-macOS-intel-${{ github.ref }}.dmg
           draft: true
 
   # Build for MacOS Apple Silicon
   release-macOS-apple-silicon:
     runs-on: macOS-latest
+    permissions:
+      contents: write
 
     steps:
       - uses: olegtarasov/get-tag@v2.1.2
@@ -244,6 +251,6 @@ jobs:
       - name: Upload binaries to release
         uses: softprops/action-gh-release@v2
         with:
-          file: ${{ env.binary }}-macOS-apple-silicon.dmg
+          files: ${{ env.binary }}-macOS-apple-silicon.dmg
           name: ${{ env.binary }}-macOS-apple-silicon-${{ github.ref }}.dmg
           draft: true
