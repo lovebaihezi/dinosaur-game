@@ -21,5 +21,8 @@ Cargo.lock
 #.idea/
 web/dinosaur.js
 web/dinosaur.d.ts
+web/dinosaur.wasm
 web/dinosaur_bg.wasm
-web/dinosaur_bg.wasm.d.ts
+web/dinosaur.wasm.d.ts
+web/dinosaur.wasm.br
+wasm/
