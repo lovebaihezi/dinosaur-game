@@ -64,7 +64,6 @@ jobs:
         with:
           files: ${{ env.binary }}.zip
           name: ${{ env.binary }}-wasm-${{ steps.get_version.outputs.tag }}.zip
-          draft: true
 
       - name: Deploy to Cloudflare Pages
         if: ${{ env.add_binaries_to_github_release == 'true' }}
@@ -124,7 +123,6 @@ jobs:
         with:
           files: ${{ env.binary }}.zip
           name: ${{ env.binary }}-linux-${{ steps.get_version.outputs.tag }}.zip
-          draft: true
 
   # Build for Windows
   release-windows:
@@ -165,7 +163,6 @@ jobs:
         with:
           files: ${{ env.binary }}.zip
           name: ${{ env.binary }}-windows-${{ steps.get_version.outputs.tag }}.zip
-          draft: true
 
   # Build for MacOS x86_64
   release-macOS-intel:
@@ -207,7 +204,6 @@ jobs:
         with:
           files: ${{ env.binary }}-macOS-intel.dmg
           name: ${{ env.binary }}-macOS-intel-${{ github.ref }}.dmg
-          draft: true
 
   # Build for MacOS Apple Silicon
   release-macOS-apple-silicon:
@@ -253,4 +249,3 @@ jobs:
         with:
           files: ${{ env.binary }}-macOS-apple-silicon.dmg
           name: ${{ env.binary }}-macOS-apple-silicon-${{ github.ref }}.dmg
-          draft: true
