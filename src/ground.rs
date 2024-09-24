@@ -16,9 +16,6 @@ pub fn setup_ground(mut commands: Commands, window: Query<&Window>) {
     // the ground x at 0, y at center of the window
     let window = window.iter().next().unwrap();
     let window_width = window.width();
-    let window_height = window.height();
-
-    info!("Sprite init at {} {} {}", 0.0, -window_height / 2.0, 0.0);
 
     commands.spawn((
         SpriteBundle {
