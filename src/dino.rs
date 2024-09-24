@@ -1,8 +1,11 @@
 use bevy::{
     color::Color,
-    input::ButtonInput,
+    input::{touch::Touch, ButtonInput},
     math::{Vec2, Vec3},
-    prelude::{default, Commands, Component, EventReader, KeyCode, Query, Res, Transform, With},
+    prelude::{
+        default, Commands, Component, EventReader, GamepadButton, KeyCode, MouseButton, Query, Res,
+        Touches, Transform, With,
+    },
     sprite::{Sprite, SpriteBundle},
     time::{Time, Virtual},
     window::WindowResized,
@@ -50,12 +53,16 @@ pub fn dino_pos_fix_system(
 pub fn dino_jump_system(
     mut query: Query<&mut Dino>,
     keyboard: Res<ButtonInput<KeyCode>>,
+    mouse: Res<ButtonInput<MouseButton>>,
+    touch: Res<Touches>,
     time: Res<Time<Virtual>>,
 ) {
     if keyboard.just_pressed(KeyCode::Space)
         || keyboard.just_pressed(KeyCode::KeyW)
         || keyboard.just_pressed(KeyCode::ArrowUp)
         || keyboard.just_pressed(KeyCode::KeyK)
+        || mouse.just_pressed(MouseButton::Left)
+        || touch.any_just_pressed()
     {
         for mut dino in query.iter_mut() {
             if dino.in_air_start_time.is_some() {
