@@ -1,10 +1,10 @@
 use bevy::{
     color::Color,
-    input::{touch::Touch, ButtonInput},
+    input::ButtonInput,
     math::{Vec2, Vec3},
     prelude::{
-        default, Commands, Component, EventReader, GamepadButton, KeyCode, MouseButton, Query, Res,
-        Touches, Transform, With,
+        default, Commands, Component, EventReader, KeyCode, MouseButton, Query, Res, Touches,
+        Transform, With,
     },
     sprite::{Sprite, SpriteBundle},
     time::{Time, Virtual},
