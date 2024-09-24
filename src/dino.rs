@@ -3,18 +3,14 @@ use bevy::{
     input::ButtonInput,
     math::{Vec2, Vec3},
     prelude::{
-        default, Commands, Component, EventReader, KeyCode, MouseButton, Query, Res, Touches,
-        Transform, With,
+        default, Commands, EventReader, KeyCode, MouseButton, Query, Res, Touches, Transform, With,
     },
     sprite::{Sprite, SpriteBundle},
     time::{Time, Virtual},
     window::WindowResized,
 };
 
-#[derive(Component)]
-pub struct Dino {
-    in_air_start_time: Option<Time<Virtual>>,
-}
+use crate::components::Dino;
 
 const DINO_WIDTH: f32 = 20.0;
 const DINO_SIZE: Vec2 = Vec2::new(DINO_WIDTH, DINO_WIDTH / 0.618);
@@ -28,12 +24,10 @@ pub fn setup_dino(mut commands: Commands) {
                 custom_size: Some(DINO_SIZE),
                 ..default()
             },
-            transform: Transform::from_translation(Vec3::new(0.0, DINO_WIDTH, 0.0)),
+            transform: Transform::from_translation(Vec3::new(0.0, DINO_WIDTH / 2.0 / 0.618, 0.0)),
             ..default()
         },
-        Dino {
-            in_air_start_time: None,
-        },
+        Dino::default(),
     ));
 }
 
@@ -44,7 +38,7 @@ pub fn dino_pos_fix_system(
     for e in events.read() {
         for (mut transform, _sprite) in query.iter_mut() {
             let window_width = e.width;
-            transform.translation.x = -window_width / 2.0 + DINO_WIDTH / 2.0;
+            transform.translation.x = -window_width / 2.0 + DINO_WIDTH / 2.0 + 0.1 * window_width;
         }
     }
 }
@@ -74,18 +68,21 @@ pub fn dino_jump_system(
     }
 }
 
-pub fn dino_jump_animation(time: Res<Time>, mut query: Query<(&mut Transform, &mut Dino)>) {
+pub fn dino_jump_animation(
+    time: Res<Time<Virtual>>,
+    mut query: Query<(&mut Transform, &mut Dino)>,
+) {
     for (mut transform, mut dino) in query.iter_mut() {
         if let Some(start_time) = dino.in_air_start_time {
             let elapsed = time.elapsed() - start_time.elapsed();
             // Over
             let y = if elapsed.as_millis() > 500 {
                 dino.in_air_start_time = None;
-                DINO_WIDTH
+                DINO_WIDTH / 2.0 / 0.618
             } else {
                 let x = elapsed.as_millis() as f64 / 500.0 * std::f64::consts::PI;
                 let x = x as f32;
-                x.sin() * JUMP_HIGH + DINO_WIDTH
+                x.sin() * JUMP_HIGH + DINO_WIDTH / 0.618
             };
             transform.translation.y = y;
         }
