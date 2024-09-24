@@ -1,6 +1,5 @@
 use bevy::{
     color::Color,
-    log::info,
     math::{Vec2, Vec3},
     prelude::{default, Commands, Component, EventReader, Query, Transform, With},
     sprite::{Sprite, SpriteBundle},
@@ -14,11 +13,8 @@ pub fn setup_ground(mut commands: Commands, window: Query<&Window>) {
     // the ground width is the same as the window width
     // the ground height is 100 pixels
     // the ground x at 0, y at center of the window
-    let window = window.iter().next().unwrap();
+    let window = window.single();
     let window_width = window.width();
-    let window_height = window.height();
-
-    info!("Sprite init at {} {} {}", 0.0, -window_height / 2.0, 0.0);
 
     commands.spawn((
         SpriteBundle {
