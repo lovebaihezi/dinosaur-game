@@ -41,9 +41,9 @@ pub fn tree_move_animation(
     let window = window.single();
     let window_width = window.width();
     for (mut transform, mut tree) in query.iter_mut() {
-        transform.translation.x = if transform.translation.x < -window_width / 2.0 {
+        transform.translation.x = if transform.translation.x < -window_width * 0.8 / 2.0 {
             tree.dino_passed();
-            window_width / 2.0
+            window_width * 0.8 / 2.0
         } else {
             transform.translation.x
                 - time.delta_seconds()
