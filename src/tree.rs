@@ -34,14 +34,15 @@ pub fn setup_tree(mut commands: Commands, window: Query<&Window>) {
 }
 
 pub fn tree_move_animation(
-    mut query: Query<&mut Transform, With<Tree>>,
+    mut query: Query<(&mut Transform, &mut Tree)>,
     time: Res<Time<Virtual>>,
     window: Query<&Window>,
 ) {
     let window = window.single();
     let window_width = window.width();
-    for mut transform in query.iter_mut() {
+    for (mut transform, mut tree) in query.iter_mut() {
         transform.translation.x = if transform.translation.x < -window_width / 2.0 {
+            tree.dino_passed();
             window_width / 2.0
         } else {
             transform.translation.x - time.delta_seconds() * (window_width / 5.0 + TREE_WIDTH / 2.0)
