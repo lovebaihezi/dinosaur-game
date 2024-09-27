@@ -2,6 +2,7 @@ use bevy::{
     color::Color,
     diagnostic::{DiagnosticsStore, FrameTimeDiagnosticsPlugin},
     input::ButtonInput,
+    log::info,
     math::Vec3,
     prelude::{
         BuildChildren, Commands, KeyCode, MouseButton, NodeBundle, Query, Res, ResMut, TextBundle,
@@ -9,7 +10,7 @@ use bevy::{
     },
     text::{Text, TextSection, TextStyle},
     time::{Time, Virtual},
-    ui::Style,
+    ui::{GridPlacement, Style},
     utils::default,
     window::Window,
 };
@@ -38,37 +39,37 @@ pub fn setup_game_control(
             ..default()
         },))
         .with_children(|parent| {
-            let fps_info = TextSection::new(
-                "FPS",
-                TextStyle {
-                    color: Color::srgba(0.0, 0.5, 0.9, 0.96),
-                    font_size: 14.0,
-                    ..default()
-                },
-            );
-            let game_info = TextSection::new(
-                "GAME INFO",
-                TextStyle {
-                    color: Color::srgba(0.0, 0.0, 0.0, 0.96),
-                    font_size: 16.0,
-                    ..default()
-                },
-            );
-            let tip = TextSection::new(
-                "TIP",
-                TextStyle {
-                    color: Color::srgba(0.0, 0.0, 0.0, 0.96),
-                    font_size: 20.0,
-                    ..default()
-                },
-            );
             parent.spawn((
                 TextBundle {
                     style: Style {
                         align_self: bevy::ui::AlignSelf::Center,
                         ..default()
                     },
-                    text: Text::from_sections([fps_info, game_info, tip]),
+                    text: Text::from_sections([
+                        TextSection::new(
+                            "FPS",
+                            TextStyle {
+                                color: Color::srgba(0.0, 0.0, 0.0, 0.96),
+                                font_size: 12.0,
+                                ..default()
+                            },
+                        ),
+                        TextSection::new(
+                            "GAME INFO",
+                            TextStyle {
+                                color: Color::srgba(0.0, 0.0, 0.0, 0.96),
+                                ..default()
+                            },
+                        ),
+                        TextSection::new(
+                            "TIP",
+                            TextStyle {
+                                color: Color::srgba(0.0, 1.0, 0.0, 0.95),
+                                font_size: 12.0,
+                                ..default()
+                            },
+                        ),
+                    ]),
                     ..default()
                 },
                 GameControl {},
@@ -78,30 +79,36 @@ pub fn setup_game_control(
 
 pub fn user_control(
     mut time: ResMut<Time<Virtual>>,
+    mut dino_query: Query<&mut Dino>,
     window: Query<&Window>,
     keyboard: Res<ButtonInput<KeyCode>>,
     mouse: Res<ButtonInput<MouseButton>>,
     touches: Res<Touches>,
 ) {
     let window = window.single();
-    if window.focused
-        && time.is_paused()
-        && (keyboard.just_pressed(KeyCode::Space)
-            || touches.any_just_pressed()
-            || mouse.just_pressed(MouseButton::Left))
-    {
-        time.unpause();
-    } else if !window.focused && !time.is_paused() {
-        time.pause();
-    };
+    for mut dino in dino_query.iter_mut() {
+        if window.focused
+            && time.is_paused()
+            && (keyboard.just_pressed(KeyCode::Space)
+                || touches.any_just_pressed()
+                || mouse.just_pressed(MouseButton::Left))
+        {
+            dino.start();
+            time.unpause();
+        } else if !window.focused && !time.is_paused() {
+            time.pause();
+        };
+    }
 }
 
 /// Update the ground width, position on window resize, fps and control info
 pub fn fps_info(
-    mut query: Query<&mut Text, With<GameControl>>,
+    mut text_query: Query<&mut Text, With<GameControl>>,
+    dino_query: Query<&Dino>,
     diagnostics: Res<DiagnosticsStore>,
+    time: Res<Time<Virtual>>,
 ) {
-    for mut text in query.iter_mut() {
+    for (mut text, dino) in text_query.iter_mut().zip(dino_query.iter()) {
         let (fps, avg, smoothed) = diagnostics
             .get(&FrameTimeDiagnosticsPlugin::FPS)
             .map(|x| {
@@ -112,19 +119,12 @@ pub fn fps_info(
                 )
             })
             .unwrap_or_default();
-        let fps_info = format!("{fps:.0}|{avg:.0}|{smoothed:.0}");
+        let fps_info = format!("{fps:.0}|{avg:.0}|{smoothed:.0}\n");
         text.sections[0].value = fps_info;
-    }
-}
 
-pub fn game_info(
-    mut query: Query<(&mut Text, &Tree), With<GameControl>>,
-    time: Res<Time<Virtual>>,
-) {
-    for (mut text, tree) in query.iter_mut() {
         let game_info = format!(
-            "Score: {score}, State: {state}",
-            score = tree.score(),
+            "Score: {score:020}, State: {state}\n",
+            score = time.elapsed().as_millis() / 50,
             state = if time.is_paused() {
                 "Paused"
             } else {
@@ -132,11 +132,7 @@ pub fn game_info(
             }
         );
         text.sections[1].value = game_info;
-    }
-}
 
-pub fn tip(mut query: Query<(&mut Text, &Dino), With<GameControl>>) {
-    for (mut text, dino) in query.iter_mut() {
         let tip = if dino.is_over() {
             "Game Over! Press Space to restart"
         } else if dino.is_ready() {
