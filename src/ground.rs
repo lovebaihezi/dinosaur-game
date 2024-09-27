@@ -1,13 +1,12 @@
 use bevy::{
     color::Color,
     math::{Vec2, Vec3},
-    prelude::{default, Commands, Component, EventReader, Query, Transform, With},
+    prelude::{default, Commands, EventReader, Query, Transform, With},
     sprite::{Sprite, SpriteBundle},
     window::{Window, WindowResized},
 };
 
-#[derive(Component)]
-pub struct Ground;
+use crate::components::Ground;
 
 pub fn setup_ground(mut commands: Commands, window: Query<&Window>) {
     // the ground width is the same as the window width
@@ -19,8 +18,8 @@ pub fn setup_ground(mut commands: Commands, window: Query<&Window>) {
     commands.spawn((
         SpriteBundle {
             sprite: Sprite {
-                color: Color::srgba(0.0, 0.0, 0.0, 0.9),
-                custom_size: Some(Vec2::new(window_width, 10.0)),
+                color: Color::srgba(0.0, 0.0, 0.0, 0.95),
+                custom_size: Some(Vec2::new(window_width * 0.8, 1.0)),
                 ..default()
             },
             transform: Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),
@@ -38,7 +37,7 @@ pub fn update_ground(
     for resize_event in resize_reader.read() {
         for (mut transform, sprite) in query.iter_mut() {
             let sprite_width = sprite.custom_size.unwrap().x;
-            transform.scale = Vec3::new(resize_event.width / sprite_width, 1.0, 1.0);
+            transform.scale = Vec3::new(resize_event.width * 0.8 / sprite_width, 1.0, 1.0);
         }
     }
 }
