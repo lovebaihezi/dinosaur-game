@@ -54,6 +54,6 @@ impl Tree {
         self.succeeded
     }
     pub fn speed(&mut self) -> f64 {
-        (self.succeeded as f64).ln()
+        (self.succeeded as f64 + 2.2).ln()
     }
 }

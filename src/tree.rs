@@ -45,7 +45,9 @@ pub fn tree_move_animation(
             tree.dino_passed();
             window_width / 2.0
         } else {
-            transform.translation.x - time.delta_seconds() * (window_width / 3.0 + TREE_WIDTH / 2.0)
+            transform.translation.x
+                - time.delta_seconds()
+                    * (window_width / 3.0 + (TREE_WIDTH / 2.0) * tree.speed() as f32)
         };
     }
 }
