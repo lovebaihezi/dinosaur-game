@@ -9,7 +9,7 @@ use bevy::{
 
 use crate::components::Tree;
 
-const TREE_WIDTH: f32 = 10.0;
+const TREE_WIDTH: f32 = 30.0;
 
 pub fn setup_tree(mut commands: Commands, window: Query<&Window>) {
     let window = window.single();
@@ -45,7 +45,7 @@ pub fn tree_move_animation(
             tree.dino_passed();
             window_width / 2.0
         } else {
-            transform.translation.x - time.delta_seconds() * (window_width / 5.0 + TREE_WIDTH / 2.0)
+            transform.translation.x - time.delta_seconds() * (window_width / 3.0 + TREE_WIDTH / 2.0)
         };
     }
 }

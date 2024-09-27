@@ -12,9 +12,9 @@ use bevy::{
 
 use crate::components::Dino;
 
-const DINO_WIDTH: f32 = 20.0;
+const DINO_WIDTH: f32 = 50.0;
 const DINO_SIZE: Vec2 = Vec2::new(DINO_WIDTH, DINO_WIDTH / 0.618);
-const JUMP_HIGH: f32 = 100.0;
+const JUMP_HIGH: f32 = DINO_WIDTH / 0.618 * 1.5;
 
 pub fn setup_dino(mut commands: Commands) {
     commands.spawn((
@@ -82,7 +82,7 @@ pub fn dino_jump_animation(
             } else {
                 let x = elapsed.as_millis() as f64 / 500.0 * std::f64::consts::PI;
                 let x = x as f32;
-                x.sin() * JUMP_HIGH + DINO_WIDTH / 0.618
+                x.sin() * JUMP_HIGH + DINO_WIDTH / 2.0 / 0.618
             };
             transform.translation.y = y;
         }
