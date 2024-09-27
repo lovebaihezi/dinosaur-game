@@ -2,7 +2,6 @@ use bevy::{
     color::Color,
     diagnostic::{DiagnosticsStore, FrameTimeDiagnosticsPlugin},
     input::ButtonInput,
-    log::info,
     math::Vec3,
     prelude::{
         BuildChildren, Commands, KeyCode, MouseButton, NodeBundle, Query, Res, ResMut, TextBundle,
@@ -10,12 +9,12 @@ use bevy::{
     },
     text::{Text, TextSection, TextStyle},
     time::{Time, Virtual},
-    ui::{GridPlacement, Style},
+    ui::Style,
     utils::default,
     window::Window,
 };
 
-use crate::components::{Dino, GameControl, Tree};
+use crate::components::{Dino, GameControl};
 
 pub fn setup_game_control(
     mut commands: Commands,
