@@ -35,7 +35,6 @@ pub fn cleanup_dino(mut query: Query<(&mut Transform, &mut Dino)>) {
     for (mut transform, mut dino) in query.iter_mut() {
         if dino.is_over() {
             transform.translation.y = DINO_WIDTH / 2.0 / 0.618;
-            dino.ready();
         }
     }
 }
@@ -55,12 +54,14 @@ pub fn dino_pos_fix_system(
 /// Dino will jump when user press space, w, Up, k, or left mouse button
 pub fn dino_jump_system(
     mut dino_query: Query<&mut Dino>,
-    mut tree_query: Query<&mut Tree>,
     keyboard: Res<ButtonInput<KeyCode>>,
     mouse: Res<ButtonInput<MouseButton>>,
     touch: Res<Touches>,
     time: Res<Time<Virtual>>,
 ) {
+    if time.is_paused() {
+        return;
+    }
     if keyboard.just_pressed(KeyCode::Space)
         || keyboard.just_pressed(KeyCode::KeyW)
         || keyboard.just_pressed(KeyCode::ArrowUp)
@@ -68,11 +69,8 @@ pub fn dino_jump_system(
         || mouse.just_pressed(MouseButton::Left)
         || touch.any_just_pressed()
     {
-        for (mut dino, mut tree) in dino_query.iter_mut().zip(tree_query.iter_mut()) {
-            if dino.is_over() {
-                dino.start();
-                tree.start();
-            } else if dino.in_air_start_time.is_some() {
+        for mut dino in dino_query.iter_mut() {
+            if dino.in_air_start_time.is_some() {
                 continue;
             } else {
                 dino.in_air_start_time = Some(*time);
