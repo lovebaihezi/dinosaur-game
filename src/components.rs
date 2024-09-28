@@ -36,7 +36,11 @@ impl Dino {
 }
 
 #[derive(Component)]
-pub struct GameControl {}
+pub enum GameControl {
+    FPS,
+    Score,
+    Tip,
+}
 
 #[derive(Component)]
 pub struct Ground;
