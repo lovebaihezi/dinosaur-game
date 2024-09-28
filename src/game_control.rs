@@ -134,16 +134,13 @@ pub fn fps_info(
         for (mut text, game_control) in text_query.iter_mut() {
             match game_control {
                 GameControl::Tip => {
-                    let game_info = format!(
-                        "{state}",
-                        state = if dino.is_over() {
+                    let game_info = (if dino.is_over() {
                             "Game Over! Press Space to restart"
                         } else if dino.is_ready() {
                             "Press Space to start"
                         } else {
                             "Jump!"
-                        }
-                    );
+                        }).to_string();
                     text.sections[0].value = game_info;
                 }
                 GameControl::Score => {
