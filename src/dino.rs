@@ -76,6 +76,9 @@ pub fn dino_jump_animation(
     time: Res<Time<Virtual>>,
     mut query: Query<(&mut Transform, &mut Dino)>,
 ) {
+    if time.is_paused() {
+        return;
+    }
     for (mut transform, mut dino) in query.iter_mut() {
         if let Some(start_time) = dino.in_air_start_time {
             let elapsed = time.elapsed() - start_time.elapsed();
