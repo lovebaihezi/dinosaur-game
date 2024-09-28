@@ -2,8 +2,8 @@ use bevy::{diagnostic::FrameTimeDiagnosticsPlugin, prelude::*};
 use dinosaur::{
     dino_jump_animation, dino_jump_system, dino_pos_fix_system, fps_info,
     game_logic::{dino_touched_tree, reset_game},
-    setup_camera, setup_dino, setup_game_control, setup_ground, setup_tree, tree_move_animation,
-    update_ground, user_control,
+    reset_tree, setup_camera, setup_dino, setup_game_control, setup_ground, setup_tree,
+    tree_move_animation, update_ground, user_control,
 };
 
 fn main() {
@@ -29,7 +29,7 @@ fn main() {
                 (dino_pos_fix_system, dino_jump_animation).chain(),
                 tree_move_animation,
                 dino_touched_tree,
-                reset_game,
+                (reset_game, reset_tree).chain(),
             ),
         )
         .run();
