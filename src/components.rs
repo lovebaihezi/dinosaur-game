@@ -18,6 +18,9 @@ pub struct Dino {
 }
 
 impl Dino {
+    pub fn ready(&mut self) {
+        self.state = GameState::Ready;
+    }
     pub fn start(&mut self) {
         self.state = GameState::Playing;
     }

@@ -31,6 +31,15 @@ pub fn setup_dino(mut commands: Commands) {
     ));
 }
 
+pub fn cleanup_dino(mut query: Query<(&mut Transform, &mut Dino)>) {
+    for (mut transform, mut dino) in query.iter_mut() {
+        if dino.is_over() {
+            transform.translation.y = DINO_WIDTH / 2.0 / 0.618;
+            dino.ready();
+        }
+    }
+}
+
 pub fn dino_pos_fix_system(
     mut query: Query<(&mut Transform, &Sprite), With<Dino>>,
     mut events: EventReader<WindowResized>,
