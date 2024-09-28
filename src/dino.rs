@@ -7,7 +7,7 @@ use bevy::{
     },
     sprite::{Sprite, SpriteBundle},
     time::{Time, Virtual},
-    window::{Window, WindowResized},
+    window::WindowResized,
 };
 
 use crate::components::{Dino, Tree};
@@ -63,12 +63,10 @@ pub fn dino_jump_system(
             if dino.is_over() {
                 dino.start();
                 tree.start();
+            } else if dino.in_air_start_time.is_some() {
+                continue;
             } else {
-                if dino.in_air_start_time.is_some() {
-                    continue;
-                } else {
-                    dino.in_air_start_time = Some(*time);
-                }
+                dino.in_air_start_time = Some(*time);
             }
         }
     }
