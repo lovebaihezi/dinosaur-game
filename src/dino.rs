@@ -10,7 +10,7 @@ use bevy::{
     window::WindowResized,
 };
 
-use crate::components::{Dino, Tree};
+use crate::components::Dino;
 
 const DINO_WIDTH: f32 = 50.0;
 const DINO_SIZE: Vec2 = Vec2::new(DINO_WIDTH, DINO_WIDTH / 0.618);
@@ -29,14 +29,6 @@ pub fn setup_dino(mut commands: Commands) {
         },
         Dino::default(),
     ));
-}
-
-pub fn cleanup_dino(mut query: Query<(&mut Transform, &mut Dino)>) {
-    for (mut transform, mut dino) in query.iter_mut() {
-        if dino.is_over() {
-            transform.translation.y = DINO_WIDTH / 2.0 / 0.618;
-        }
-    }
 }
 
 pub fn dino_pos_fix_system(

@@ -32,3 +32,24 @@ pub fn dino_touched_tree(
         }
     }
 }
+
+pub fn reset_game(
+    mut query: Query<(&mut Dino)>,
+    mut tree: Query<(&mut Tree)>,
+    keyboard: Res<ButtonInput<KeyCode>>,
+    mouse: Res<ButtonInput<MouseButton>>,
+    touch: Res<Touches>,
+) {
+    let press_reset = keyboard.just_pressed(KeyCode::Space)
+        || keyboard.just_pressed(KeyCode::KeyW)
+        || keyboard.just_pressed(KeyCode::ArrowUp)
+        || keyboard.just_pressed(KeyCode::KeyK)
+        || mouse.just_pressed(MouseButton::Left)
+        || touch.any_just_pressed();
+    for (mut dino, mut tree) in query.iter_mut().zip(tree.iter_mut()) {
+        if press_reset && dino.is_over() {
+            dino.ready();
+            tree.ready();
+        }
+    }
+}

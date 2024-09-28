@@ -15,10 +15,13 @@ pub enum GameState {
 pub struct Dino {
     pub in_air_start_time: Option<Time<Virtual>>,
     state: GameState,
+    score: u128,
 }
 
 impl Dino {
     pub fn ready(&mut self) {
+        self.in_air_start_time = None;
+        self.score = 0;
         self.state = GameState::Ready;
     }
     pub fn start(&mut self) {
@@ -51,26 +54,19 @@ pub struct Ground;
 #[derive(Component, Default)]
 pub struct Tree {
     succeeded: usize,
-    score: u64,
 }
 
 impl Tree {
     pub fn dino_passed(&mut self) {
         self.succeeded += 1;
     }
-    pub fn score(&self) -> u64 {
-        self.score
-    }
     pub fn over(&mut self) {
         self.succeeded = 0;
     }
-    pub fn start(&mut self) {
+    pub fn ready(&mut self) {
         self.succeeded = 0;
-        self.score = 0;
     }
-    pub fn update_score(&mut self, new_score: u64) {
-        self.score = new_score;
-    }
+    pub fn start(&mut self) {}
     pub fn speed(&mut self) -> f64 {
         (self.succeeded as f64 + 2.2).ln()
     }
