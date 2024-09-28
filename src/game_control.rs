@@ -5,9 +5,9 @@ use bevy::{
     math::Vec3,
     prelude::{
         BuildChildren, Commands, KeyCode, MouseButton, NodeBundle, Query, Res, ResMut, TextBundle,
-        Touches, Transform, With,
+        Touches, Transform,
     },
-    text::{Text, TextSection, TextStyle},
+    text::{Text, TextStyle},
     time::{Time, Virtual},
     ui::Style,
     utils::default,
@@ -29,7 +29,14 @@ pub fn setup_game_control(
 
     commands
         .spawn((NodeBundle {
-            style: Style { ..default() },
+            style: Style {
+                width: bevy::ui::Val::Vw(100.0),
+                height: bevy::ui::Val::Auto,
+                align_items: bevy::ui::AlignItems::Center,
+                justify_content: bevy::ui::JustifyContent::SpaceAround,
+                display: bevy::ui::Display::Flex,
+                ..default()
+            },
             transform: Transform::from_translation(Vec3::new(
                 -window_width / 2.0,
                 -window_height / 2.0,
@@ -44,34 +51,50 @@ pub fn setup_game_control(
                         align_self: bevy::ui::AlignSelf::Center,
                         ..default()
                     },
-                    text: Text::from_sections([
-                        TextSection::new(
-                            "FPS",
-                            TextStyle {
-                                color: Color::srgba(0.0, 0.0, 0.0, 0.96),
-                                font_size: 12.0,
-                                ..default()
-                            },
-                        ),
-                        TextSection::new(
-                            "GAME INFO",
-                            TextStyle {
-                                color: Color::srgba(0.0, 0.0, 0.0, 0.96),
-                                ..default()
-                            },
-                        ),
-                        TextSection::new(
-                            "TIP",
-                            TextStyle {
-                                color: Color::srgba(0.0, 1.0, 0.0, 0.95),
-                                font_size: 12.0,
-                                ..default()
-                            },
-                        ),
-                    ]),
+                    text: Text::from_section(
+                        "ERROR",
+                        TextStyle {
+                            color: Color::srgba(0.0, 0.0, 0.0, 0.96),
+                            ..default()
+                        },
+                    ),
                     ..default()
                 },
-                GameControl {},
+                GameControl::FPS,
+            ));
+            parent.spawn((
+                TextBundle {
+                    style: Style {
+                        align_self: bevy::ui::AlignSelf::Center,
+                        ..default()
+                    },
+                    text: Text::from_section(
+                        "ERROR",
+                        TextStyle {
+                            color: Color::srgba(0.0, 0.0, 0.0, 0.96),
+                            ..default()
+                        },
+                    ),
+                    ..default()
+                },
+                GameControl::Score,
+            ));
+            parent.spawn((
+                TextBundle {
+                    style: Style {
+                        align_self: bevy::ui::AlignSelf::Center,
+                        ..default()
+                    },
+                    text: Text::from_section(
+                        "ERROR",
+                        TextStyle {
+                            color: Color::srgba(0.0, 0.0, 0.0, 0.96),
+                            ..default()
+                        },
+                    ),
+                    ..default()
+                },
+                GameControl::Tip,
             ));
         });
 }
@@ -102,43 +125,46 @@ pub fn user_control(
 
 /// Update the ground width, position on window resize, fps and control info
 pub fn fps_info(
-    mut text_query: Query<&mut Text, With<GameControl>>,
+    time: Res<Time<Virtual>>,
+    mut text_query: Query<(&mut Text, &GameControl)>,
     dino_query: Query<&Dino>,
     diagnostics: Res<DiagnosticsStore>,
-    time: Res<Time<Virtual>>,
 ) {
-    for (mut text, dino) in text_query.iter_mut().zip(dino_query.iter()) {
-        let (fps, avg, smoothed) = diagnostics
-            .get(&FrameTimeDiagnosticsPlugin::FPS)
-            .map(|x| {
-                (
-                    x.value().unwrap_or_default(),
-                    x.average().unwrap_or_default(),
-                    x.smoothed().unwrap_or_default(),
-                )
-            })
-            .unwrap_or_default();
-        let fps_info = format!("{fps:.0}|{avg:.0}|{smoothed:.0}\n");
-        text.sections[0].value = fps_info;
-
-        let game_info = format!(
-            "Score: {score:020}, State: {state}\n",
-            score = time.elapsed().as_millis() / 50,
-            state = if time.is_paused() {
-                "Paused"
-            } else {
-                "Running"
+    for dino in dino_query.iter() {
+        for (mut text, game_control) in text_query.iter_mut() {
+            match game_control {
+                GameControl::Tip => {
+                    let game_info = format!(
+                        "{state}",
+                        state = if dino.is_over() {
+                            "Game Over! Press Space to restart"
+                        } else if dino.is_ready() {
+                            "Press Space to start"
+                        } else {
+                            "Jump!"
+                        }
+                    );
+                    text.sections[0].value = game_info;
+                }
+                GameControl::Score => {
+                    let score = time.elapsed().as_millis() >> 6;
+                    text.sections[0].value = format!("{score:012}");
+                }
+                GameControl::FPS => {
+                    let (fps, avg, smoothed) = diagnostics
+                        .get(&FrameTimeDiagnosticsPlugin::FPS)
+                        .map(|x| {
+                            (
+                                x.value().unwrap_or_default(),
+                                x.average().unwrap_or_default(),
+                                x.smoothed().unwrap_or_default(),
+                            )
+                        })
+                        .unwrap_or_default();
+                    let fps_info = format!("{fps:.0}|{avg:.0}|{smoothed:.0}");
+                    text.sections[0].value = fps_info;
+                }
             }
-        );
-        text.sections[1].value = game_info;
-
-        let tip = if dino.is_over() {
-            "Game Over! Press Space to restart"
-        } else if dino.is_ready() {
-            "Press Space to start"
-        } else {
-            "Jump!"
-        };
-        text.sections[2].value = tip.to_owned();
+        }
     }
 }
