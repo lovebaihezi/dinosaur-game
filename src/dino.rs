@@ -7,10 +7,10 @@ use bevy::{
     },
     sprite::{Sprite, SpriteBundle},
     time::{Time, Virtual},
-    window::WindowResized,
+    window::{Window, WindowResized},
 };
 
-use crate::components::Dino;
+use crate::components::{Dino, Tree};
 
 const DINO_WIDTH: f32 = 50.0;
 const DINO_SIZE: Vec2 = Vec2::new(DINO_WIDTH, DINO_WIDTH / 0.618);
@@ -45,7 +45,8 @@ pub fn dino_pos_fix_system(
 
 /// Dino will jump when user press space, w, Up, k, or left mouse button
 pub fn dino_jump_system(
-    mut query: Query<&mut Dino>,
+    mut dino_query: Query<&mut Dino>,
+    mut tree_query: Query<&mut Tree>,
     keyboard: Res<ButtonInput<KeyCode>>,
     mouse: Res<ButtonInput<MouseButton>>,
     touch: Res<Touches>,
@@ -58,11 +59,16 @@ pub fn dino_jump_system(
         || mouse.just_pressed(MouseButton::Left)
         || touch.any_just_pressed()
     {
-        for mut dino in query.iter_mut() {
-            if dino.in_air_start_time.is_some() {
-                continue;
+        for (mut dino, mut tree) in dino_query.iter_mut().zip(tree_query.iter_mut()) {
+            if dino.is_over() {
+                dino.start();
+                tree.start();
             } else {
-                dino.in_air_start_time = Some(*time);
+                if dino.in_air_start_time.is_some() {
+                    continue;
+                } else {
+                    dino.in_air_start_time = Some(*time);
+                }
             }
         }
     }
