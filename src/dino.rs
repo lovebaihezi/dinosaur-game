@@ -38,7 +38,7 @@ pub fn dino_pos_fix_system(
     for e in events.read() {
         for (mut transform, _sprite) in query.iter_mut() {
             let window_width = e.width;
-            transform.translation.x = -window_width / 2.0 + DINO_WIDTH / 2.0 + 0.1 * window_width;
+            transform.translation.x = -window_width / 2.0 + DINO_WIDTH / 2.0 + 0.2 * window_width;
         }
     }
 }
