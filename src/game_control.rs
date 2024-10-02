@@ -123,8 +123,7 @@ pub fn user_control(
     }
 }
 
-/// Update the ground width, position on window resize, fps and control info
-pub fn fps_info(
+pub fn game_info(
     time: Res<Time<Virtual>>,
     mut text_query: Query<(&mut Text, &GameControl)>,
     dino_query: Query<&Dino>,
