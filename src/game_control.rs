@@ -4,8 +4,8 @@ use bevy::{
     input::ButtonInput,
     math::Vec3,
     prelude::{
-        BuildChildren, Commands, KeyCode, MouseButton, NodeBundle, Query, Res, ResMut, TextBundle,
-        Touches, Transform,
+        BuildChildren, Commands, KeyCode, Local, MouseButton, NodeBundle, Query, Res, ResMut,
+        TextBundle, Touches, Transform,
     },
     text::{Text, TextStyle},
     time::{Time, Virtual},
@@ -128,8 +128,13 @@ pub fn game_info(
     mut text_query: Query<(&mut Text, &GameControl)>,
     dino_query: Query<&Dino>,
     diagnostics: Res<DiagnosticsStore>,
+    mut score: Local<u128>,
 ) {
+    *score += 1;
     for dino in dino_query.iter() {
+        if dino.is_over() {
+            *score = 0;
+        }
         for (mut text, game_control) in text_query.iter_mut() {
             match game_control {
                 GameControl::Tip => {
@@ -144,7 +149,6 @@ pub fn game_info(
                     text.sections[0].value = game_info;
                 }
                 GameControl::Score => {
-                    let score = time.elapsed().as_millis() >> 6;
                     text.sections[0].value = format!("{score:012}");
                 }
                 GameControl::FPS => {
