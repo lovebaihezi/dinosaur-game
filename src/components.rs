@@ -15,7 +15,6 @@ pub enum GameState {
 pub struct Dino {
     pub in_air_start_time: Option<Time<Virtual>>,
     state: GameState,
-    score: u128,
 }
 
 impl Dino {
@@ -23,12 +22,6 @@ impl Dino {
         self.in_air_start_time = None;
         self.score = 0;
         self.state = GameState::Ready;
-    }
-    pub fn score(&self) -> u128 {
-        self.score
-    }
-    pub fn update_score(&mut self, score: u128) {
-        self.score = score;
     }
     pub fn start(&mut self) {
         self.state = GameState::Playing;
