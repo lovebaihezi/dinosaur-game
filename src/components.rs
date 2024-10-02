@@ -20,7 +20,6 @@ pub struct Dino {
 impl Dino {
     pub fn ready(&mut self) {
         self.in_air_start_time = None;
-        self.score = 0;
         self.state = GameState::Ready;
     }
     pub fn start(&mut self) {
