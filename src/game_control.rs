@@ -124,7 +124,6 @@ pub fn user_control(
 }
 
 pub fn game_info(
-    time: Res<Time<Virtual>>,
     mut text_query: Query<(&mut Text, &GameControl)>,
     dino_query: Query<&Dino>,
     diagnostics: Res<DiagnosticsStore>,
