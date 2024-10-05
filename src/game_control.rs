@@ -128,7 +128,7 @@ pub fn game_info(
     mut text_query: Query<(&mut Text, &GameControl)>,
     dino_query: Query<&Dino>,
     diagnostics: Res<DiagnosticsStore>,
-    mut score: Local<u128>,
+    mut score: Local<u64>,
 ) {
     *score += 1;
     for dino in dino_query.iter() {
@@ -149,7 +149,8 @@ pub fn game_info(
                     text.sections[0].value = game_info;
                 }
                 GameControl::Score => {
-                    text.sections[0].value = format!("{score:012}");
+                    let value: u64 = *score >> 3;
+                    text.sections[0].value = format!("{value:012}");
                 }
                 GameControl::FPS => {
                     let (fps, avg, smoothed) = diagnostics
