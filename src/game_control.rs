@@ -27,6 +27,44 @@ pub fn setup_game_control(
     let window_width = window.width();
     let window_height = window.height();
 
+    const GIT_HASH: &str = env!("GIT_HASH");
+    const CARGO_PKG_VERSION: &str = env!("CARGO_PKG_VERSION");
+    const GAME_VERSION: &str = concat!(env!("CARGO_PKG_VERSION"), "-", env!("GIT_HASH"));
+
+    commands
+        .spawn(NodeBundle {
+            style: Style {
+                width: bevy::ui::Val::Px(100.0),
+                height: bevy::ui::Val::Px(100.0),
+                align_items: bevy::ui::AlignItems::Center,
+                justify_content: bevy::ui::JustifyContent::Center,
+                display: bevy::ui::Display::Flex,
+                ..default()
+            },
+            transform: Transform::from_translation(Vec3::new(
+                -window_width / 2.0,
+                window_height / 2.0,
+                0.0,
+            )),
+            ..default()
+        })
+        .with_children(|parent| {
+            parent.spawn(TextBundle {
+                style: Style {
+                    align_self: bevy::ui::AlignSelf::Center,
+                    ..default()
+                },
+                text: Text::from_section(
+                    GAME_VERSION,
+                    TextStyle {
+                        color: Color::srgba(0.0, 1.0, 1.0, 0.8),
+                        ..default()
+                    },
+                ),
+                ..default()
+            })
+        });
+
     commands
         .spawn((NodeBundle {
             style: Style {

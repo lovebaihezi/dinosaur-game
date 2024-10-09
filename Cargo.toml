@@ -1,7 +1,8 @@
 [package]
 name = "dinosaur"
-version = "0.1.0"
+version = "0.0.3"
 edition = "2021"
+build = "build.rs"
 
 [dependencies]
 bevy = { version = "0.14.2", features = ["wayland"] }
