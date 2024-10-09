@@ -130,10 +130,9 @@ pub fn game_info(
     mut score: Local<u64>,
     time: Res<Time<Virtual>>,
 ) {
-    if time.is_paused() {
-        return;
+    if !time.is_paused() {
+        *score += 1;
     }
-    *score += 1;
     for dino in dino_query.iter() {
         if dino.is_over() {
             *score = 0;
