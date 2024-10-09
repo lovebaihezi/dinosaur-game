@@ -50,7 +50,6 @@ impl Dino {
 pub enum GameControl {
     FPS,
     Score,
-    Tip,
 }
 
 #[derive(Component)]

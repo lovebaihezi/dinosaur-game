@@ -79,23 +79,23 @@ pub fn setup_game_control(
                 },
                 GameControl::Score,
             ));
-            parent.spawn((
-                TextBundle {
-                    style: Style {
-                        align_self: bevy::ui::AlignSelf::Center,
-                        ..default()
-                    },
-                    text: Text::from_section(
-                        "ERROR",
-                        TextStyle {
-                            color: Color::srgba(0.0, 0.0, 0.0, 0.96),
-                            ..default()
-                        },
-                    ),
-                    ..default()
-                },
-                GameControl::Tip,
-            ));
+            // parent.spawn((
+            //     TextBundle {
+            //         style: Style {
+            //             align_self: bevy::ui::AlignSelf::Center,
+            //             ..default()
+            //         },
+            //         text: Text::from_section(
+            //             "ERROR",
+            //             TextStyle {
+            //                 color: Color::srgba(0.0, 0.0, 0.0, 0.96),
+            //                 ..default()
+            //             },
+            //         ),
+            //         ..default()
+            //     },
+            //     GameControl::Tip,
+            // ));
         });
 }
 
@@ -139,17 +139,6 @@ pub fn game_info(
         }
         for (mut text, game_control) in text_query.iter_mut() {
             match game_control {
-                GameControl::Tip => {
-                    let game_info = (if dino.is_over() {
-                        "Game Over! Press Space to restart"
-                    } else if dino.is_ready() {
-                        "Press Space to start"
-                    } else {
-                        "Jump!"
-                    })
-                    .to_string();
-                    text.sections[0].value = game_info;
-                }
                 GameControl::Score => {
                     let value: u64 = *score >> 3;
                     text.sections[0].value = format!("{value:012}");
