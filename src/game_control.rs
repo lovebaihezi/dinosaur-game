@@ -31,7 +31,12 @@ fn base_node() -> NodeBundle {
 }
 
 fn version_bundle() -> TextBundle {
-    const GAME_VERSION: &str = concat!(env!("CARGO_PKG_VERSION"), "-", env!("GIT_HASH"));
+    const GAME_VERSION: &str = concat!(
+        "game_version: ",
+        env!("CARGO_PKG_VERSION"),
+        "-",
+        env!("GIT_HASH")
+    );
 
     TextBundle {
         style: Style {
@@ -41,8 +46,8 @@ fn version_bundle() -> TextBundle {
         text: Text::from_section(
             GAME_VERSION,
             TextStyle {
-                color: Color::srgba(0.0, 1.0, 1.0, 0.8),
-                font_size: 10.0,
+                color: Color::srgba(0.0, 0.0, 0.0, 1.0),
+                font_size: 12.0,
                 ..default()
             },
         ),
