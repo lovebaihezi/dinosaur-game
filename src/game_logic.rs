@@ -36,8 +36,8 @@ pub fn dino_touched_tree(
 }
 
 pub fn reset_game(
-    mut dino_query: Query<(&mut Dino, &mut Transform)>,
-    mut tree_query: Query<(&mut Tree, &mut Transform)>,
+    mut dino_query: Query<(&mut Dino, &mut Transform), Without<Tree>>,
+    mut tree_query: Query<(&mut Tree, &mut Transform), Without<Dino>>,
     keyboard: Res<ButtonInput<KeyCode>>,
     mouse: Res<ButtonInput<MouseButton>>,
     touch: Res<Touches>,
