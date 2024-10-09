@@ -1,8 +1,11 @@
 name: Build All On All Possible Platforms
 
+# Also run on Tag created
 on:
   push:
     branches: [main]
+    tags:
+      - "*"
   pull_request:
     branches: [main]
 
