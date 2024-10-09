@@ -2,10 +2,9 @@ use bevy::{
     color::Color,
     diagnostic::{DiagnosticsStore, FrameTimeDiagnosticsPlugin},
     input::ButtonInput,
-    math::Vec3,
     prelude::{
         BuildChildren, Commands, KeyCode, Local, MouseButton, NodeBundle, Query, Res, ResMut,
-        TextBundle, Touches, Transform,
+        TextBundle, Touches,
     },
     text::{Text, TextStyle},
     time::{Time, Virtual},
@@ -16,87 +15,131 @@ use bevy::{
 
 use crate::components::{Dino, GameControl};
 
-pub fn setup_game_control(
-    mut commands: Commands,
-    mut time: ResMut<Time<Virtual>>,
-    window: Query<&Window>,
-) {
-    time.pause();
+fn base_node() -> NodeBundle {
+    NodeBundle {
+        style: Style {
+            display: bevy::ui::Display::Flex,
+            width: bevy::ui::Val::Vw(100.0),
+            height: bevy::ui::Val::Vh(100.0),
+            align_items: bevy::ui::AlignItems::Center,
+            justify_content: bevy::ui::JustifyContent::SpaceBetween,
+            flex_direction: bevy::ui::FlexDirection::Column,
+            ..default()
+        },
+        ..default()
+    }
+}
 
-    let window = window.single();
-    let window_width = window.width();
-    let window_height = window.height();
+fn version_bundle() -> TextBundle {
+    const GAME_VERSION: &str = concat!(
+        "game_version: ",
+        env!("CARGO_PKG_VERSION"),
+        "-",
+        env!("GIT_HASH")
+    );
 
-    commands
-        .spawn((NodeBundle {
-            style: Style {
-                width: bevy::ui::Val::Vw(100.0),
-                height: bevy::ui::Val::Auto,
-                align_items: bevy::ui::AlignItems::Center,
-                justify_content: bevy::ui::JustifyContent::SpaceAround,
-                display: bevy::ui::Display::Flex,
+    TextBundle {
+        style: Style {
+            align_self: bevy::ui::AlignSelf::Center,
+            ..default()
+        },
+        text: Text::from_section(
+            GAME_VERSION,
+            TextStyle {
+                color: Color::srgba(0.0, 0.0, 0.0, 1.0),
+                font_size: 12.0,
                 ..default()
             },
-            transform: Transform::from_translation(Vec3::new(
-                -window_width / 2.0,
-                -window_height / 2.0,
-                0.0,
-            )),
+        ),
+        ..default()
+    }
+}
+
+fn branch_boundle() -> TextBundle {
+    let branch = env!("GIT_BRANCH");
+    TextBundle {
+        style: Style {
+            align_self: bevy::ui::AlignSelf::Center,
             ..default()
-        },))
-        .with_children(|parent| {
-            parent.spawn((
-                TextBundle {
-                    style: Style {
-                        align_self: bevy::ui::AlignSelf::Center,
-                        ..default()
-                    },
-                    text: Text::from_section(
-                        "ERROR",
-                        TextStyle {
-                            color: Color::srgba(0.0, 0.0, 0.0, 0.96),
-                            ..default()
-                        },
-                    ),
+        },
+        text: Text::from_section(
+            branch,
+            TextStyle {
+                color: Color::srgba(0.0, 0.0, 0.0, 1.0),
+                font_size: 12.0,
+                ..default()
+            },
+        ),
+        ..default()
+    }
+}
+
+fn fps_bundle() -> (TextBundle, GameControl) {
+    (
+        TextBundle {
+            style: Style {
+                align_self: bevy::ui::AlignSelf::Center,
+                ..default()
+            },
+            text: Text::from_section(
+                "ERROR",
+                TextStyle {
+                    color: Color::srgba(0.0, 0.0, 0.0, 0.96),
                     ..default()
                 },
-                GameControl::FPS,
-            ));
-            parent.spawn((
-                TextBundle {
-                    style: Style {
-                        align_self: bevy::ui::AlignSelf::Center,
-                        ..default()
-                    },
-                    text: Text::from_section(
-                        "ERROR",
-                        TextStyle {
-                            color: Color::srgba(0.0, 0.0, 0.0, 0.96),
-                            ..default()
-                        },
-                    ),
+            ),
+            ..default()
+        },
+        GameControl::FPS,
+    )
+}
+
+fn score_bundle() -> (TextBundle, GameControl) {
+    (
+        TextBundle {
+            style: Style {
+                align_self: bevy::ui::AlignSelf::Center,
+                ..default()
+            },
+            text: Text::from_section(
+                "ERROR",
+                TextStyle {
+                    color: Color::srgba(0.0, 0.0, 0.0, 0.96),
                     ..default()
                 },
-                GameControl::Score,
-            ));
-            // parent.spawn((
-            //     TextBundle {
-            //         style: Style {
-            //             align_self: bevy::ui::AlignSelf::Center,
-            //             ..default()
-            //         },
-            //         text: Text::from_section(
-            //             "ERROR",
-            //             TextStyle {
-            //                 color: Color::srgba(0.0, 0.0, 0.0, 0.96),
-            //                 ..default()
-            //             },
-            //         ),
-            //         ..default()
-            //     },
-            //     GameControl::Tip,
-            // ));
+            ),
+            ..default()
+        },
+        GameControl::Score,
+    )
+}
+
+fn banner() -> NodeBundle {
+    NodeBundle {
+        style: Style {
+            width: bevy::ui::Val::Vw(100.0),
+            height: bevy::ui::Val::Auto,
+            align_items: bevy::ui::AlignItems::Center,
+            justify_content: bevy::ui::JustifyContent::SpaceAround,
+            display: bevy::ui::Display::Flex,
+            ..default()
+        },
+        ..default()
+    }
+}
+
+pub fn setup_game_control(mut commands: Commands, mut time: ResMut<Time<Virtual>>) {
+    time.pause();
+    commands.spawn(base_node()).with_children(|parent| {
+        parent.spawn(banner()).with_children(|parent| {
+            parent.spawn(fps_bundle());
+            parent.spawn(score_bundle());
         });
+        parent.spawn(banner()).with_children(|parent| {
+            parent.spawn(version_bundle());
+            parent.spawn(branch_boundle());
+        });
+    });
 }
 
 pub fn user_control(
