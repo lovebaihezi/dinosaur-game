@@ -1,7 +1,7 @@
 use bevy::{
     color::Color,
     input::ButtonInput,
-    math::{Vec2, Vec3},
+    math::Vec3,
     prelude::{
         default, Commands, EventReader, KeyCode, MouseButton, Query, Res, Touches, Transform, With,
     },
@@ -10,11 +10,7 @@ use bevy::{
     window::WindowResized,
 };
 
-use crate::components::Dino;
-
-const DINO_WIDTH: f32 = 50.0;
-const DINO_SIZE: Vec2 = Vec2::new(DINO_WIDTH, DINO_WIDTH / 0.618);
-const JUMP_HIGH: f32 = DINO_WIDTH / 0.618 * 2.4;
+use crate::components::{Dino, DINO_SIZE, DINO_WIDTH, JUMP_HIGH};
 
 pub fn setup_dino(mut commands: Commands) {
     commands.spawn((
@@ -38,19 +34,22 @@ pub fn dino_pos_fix_system(
     for e in events.read() {
         for (mut transform, _sprite) in query.iter_mut() {
             let window_width = e.width;
-            transform.translation.x = -window_width / 2.0 + DINO_WIDTH / 2.0 + 0.1 * window_width;
+            transform.translation.x = -window_width / 2.0 + DINO_WIDTH / 2.0 + 0.2 * window_width;
         }
     }
 }
 
 /// Dino will jump when user press space, w, Up, k, or left mouse button
 pub fn dino_jump_system(
-    mut query: Query<&mut Dino>,
+    mut dino_query: Query<&mut Dino>,
     keyboard: Res<ButtonInput<KeyCode>>,
     mouse: Res<ButtonInput<MouseButton>>,
     touch: Res<Touches>,
     time: Res<Time<Virtual>>,
 ) {
+    if time.is_paused() {
+        return;
+    }
     if keyboard.just_pressed(KeyCode::Space)
         || keyboard.just_pressed(KeyCode::KeyW)
         || keyboard.just_pressed(KeyCode::ArrowUp)
@@ -58,7 +57,7 @@ pub fn dino_jump_system(
         || mouse.just_pressed(MouseButton::Left)
         || touch.any_just_pressed()
     {
-        for mut dino in query.iter_mut() {
+        for mut dino in dino_query.iter_mut() {
             if dino.in_air_start_time.is_some() {
                 continue;
             } else {
@@ -72,6 +71,9 @@ pub fn dino_jump_animation(
     time: Res<Time<Virtual>>,
     mut query: Query<(&mut Transform, &mut Dino)>,
 ) {
+    if time.is_paused() {
+        return;
+    }
     for (mut transform, mut dino) in query.iter_mut() {
         if let Some(start_time) = dino.in_air_start_time {
             let elapsed = time.elapsed() - start_time.elapsed();

@@ -1,7 +1,14 @@
 use bevy::{
+    math::Vec2,
     prelude::Component,
     time::{Time, Virtual},
 };
+
+pub const TREE_WIDTH: f32 = 30.0;
+pub const DINO_WIDTH: f32 = 50.0;
+pub const DINO_HEIGHT: f32 = DINO_WIDTH / 0.618;
+pub const DINO_SIZE: Vec2 = Vec2::new(DINO_WIDTH, DINO_WIDTH / 0.618);
+pub const JUMP_HIGH: f32 = DINO_WIDTH / 0.618 * 2.4;
 
 #[derive(Default)]
 pub enum GameState {
@@ -18,6 +25,10 @@ pub struct Dino {
 }
 
 impl Dino {
+    pub fn ready(&mut self) {
+        self.in_air_start_time = None;
+        self.state = GameState::Ready;
+    }
     pub fn start(&mut self) {
         self.state = GameState::Playing;
     }
@@ -39,7 +50,6 @@ impl Dino {
 pub enum GameControl {
     FPS,
     Score,
-    Tip,
 }
 
 #[derive(Component)]
@@ -54,9 +64,13 @@ impl Tree {
     pub fn dino_passed(&mut self) {
         self.succeeded += 1;
     }
-    pub fn score(&self) -> usize {
-        self.succeeded
+    pub fn over(&mut self) {
+        self.succeeded = 0;
     }
+    pub fn ready(&mut self) {
+        self.succeeded = 0;
+    }
+    pub fn start(&mut self) {}
     pub fn speed(&mut self) -> f64 {
         (self.succeeded as f64 + 2.2).ln()
     }

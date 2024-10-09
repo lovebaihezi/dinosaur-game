@@ -1,15 +1,13 @@
 use bevy::{
     color::Color,
     math::{Vec2, Vec3},
-    prelude::{default, Commands, Query, Res, Transform},
+    prelude::{default, Commands, Query, Res, Transform, With},
     sprite::{Sprite, SpriteBundle},
     time::{Time, Virtual},
     window::Window,
 };
 
-use crate::components::Tree;
-
-const TREE_WIDTH: f32 = 30.0;
+use crate::components::{Dino, Tree, TREE_WIDTH};
 
 pub fn setup_tree(mut commands: Commands, window: Query<&Window>) {
     let window = window.single();
@@ -33,14 +31,31 @@ pub fn setup_tree(mut commands: Commands, window: Query<&Window>) {
     ));
 }
 
-pub fn tree_move_animation(
-    mut query: Query<(&mut Transform, &mut Tree)>,
-    time: Res<Time<Virtual>>,
+pub fn reset_tree(
+    dino_query: Query<&Dino>,
+    mut query: Query<&mut Transform, With<Tree>>,
     window: Query<&Window>,
 ) {
     let window = window.single();
     let window_width = window.width();
-    for (mut transform, mut tree) in query.iter_mut() {
+    for (dino, mut transform) in dino_query.iter().zip(query.iter_mut()) {
+        if dino.is_ready() {
+            transform.translation.x = window_width - TREE_WIDTH;
+        }
+    }
+}
+
+pub fn tree_move_animation(
+    mut tree_query: Query<(&mut Transform, &mut Tree)>,
+    time: Res<Time<Virtual>>,
+    window: Query<&Window>,
+) {
+    if time.is_paused() {
+        return;
+    }
+    let window = window.single();
+    let window_width = window.width();
+    for (mut transform, mut tree) in tree_query.iter_mut() {
         transform.translation.x = if transform.translation.x < -window_width * 0.8 / 2.0 {
             tree.dino_passed();
             window_width * 0.8 / 2.0
