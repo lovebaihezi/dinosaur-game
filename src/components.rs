@@ -1,4 +1,5 @@
 use bevy::{
+    math::Vec2,
     prelude::Component,
     time::{Time, Virtual},
 };

@@ -1,7 +1,7 @@
 use bevy::{
     color::Color,
     input::ButtonInput,
-    math::{Vec2, Vec3},
+    math::Vec3,
     prelude::{
         default, Commands, EventReader, KeyCode, MouseButton, Query, Res, Touches, Transform, With,
     },
@@ -10,7 +10,7 @@ use bevy::{
     window::WindowResized,
 };
 
-use crate::components::{Dino, DINO_WIDTH};
+use crate::components::{Dino, DINO_SIZE, DINO_WIDTH, JUMP_HIGH};
 
 pub fn setup_dino(mut commands: Commands) {
     commands.spawn((
