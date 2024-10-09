@@ -55,6 +55,25 @@ fn version_bundle() -> TextBundle {
     }
 }
 
+fn branch_boundle() -> TextBundle {
+    let branch = env!("GIT_BRANCH");
+    TextBundle {
+        style: Style {
+            align_self: bevy::ui::AlignSelf::Center,
+            ..default()
+        },
+        text: Text::from_section(
+            branch,
+            TextStyle {
+                color: Color::srgba(0.0, 0.0, 0.0, 1.0),
+                font_size: 12.0,
+                ..default()
+            },
+        ),
+        ..default()
+    }
+}
+
 fn fps_bundle() -> (TextBundle, GameControl) {
     (
         TextBundle {
@@ -118,6 +137,7 @@ pub fn setup_game_control(mut commands: Commands, mut time: ResMut<Time<Virtual>
         });
         parent.spawn(banner()).with_children(|parent| {
             parent.spawn(version_bundle());
+            parent.spawn(branch_boundle());
         });
     });
 }
