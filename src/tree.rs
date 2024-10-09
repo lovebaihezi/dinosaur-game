@@ -7,9 +7,7 @@ use bevy::{
     window::Window,
 };
 
-use crate::components::{Dino, Tree};
-
-const TREE_WIDTH: f32 = 30.0;
+use crate::components::{Dino, Tree, TREE_WIDTH};
 
 pub fn setup_tree(mut commands: Commands, window: Query<&Window>) {
     let window = window.single();

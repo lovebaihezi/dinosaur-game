@@ -3,6 +3,12 @@ use bevy::{
     time::{Time, Virtual},
 };
 
+pub const TREE_WIDTH: f32 = 30.0;
+pub const DINO_WIDTH: f32 = 50.0;
+pub const DINO_HEIGHT: f32 = DINO_WIDTH / 0.618;
+pub const DINO_SIZE: Vec2 = Vec2::new(DINO_WIDTH, DINO_WIDTH / 0.618);
+pub const JUMP_HIGH: f32 = DINO_WIDTH / 0.618 * 2.4;
+
 #[derive(Default)]
 pub enum GameState {
     #[default]

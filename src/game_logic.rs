@@ -4,6 +4,8 @@ use bevy::prelude::*;
 
 use crate::components::Dino;
 use crate::components::Tree;
+use crate::components::DINO_HEIGHT;
+use crate::components::TREE_WIDTH;
 
 pub fn dino_touched_tree(
     mut dino_query: Query<(&Sprite, &mut Dino, &Transform)>,
@@ -34,11 +36,12 @@ pub fn dino_touched_tree(
 }
 
 pub fn reset_game(
-    mut query: Query<&mut Dino>,
-    mut tree: Query<&mut Tree>,
+    mut dino_query: Query<(&mut Dino, &mut Transform)>,
+    mut tree_query: Query<(&mut Tree, &mut Transform)>,
     keyboard: Res<ButtonInput<KeyCode>>,
     mouse: Res<ButtonInput<MouseButton>>,
     touch: Res<Touches>,
+    window: Query<&Window>,
 ) {
     let press_reset = keyboard.just_pressed(KeyCode::Space)
         || keyboard.just_pressed(KeyCode::KeyW)
@@ -46,10 +49,16 @@ pub fn reset_game(
         || keyboard.just_pressed(KeyCode::KeyK)
         || mouse.just_pressed(MouseButton::Left)
         || touch.any_just_pressed();
-    for (mut dino, mut tree) in query.iter_mut().zip(tree.iter_mut()) {
-        if press_reset && dino.is_over() {
+    for ((mut dino, mut dino_transform), (mut tree, mut tree_transform)) in
+        dino_query.iter_mut().zip(tree_query.iter_mut())
+    {
+        if dino.is_over() && press_reset {
             dino.ready();
             tree.ready();
+            let window = window.single();
+            let window_width = window.width();
+            tree_transform.translation.x = window_width - TREE_WIDTH;
+            dino_transform.translation.y = DINO_HEIGHT / 2.0;
         }
     }
 }

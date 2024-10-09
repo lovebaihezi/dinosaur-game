@@ -10,11 +10,7 @@ use bevy::{
     window::WindowResized,
 };
 
-use crate::components::Dino;
-
-const DINO_WIDTH: f32 = 50.0;
-const DINO_SIZE: Vec2 = Vec2::new(DINO_WIDTH, DINO_WIDTH / 0.618);
-const JUMP_HIGH: f32 = DINO_WIDTH / 0.618 * 2.4;
+use crate::components::{Dino, DINO_WIDTH};
 
 pub fn setup_dino(mut commands: Commands) {
     commands.spawn((
