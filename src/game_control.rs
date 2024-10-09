@@ -128,7 +128,11 @@ pub fn game_info(
     dino_query: Query<&Dino>,
     diagnostics: Res<DiagnosticsStore>,
     mut score: Local<u64>,
+    time: Res<Time<Virtual>>,
 ) {
+    if time.is_paused() {
+        return;
+    }
     *score += 1;
     for dino in dino_query.iter() {
         if dino.is_over() {
