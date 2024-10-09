@@ -27,8 +27,6 @@ pub fn setup_game_control(
     let window_width = window.width();
     let window_height = window.height();
 
-    const GIT_HASH: &str = env!("GIT_HASH");
-    const CARGO_PKG_VERSION: &str = env!("CARGO_PKG_VERSION");
     const GAME_VERSION: &str = concat!(env!("CARGO_PKG_VERSION"), "-", env!("GIT_HASH"));
 
     commands
@@ -62,7 +60,7 @@ pub fn setup_game_control(
                     },
                 ),
                 ..default()
-            })
+            });
         });
 
     commands
