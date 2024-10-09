@@ -25,7 +25,7 @@ jobs:
       deployments: write
 
     steps:
-      - uses: olegtarasov/get-tag@v2.1.2
+      - uses: olegtarasov/get-tag@v2.1.3
         id: get_version
       - uses: actions/checkout@v4
         with:
@@ -100,13 +100,14 @@ jobs:
         run: |
           zip --recurse-paths ../${{ env.binary }}.zip .
       - name: Upload binaries to artifacts
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/tags/*' }}
         uses: actions/upload-artifact@v4
         with:
           path: ${{ env.binary }}.zip
           name: linux
           retention-days: 1
       - name: Upload binaries to release
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main'}}
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/tags/*' }}
         uses: softprops/action-gh-release@v2
         with:
           files: ${{ env.binary }}.zip
@@ -141,13 +142,14 @@ jobs:
         run: |
           Compress-Archive -Path windows/* -DestinationPath ${{ env.binary }}.zip
       - name: Upload binaries to artifacts
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/tags/*' }}
         uses: actions/upload-artifact@v4
         with:
           path: ${{ env.binary }}.zip
           name: windows
           retention-days: 1
       - name: Upload binaries to release
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main'}}
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/tags/*' }}
         uses: softprops/action-gh-release@v2
         with:
           files: ${{ env.binary }}.zip
@@ -187,13 +189,14 @@ jobs:
           cp -r assets ${{ env.binary }}.app/Contents/MacOS/ || true # Try to copy, but ignore if it can't copy if source directory does not exist
           hdiutil create -fs HFS+ -volname "${{ env.binary }}" -srcfolder ${{ env.binary }}.app ${{ env.binary }}-macOS-intel.dmg
       - name: Upload binaries to artifacts
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/tags/*' }}
         uses: actions/upload-artifact@v4
         with:
           path: ${{ env.binary }}-macOS-intel.dmg
           name: macOS-intel
           retention-days: 1
       - name: Upload binaries to release
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main'}}
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/tags/*' }}
         uses: softprops/action-gh-release@v2
         with:
           files: ${{ env.binary }}-macOS-intel.dmg
@@ -230,6 +233,7 @@ jobs:
           hdiutil create -fs HFS+ -volname "${{ env.binary }}-macOS-apple-silicon" -srcfolder ${{ env.binary }}.app ${{ env.binary }}-macOS-apple-silicon.dmg
 
       - name: Upload binaries to artifacts
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/tags/*' }}
         uses: actions/upload-artifact@v4
         with:
           path: ${{ env.binary }}-macOS-apple-silicon.dmg
@@ -237,7 +241,7 @@ jobs:
           retention-days: 1
 
       - name: Upload binaries to release
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main'}}
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/tags/*' }}
         uses: softprops/action-gh-release@v2
         with:
           files: ${{ env.binary }}-macOS-apple-silicon.dmg
