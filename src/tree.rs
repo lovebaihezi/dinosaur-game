@@ -40,11 +40,9 @@ pub fn reset_tree(
 ) {
     let window = window.single();
     let window_width = window.width();
-    for dino in dino_query.iter() {
+    for (dino, mut transform) in dino_query.iter().zip(query.iter_mut()) {
         if dino.is_ready() {
-            for mut transform in query.iter_mut() {
-                transform.translation.x = window_width * 0.8 / 2.0;
-            }
+            transform.translation.x = window_width - TREE_WIDTH;
         }
     }
 }
