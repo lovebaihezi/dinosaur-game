@@ -48,7 +48,7 @@ jobs:
       - name: Prepare package
         run: |
           # Gen Wasm and js loader
-          wasm-bindgen --no-typescript --out-name ${{ env.binary }} --out-dir wasm --target web target/wasm32-unknown-unknown/release/${{ env.binary }}.wasm
+          wasm-bindgen --out-name ${{ env.binary }} --out-dir wasm --target web target/wasm32-unknown-unknown/release/${{ env.binary }}.wasm
           wasm-opt -O wasm/${{ env.binary }}_bg.wasm -o ${{ env.binary }}.wasm
           # Compress Wasm using brotli
           brotli wasm/${{ env.binary }}_bg.wasm -o web/${{ env.binary }}_bg.wasm
