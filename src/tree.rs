@@ -1,13 +1,13 @@
 use bevy::{
     color::Color,
     math::{Vec2, Vec3},
-    prelude::{default, Commands, Query, Res, Transform, With},
+    prelude::{default, Commands, Query, Res, Transform},
     sprite::{Sprite, SpriteBundle},
     time::{Time, Virtual},
     window::Window,
 };
 
-use crate::components::{Dino, Tree, TREE_WIDTH};
+use crate::components::{Tree, TREE_WIDTH};
 
 pub fn setup_tree(mut commands: Commands, window: Query<&Window>) {
     let window = window.single();
