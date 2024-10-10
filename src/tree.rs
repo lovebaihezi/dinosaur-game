@@ -31,20 +31,6 @@ pub fn setup_tree(mut commands: Commands, window: Query<&Window>) {
     ));
 }
 
-pub fn reset_tree(
-    dino_query: Query<&Dino>,
-    mut query: Query<&mut Transform, With<Tree>>,
-    window: Query<&Window>,
-) {
-    let window = window.single();
-    let window_width = window.width();
-    for (dino, mut transform) in dino_query.iter().zip(query.iter_mut()) {
-        if dino.is_ready() {
-            transform.translation.x = window_width - TREE_WIDTH;
-        }
-    }
-}
-
 pub fn tree_move_animation(
     mut tree_query: Query<(&mut Transform, &mut Tree)>,
     time: Res<Time<Virtual>>,

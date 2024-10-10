@@ -38,13 +38,17 @@ fn version_bundle() -> TextBundle {
         env!("GIT_HASH")
     );
 
+    const BUILD_DATE: &str = concat!("build on ", env!("BUILD_DATE"));
+
+    const GAME_BUILD_INFO: &str = concat!(BUILD_DATE, "\n", GAME_VERSION);
+
     TextBundle {
         style: Style {
             align_self: bevy::ui::AlignSelf::Center,
             ..default()
         },
         text: Text::from_section(
-            GAME_VERSION,
+            GAME_BUILD_INFO,
             TextStyle {
                 color: Color::srgba(0.0, 0.0, 0.0, 1.0),
                 font_size: 12.0,

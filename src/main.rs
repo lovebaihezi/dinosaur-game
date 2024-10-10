@@ -28,8 +28,7 @@ fn main() {
                 (user_control, game_info).chain(),
                 (dino_pos_fix_system, dino_jump_animation).chain(),
                 tree_move_animation,
-                dino_touched_tree,
-                (reset_game, reset_tree).chain(),
+                (dino_touched_tree, reset_game).chain(),
             ),
         )
         .run();
