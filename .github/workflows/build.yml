@@ -36,7 +36,7 @@ jobs:
       - name: install wasm-bindgen-cli
         run: |
           rustup component add rustc-codegen-cranelift-preview --toolchain nightly
-          cargo install wasm-bindgen-cli
+          cargo install -f wasm-bindgen-cli --version 0.2.93
       - name: install wasm-opt
         run: |
           cargo install wasm-opt
@@ -48,7 +48,7 @@ jobs:
       - name: Prepare package
         run: |
           # Gen Wasm and js loader
-          wasm-bindgen --no-typescript --out-name ${{ env.binary }} --out-dir wasm --target web target/wasm32-unknown-unknown/release/${{ env.binary }}.wasm
+          wasm-bindgen --out-name ${{ env.binary }} --out-dir wasm --target web target/wasm32-unknown-unknown/release/${{ env.binary }}.wasm
           wasm-opt -O wasm/${{ env.binary }}_bg.wasm -o ${{ env.binary }}.wasm
           # Compress Wasm using brotli
           brotli wasm/${{ env.binary }}_bg.wasm -o web/${{ env.binary }}_bg.wasm

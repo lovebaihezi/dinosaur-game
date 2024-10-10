@@ -1,13 +1,13 @@
 use bevy::{
     color::Color,
     math::{Vec2, Vec3},
-    prelude::{default, Commands, Query, Res, Transform, With},
+    prelude::{default, Commands, Query, Res, Transform},
     sprite::{Sprite, SpriteBundle},
     time::{Time, Virtual},
     window::Window,
 };
 
-use crate::components::{Dino, Tree, TREE_WIDTH};
+use crate::components::{Tree, TREE_WIDTH};
 
 pub fn setup_tree(mut commands: Commands, window: Query<&Window>) {
     let window = window.single();
@@ -29,20 +29,6 @@ pub fn setup_tree(mut commands: Commands, window: Query<&Window>) {
         },
         Tree::default(),
     ));
-}
-
-pub fn reset_tree(
-    dino_query: Query<&Dino>,
-    mut query: Query<&mut Transform, With<Tree>>,
-    window: Query<&Window>,
-) {
-    let window = window.single();
-    let window_width = window.width();
-    for (dino, mut transform) in dino_query.iter().zip(query.iter_mut()) {
-        if dino.is_ready() {
-            transform.translation.x = window_width - TREE_WIDTH;
-        }
-    }
 }
 
 pub fn tree_move_animation(
