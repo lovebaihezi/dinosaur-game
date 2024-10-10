@@ -23,9 +23,14 @@ fn get_branch() {
 }
 
 fn get_build_date() {
-    let build_date = chrono::Local::now().to_rfc2822();
+    let build_date = Command::new("date")
+        .args(["+%Y-%m-%d %H:%M:%S"])
+        .output()
+        .unwrap();
 
-    println!("cargo:rustc-env=BUILD_DATE={}", build_date);
+    let date = String::from_utf8(build_date.stdout).unwrap();
+
+    println!("cargo:rustc-env=BUILD_DATE={}", date);
 }
 
 fn main() {

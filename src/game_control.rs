@@ -30,7 +30,7 @@ fn base_node() -> NodeBundle {
     }
 }
 
-fn version_bundle() -> TextBundle {
+fn game_info_bundle() -> TextBundle {
     const GAME_VERSION: &str = concat!(
         "game_version: ",
         env!("CARGO_PKG_VERSION"),
@@ -40,7 +40,7 @@ fn version_bundle() -> TextBundle {
 
     const BUILD_DATE: &str = concat!("build on ", env!("BUILD_DATE"));
 
-    const GAME_BUILD_INFO: &str = concat!(BUILD_DATE, "\n", GAME_VERSION);
+    let game_info = format!("{}\n{}", BUILD_DATE, GAME_VERSION);
 
     TextBundle {
         style: Style {
@@ -48,7 +48,7 @@ fn version_bundle() -> TextBundle {
             ..default()
         },
         text: Text::from_section(
-            GAME_BUILD_INFO,
+            game_info,
             TextStyle {
                 color: Color::srgba(0.0, 0.0, 0.0, 1.0),
                 font_size: 12.0,
@@ -140,7 +140,7 @@ pub fn setup_game_control(mut commands: Commands, mut time: ResMut<Time<Virtual>
             parent.spawn(score_bundle());
         });
         parent.spawn(banner()).with_children(|parent| {
-            parent.spawn(version_bundle());
+            parent.spawn(game_info_bundle());
             parent.spawn(branch_boundle());
         });
     });
