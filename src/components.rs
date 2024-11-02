@@ -56,22 +56,9 @@ pub enum GameControl {
 pub struct Ground;
 
 #[derive(Component, Default)]
-pub struct Tree {
-    succeeded: usize,
-}
+pub struct Tree {}
 
 impl Tree {
-    pub fn dino_passed(&mut self) {
-        self.succeeded += 1;
-    }
-    pub fn over(&mut self) {
-        self.succeeded = 0;
-    }
-    pub fn ready(&mut self) {
-        self.succeeded = 0;
-    }
+    pub fn ready(&mut self) {}
     pub fn start(&mut self) {}
-    pub fn speed(&mut self) -> f64 {
-        (self.succeeded as f64 + 2.2).ln()
-    }
 }

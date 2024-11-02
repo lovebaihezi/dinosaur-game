@@ -3,12 +3,13 @@ use dinosaur::{
     dino_jump_animation, dino_jump_system, dino_pos_fix_system, game_info,
     game_logic::{dino_touched_tree, reset_game},
     setup_camera, setup_dino, setup_game_control, setup_ground, setup_tree, tree_move_animation,
-    update_ground, user_control,
+    update_ground, user_control, GameStatus,
 };
 
 fn main() {
     let exit = App::new()
         .add_plugins((DefaultPlugins, FrameTimeDiagnosticsPlugin))
+        .insert_resource(GameStatus { speed: 5, score: 0 })
         .insert_resource(ClearColor(Color::srgb(1.0, 1.0, 1.0)))
         .add_systems(
             Startup,
