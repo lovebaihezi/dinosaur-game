@@ -47,7 +47,7 @@ pub fn tree_move_animation(
     let window_width = window.width();
     for (mut transform, _) in tree_query.iter_mut() {
         transform.translation.x = if transform.translation.x < -window_width * 0.8 / 2.0 {
-            status.speed += 2.5;
+            status.speed += 2;
             window_width * 0.8 / 2.0
         } else {
             let more_hard_speed = (status.speed as f32).log10();
