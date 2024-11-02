@@ -36,7 +36,7 @@ jobs:
       - name: install wasm-bindgen-cli
         run: |
           rustup component add rustc-codegen-cranelift-preview --toolchain nightly
-          cargo install -f wasm-bindgen-cli --version 0.2.93
+          cargo install wasm-bindgen-cli
       - name: install wasm-opt
         run: |
           cargo install wasm-opt
