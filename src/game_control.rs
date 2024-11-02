@@ -3,8 +3,8 @@ use bevy::{
     diagnostic::{DiagnosticsStore, FrameTimeDiagnosticsPlugin},
     input::ButtonInput,
     prelude::{
-        BuildChildren, Commands, KeyCode, Local, MouseButton, NodeBundle, Query, Res, ResMut,
-        TextBundle, Touches,
+        BuildChildren, Commands, KeyCode, MouseButton, NodeBundle, Query, Res, ResMut, TextBundle,
+        Touches,
     },
     text::{Text, TextStyle},
     time::{Time, Virtual},
@@ -13,7 +13,10 @@ use bevy::{
     window::Window,
 };
 
-use crate::components::{Dino, GameControl};
+use crate::{
+    components::{Dino, GameControl},
+    GameStatus,
+};
 
 fn base_node() -> NodeBundle {
     NodeBundle {
@@ -174,20 +177,20 @@ pub fn game_info(
     mut text_query: Query<(&mut Text, &GameControl)>,
     dino_query: Query<&Dino>,
     diagnostics: Res<DiagnosticsStore>,
-    mut score: Local<u64>,
+    mut status: ResMut<GameStatus>,
     time: Res<Time<Virtual>>,
 ) {
     if !time.is_paused() {
-        *score += 1;
+        status.score += 1;
     }
     for dino in dino_query.iter() {
         if dino.is_over() {
-            *score = 0;
+            status.score = 0;
         }
         for (mut text, game_control) in text_query.iter_mut() {
             match game_control {
                 GameControl::Score => {
-                    let value: u64 = *score >> 3;
+                    let value: u64 = status.score >> 3;
                     text.sections[0].value = format!("{value:012}");
                 }
                 GameControl::FPS => {
