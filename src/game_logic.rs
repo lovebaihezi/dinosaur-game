@@ -49,12 +49,11 @@ pub fn reset_game(
         || keyboard.just_pressed(KeyCode::KeyK)
         || mouse.just_pressed(MouseButton::Left)
         || touch.any_just_pressed();
-    for ((mut dino, mut dino_transform), (mut tree, mut tree_transform)) in
+    for ((mut dino, mut dino_transform), (_, mut tree_transform)) in
         dino_query.iter_mut().zip(tree_query.iter_mut())
     {
         if dino.is_over() && press_reset {
             dino.ready();
-            tree.ready();
             let window = window.single();
             let window_width = window.width();
             tree_transform.translation.x = window_width - TREE_WIDTH;
