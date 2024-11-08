@@ -7,8 +7,16 @@ use dinosaur::{
 };
 
 fn main() {
+    let default_plugin = DefaultPlugins.set(WindowPlugin {
+        primary_window: Some(WindowDescriptor {
+            title: "Dinosaur Game".to_string(),
+            canvas: "#game".into()..Default::default(),
+            ..Default::default()
+        }),
+        ..Default::default()
+    });
     let exit = App::new()
-        .add_plugins((DefaultPlugins, FrameTimeDiagnosticsPlugin))
+        .add_plugins((default_plugin, FrameTimeDiagnosticsPlugin))
         .insert_resource(GameStatus { speed: 5, score: 0 })
         .insert_resource(ClearColor(Color::srgb(1.0, 1.0, 1.0)))
         .add_systems(
