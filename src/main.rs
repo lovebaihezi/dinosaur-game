@@ -8,9 +8,9 @@ use dinosaur::{
 
 fn main() {
     let default_plugin = DefaultPlugins.set(WindowPlugin {
-        primary_window: Some(WindowDescriptor {
+        primary_window: Some(Window {
             title: "Dinosaur Game".to_string(),
-            canvas: "#game".into()..Default::default(),
+            canvas: Some("#game".to_string()),
             ..Default::default()
         }),
         ..Default::default()
