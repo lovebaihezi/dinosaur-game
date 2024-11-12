@@ -37,6 +37,13 @@
                 canvas.height = window.innerHeight;
             });
 
+            // init Canvas Size on Load
+            window.onload = () => {
+                const canvas = document.getElementById("game");
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            };
+
             init().catch((error) => {
                 if (
                     !error.message.startsWith(
