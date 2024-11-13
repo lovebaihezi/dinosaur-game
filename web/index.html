@@ -30,18 +30,24 @@
             import "./restart-audio-context.js";
             import init from "./dinosaur.js";
 
-            // Resize Canvas on Window Resize
-            window.addEventListener("resize", () => {
+            const canvas = document.getElementById("game");
+
+            function updateCanvasSize(window, canvas) {
                 const canvas = document.getElementById("game");
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
+                canvas.style.width = window.innerWidth + "px";
+                canvas.style.height = window.innerHeight + "px";
+            }
+
+            // Resize Canvas on Window Resize
+            window.addEventListener("resize", () => {
+                updateCanvasSize(window, canvas);
             });
 
             // init Canvas Size on Load
             window.onload = () => {
-                const canvas = document.getElementById("game");
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
+                updateCanvasSize(window, canvas);
             };
 
             init().catch((error) => {
