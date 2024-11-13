@@ -42,20 +42,19 @@
                 updateCanvasSize(window, canvas);
             });
 
-            // init Canvas Size on Load
-            window.onload = () => {
-                updateCanvasSize(window, canvas);
-            };
-
-            init().catch((error) => {
-                if (
-                    !error.message.startsWith(
-                        "Using exceptions for control flow, don't mind me. This isn't actually an error!",
-                    )
-                ) {
-                    throw error;
-                }
-            });
+            init()
+                .then(() => {
+                    updateCanvasSize(window, canvas);
+                })
+                .catch((error) => {
+                    if (
+                        !error.message.startsWith(
+                            "Using exceptions for control flow, don't mind me. This isn't actually an error!",
+                        )
+                    ) {
+                        throw error;
+                    }
+                });
         </script>
     </body>
 </html>
