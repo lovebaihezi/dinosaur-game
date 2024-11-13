@@ -11,6 +11,7 @@ fn main() {
         primary_window: Some(Window {
             title: "Dinosaur Game".to_string(),
             canvas: Some("#game".to_string()),
+            fit_canvas_to_parent: true,
             ..Default::default()
         }),
         ..Default::default()
