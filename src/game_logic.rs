@@ -62,3 +62,9 @@ pub fn reset_game(
         }
     }
 }
+
+#[cfg(test)]
+mod game_logic_test {
+    #[test]
+    fn time_paused_on() {}
+}
