@@ -65,12 +65,13 @@ pub fn reset_game(
 
 #[cfg(test)]
 mod game_logic_test {
-    use bevy::{diagnostic::FrameTimeDiagnosticsPlugin, prelude::*};
+    use bevy::prelude::*;
 
     use crate::{
         components::Dino,
         dino_jump_animation, dino_jump_system, dino_pos_fix_system, game_info,
         game_logic::{dino_touched_tree, reset_game},
+        setup_camera, setup_dino, setup_game_control, setup_ground, setup_tree,
         tree_move_animation, update_ground, user_control, GameStatus,
     };
     #[test]
@@ -78,6 +79,16 @@ mod game_logic_test {
         let mut app = App::new();
         app.insert_resource(GameStatus { speed: 5, score: 0 });
         app.insert_resource(ClearColor(Color::srgb(1.0, 1.0, 1.0)));
+        app.add_systems(
+            Startup,
+            (
+                setup_ground,
+                setup_dino,
+                setup_camera,
+                setup_tree,
+                setup_game_control,
+            ),
+        );
         app.add_systems(
             Update,
             (
