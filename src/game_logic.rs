@@ -79,6 +79,7 @@ mod game_logic_test {
         let mut app = App::new();
         app.insert_resource(GameStatus { speed: 5, score: 0 });
         app.insert_resource(ClearColor(Color::srgb(1.0, 1.0, 1.0)));
+        app.insert_resource(Time::<Virtual>::default());
         app.add_systems(
             Startup,
             (
@@ -102,6 +103,7 @@ mod game_logic_test {
         );
 
         // Setup test entities
+        app.world_mut().spawn(Window::default());
         let enemy_id = app.world_mut().spawn(Dino::default()).id();
 
         // Run systems
