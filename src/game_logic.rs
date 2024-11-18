@@ -65,6 +65,44 @@ pub fn reset_game(
 
 #[cfg(test)]
 mod game_logic_test {
+    use bevy::{diagnostic::FrameTimeDiagnosticsPlugin, prelude::*};
+
+    use crate::{
+        components::Dino,
+        dino_jump_animation, dino_jump_system, dino_pos_fix_system, game_info,
+        game_logic::{dino_touched_tree, reset_game},
+        tree_move_animation, update_ground, user_control, GameStatus,
+    };
     #[test]
-    fn time_paused_on() {}
+    fn time_paused_on() {
+        let mut app = App::new();
+        app.insert_resource(GameStatus { speed: 5, score: 0 });
+        app.insert_resource(ClearColor(Color::srgb(1.0, 1.0, 1.0)));
+        app.add_systems(
+            Update,
+            (
+                update_ground,
+                dino_jump_system,
+                (user_control, game_info).chain(),
+                (dino_pos_fix_system, dino_jump_animation).chain(),
+                tree_move_animation,
+                (dino_touched_tree, reset_game).chain(),
+            ),
+        );
+
+        // Setup test entities
+        let enemy_id = app.world_mut().spawn(Dino::default()).id();
+
+        // Run systems
+        app.update();
+
+        // Check resulting changes
+        assert!(app.world().get::<Dino>(enemy_id).is_some());
+        assert!(app
+            .world()
+            .get::<Dino>(enemy_id)
+            .unwrap()
+            .in_air_start_time
+            .is_none());
+    }
 }
