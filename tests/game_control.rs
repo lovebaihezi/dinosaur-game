@@ -1,6 +1,6 @@
-use bevy::{diagnostic::DiagnosticsStore, prelude::*, window::WindowResized};
+use bevy::{diagnostic::DiagnosticsStore, prelude::*};
 
-use crate::{
+use dinosaur::{
     components::Dino,
     dino_jump_animation, dino_jump_system, dino_pos_fix_system, game_info,
     game_logic::{dino_touched_tree, reset_game},
@@ -9,7 +9,7 @@ use crate::{
 };
 
 #[test]
-fn time_paused_on() {
+fn game_time_pause_as_no_focus() {
     let mut app = App::new();
     app.insert_resource(GameStatus { speed: 5, score: 0 });
     app.insert_resource(ClearColor(Color::srgb(1.0, 1.0, 1.0)));
