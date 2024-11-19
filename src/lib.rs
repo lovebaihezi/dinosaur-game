@@ -1,6 +1,7 @@
 mod camera;
 pub mod components;
 mod dino;
+mod e2e;
 mod game_control;
 pub mod game_logic;
 mod ground;
