@@ -1,10 +1,6 @@
-use bevy::{
-    app::ScheduleRunnerPlugin,
-    diagnostic::{DiagnosticsStore, FrameTimeDiagnosticsPlugin},
-    prelude::*,
-};
+use bevy::{app::ScheduleRunnerPlugin, diagnostic::FrameTimeDiagnosticsPlugin, prelude::*};
 
-use dinosaur::{
+use dinosaur_game::{
     components::Dino,
     dino_jump_animation, dino_jump_system, dino_pos_fix_system, game_info,
     game_logic::{dino_touched_tree, reset_game},
