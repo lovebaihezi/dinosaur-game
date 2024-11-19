@@ -1,0 +1,11 @@
+
+[package]
+name = "dinosaur-e2e"
+version = "0.0.1"
+edition = "2021"
+build = "build.rs"
+
+[dependencies]
+bevy = { workspace = true, default-features = false }
+log = { workspace = true }
+dinosaur-game = { path = "../game" }
