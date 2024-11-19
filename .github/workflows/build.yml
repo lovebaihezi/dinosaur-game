@@ -33,27 +33,13 @@ jobs:
       - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           target: wasm32-unknown-unknown
-      - name: install wasm-bindgen-cli
-        run: |
-          rustup component add rustc-codegen-cranelift-preview --toolchain nightly
-          cargo install wasm-bindgen-cli
-      - name: install wasm-opt
-        run: |
-          cargo install wasm-opt
-
+      - run: deno run just.ts install-wasm-deps
       - name: Build
         run: |
-          cargo build --release --target wasm32-unknown-unknown
 
       - name: Prepare package
         run: |
           # Gen Wasm and js loader
-          wasm-bindgen --out-name ${{ env.binary }} --out-dir wasm --target web target/wasm32-unknown-unknown/release/${{ env.binary }}.wasm
-          wasm-opt -O wasm/${{ env.binary }}_bg.wasm -o ${{ env.binary }}.wasm
-          # Compress Wasm using brotli
-          brotli wasm/${{ env.binary }}_bg.wasm -o web/${{ env.binary }}_bg.wasm
-          mv wasm/${{ env.binary }}.js web/
-          cp -r assets web/ || true # Try to copy, but ignore if it can't copy if source directory does not exist
 
       - name: Deploy to Cloudflare Pages Preview
         uses: cloudflare/pages-action@v1
