@@ -35,7 +35,10 @@ async function prepareWasmPackage(env: Env = { binary: "dinosaur" }) {
   await $`brotli wasm/${env.binary}_bg.wasm -o web/${env.binary}_bg.wasm`;
   await $`mv wasm/${env.binary}.js web/`;
   // Copy assets
-  await $`cp -r assets web/ || true # Try to copy, but ignore if it can't copy if source directory does not exist`;
+  if (!(await $`test -d assets`)) {
+    await $`mkdir assets`;
+  }
+  await $`cp -r assets web/`;
 }
 
 async function buildRelease() {
