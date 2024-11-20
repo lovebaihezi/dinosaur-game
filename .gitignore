@@ -22,3 +22,4 @@ web/dinosaur_bg.wasm
 web/dinosaur.wasm.d.ts
 web/dinosaur.wasm.br
 wasm/
+/.zed
