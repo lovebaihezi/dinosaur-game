@@ -26,7 +26,7 @@ async function buildWasm() {
   await $`cargo build --release --target wasm32-unknown-unknown`;
 }
 
-async function prepareWasmPackage(env: Env = { binary: "dinosaur" }) {
+async function prepareWasmPackage(env: Env = { binary: "dinosaur_game" }) {
   // Gen JS
   await $`wasm-bindgen --out-name ${env.binary} --out-dir wasm --target web target/wasm32-unknown-unknown/release/${env.binary}.wasm`;
   // Optimize Wasm

@@ -11,7 +11,7 @@ on:
 
 env:
   # update with the name of the main binary
-  binary: dinosaur
+  binary: dinosaur_game
   # Before enabling LFS, please take a look at GitHub's documentation for costs and quota limits:
   # https://docs.github.com/en/repositories/working-with-files/managing-large-files/about-storage-and-bandwidth-usage
   use_git_lfs: false
