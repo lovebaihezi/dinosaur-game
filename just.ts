@@ -6,6 +6,11 @@ interface Env {
   binary: string;
 }
 
+async function installDeps() {
+  await $`sudo apt-get update`;
+  await $`sudo apt-get install --no-install-recommends pkg-config libx11-dev libasound2-dev libudev-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev clang mold libwayland-dev libxkbcommon-dev`;
+}
+
 async function installWasmDeps() {
   await Promise.all([
     $`rustup component add rustc-codegen-cranelift-preview --toolchain nightly`,
@@ -35,6 +40,10 @@ async function buildRelease() {
 // TODO: Migrate All workflow script to this file
 await new Command()
   .name("just")
+  .description("Command used to build whole project")
   .version("0.1.0")
-  .description("Script for the dinosaur game")
+  .description("Script for the dinosaur game").action(async () => {
+    await installDeps();
+    await buildRelease();
+  })
   .parse(Deno.args);
