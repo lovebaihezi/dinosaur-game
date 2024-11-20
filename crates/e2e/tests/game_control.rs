@@ -1,4 +1,4 @@
-use bevy::{app::ScheduleRunnerPlugin, diagnostic::FrameTimeDiagnosticsPlugin, prelude::*};
+use bevy::{diagnostic::FrameTimeDiagnosticsPlugin, prelude::*};
 
 use dinosaur_game::{
     components::Dino,
@@ -11,18 +11,7 @@ use dinosaur_game::{
 #[test]
 fn game_time_pause_as_no_focus() {
     let mut app = App::new();
-    let default_plugin = DefaultPlugins
-        .set(WindowPlugin {
-            primary_window: Some(Window {
-                title: "Dinosaur Game".to_string(),
-                canvas: Some("#game".to_string()),
-                fit_canvas_to_parent: true,
-                ..Default::default()
-            }),
-            ..Default::default()
-        })
-        .set(ScheduleRunnerPlugin::run_once());
-    app.add_plugins((default_plugin, FrameTimeDiagnosticsPlugin));
+    app.add_plugins((DefaultPlugins, FrameTimeDiagnosticsPlugin));
     app.insert_resource(GameStatus { speed: 5, score: 0 });
     app.insert_resource(ClearColor(Color::srgb(1.0, 1.0, 1.0)));
     app.add_systems(
