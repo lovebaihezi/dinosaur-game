@@ -56,9 +56,6 @@ pub enum GameControl {
 pub struct Ground;
 
 #[derive(Component, Default)]
-pub struct Tree {}
-
-impl Tree {
-    pub fn ready(&mut self) {}
-    pub fn start(&mut self) {}
+pub struct Tree {
+    pub index: usize,
 }
