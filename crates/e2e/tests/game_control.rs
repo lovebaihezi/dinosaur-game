@@ -1,5 +1,3 @@
-use std::time::Duration;
-
 use bevy::{app::ScheduleRunnerPlugin, diagnostic::FrameTimeDiagnosticsPlugin, prelude::*};
 
 use dinosaur_game::{
@@ -14,9 +12,7 @@ use dinosaur_game::{
 fn game_time_pause_as_no_focus() {
     let mut app = App::new();
     app.add_plugins((
-        DefaultPlugins.set(ScheduleRunnerPlugin::run_loop(Duration::from_secs_f64(
-            1.0 / 60.0,
-        ))),
+        DefaultPlugins.set(ScheduleRunnerPlugin::run_once()),
         FrameTimeDiagnosticsPlugin,
     ));
 
@@ -46,16 +42,16 @@ fn game_time_pause_as_no_focus() {
 
     // Setup test entities
     app.world_mut().spawn(Window::default());
-    let enemy_id = app.world_mut().spawn(Dino::default()).id();
+    let dino_id = app.world_mut().spawn(Dino::default()).id();
 
     // Run systems
-    app.update();
+    app.run();
 
     // Check resulting changes
-    assert!(app.world().get::<Dino>(enemy_id).is_some());
+    assert!(app.world().get::<Dino>(dino_id).is_some());
     assert!(app
         .world()
-        .get::<Dino>(enemy_id)
+        .get::<Dino>(dino_id)
         .unwrap()
         .in_air_start_time
         .is_none());
