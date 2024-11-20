@@ -34,7 +34,7 @@ jobs:
         with:
           target: wasm32-unknown-unknown
       - run: ./just.ts install-wasm-deps
-      - run: 
+      - run: ./just.ts build-wasm
       - run: ./just.ts prepare-wasm-package
       - name: Deploy to Cloudflare Pages Preview
         uses: cloudflare/pages-action@v1
