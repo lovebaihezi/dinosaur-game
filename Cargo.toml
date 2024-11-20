@@ -1,6 +1,7 @@
 [workspace]
 resolver = "2"
 members = ["crates/e2e", "crates/game"]
+default-members = ["crates/game"]
 
 [workspace.dependencies]
 bevy = { version = "0.14.2", features = ["wayland"] }
