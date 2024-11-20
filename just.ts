@@ -27,11 +27,14 @@ async function buildWasm() {
 }
 
 async function prepareWasmPackage(env: Env = { binary: "dinosaur" }) {
+  // Gen JS
   await $`wasm-bindgen --out-name ${env.binary} --out-dir wasm --target web target/wasm32-unknown-unknown/release/${env.binary}.wasm`;
+  // Optimize Wasm
   await $`wasm-opt -O wasm/${env.binary}_bg.wasm -o ${env.binary}.wasm`;
-  await $`# Compress Wasm using brotli`;
+  // Compress Wasm using brotli
   await $`brotli wasm/${env.binary}_bg.wasm -o web/${env.binary}_bg.wasm`;
   await $`mv wasm/${env.binary}.js web/`;
+  // Copy assets
   await $`cp -r assets web/ || true # Try to copy, but ignore if it can't copy if source directory does not exist`;
 }
 
