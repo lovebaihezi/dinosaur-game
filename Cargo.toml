@@ -1,10 +1,8 @@
-[package]
-name = "dinosaur"
-version = "0.0.3"
-edition = "2021"
-build = "build.rs"
+[workspace]
+resolver = "2"
+members = ["crates/e2e", "crates/game"]
 
-[dependencies]
+[workspace.dependencies]
 bevy = { version = "0.14.2", features = ["wayland"] }
 log = { version = "*", features = [
     "max_level_debug",
