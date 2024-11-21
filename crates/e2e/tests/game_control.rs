@@ -12,7 +12,7 @@ use dinosaur_game::{
 fn game_time_pause_as_no_focus() {
     let mut app = App::new();
     app.add_plugins((
-        DefaultPlugins.set(ScheduleRunnerPlugin::run_once()),
+        MinimalPlugins.set(ScheduleRunnerPlugin::run_once()),
         FrameTimeDiagnosticsPlugin,
     ));
 
@@ -45,7 +45,7 @@ fn game_time_pause_as_no_focus() {
     let dino_id = app.world_mut().spawn(Dino::default()).id();
 
     // Run systems
-    app.run();
+    app.update();
 
     // Check resulting changes
     assert!(app.world().get::<Dino>(dino_id).is_some());
