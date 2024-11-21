@@ -1,4 +1,9 @@
-use bevy::{app::ScheduleRunnerPlugin, diagnostic::FrameTimeDiagnosticsPlugin, prelude::*};
+use bevy::{
+    app::ScheduleRunnerPlugin,
+    diagnostic::FrameTimeDiagnosticsPlugin,
+    prelude::*,
+    render::{settings::WgpuSettings, RenderPlugin},
+};
 
 use dinosaur_game::{
     components::Dino,
@@ -12,7 +17,16 @@ use dinosaur_game::{
 fn game_time_pause_as_no_focus() {
     let mut app = App::new();
     app.add_plugins((
-        MinimalPlugins.set(ScheduleRunnerPlugin::run_once()),
+        MinimalPlugins
+            .set(ScheduleRunnerPlugin::run_once())
+            .set(RenderPlugin {
+                render_creation: WgpuSettings {
+                    backends: None,
+                    ..default()
+                }
+                .into(),
+                ..default()
+            }),
         FrameTimeDiagnosticsPlugin,
     ));
 
