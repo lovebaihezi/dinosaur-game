@@ -1,12 +1,6 @@
 use bevy::{app::ScheduleRunnerPlugin, diagnostic::FrameTimeDiagnosticsPlugin, prelude::*};
 
-use dinosaur_game::{
-    components::Dino,
-    dino_jump_animation, dino_jump_system, dino_pos_fix_system, game_info,
-    game_logic::{dino_touched_tree, reset_game},
-    setup_camera, setup_dino, setup_game_control, setup_ground, setup_tree, tree_move_animation,
-    update_ground, user_control, GameStatus,
-};
+use dinosaur_game::GameStatus;
 
 #[test]
 fn game_time_pause_as_no_focus() {
