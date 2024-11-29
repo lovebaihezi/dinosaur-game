@@ -21,5 +21,8 @@ web/dinosaur.wasm
 web/dinosaur_bg.wasm
 web/dinosaur.wasm.d.ts
 web/dinosaur.wasm.br
+web/dinosaur-game.js
+web/dinosaur-game_bg.wasm
+web/dinosaur-game.wasm.br
 wasm/
 /.zed

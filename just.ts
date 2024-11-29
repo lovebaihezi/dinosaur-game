@@ -71,4 +71,9 @@ await new Command()
   .command("prepare-wasm-package", "Prepare wasm package").action(async () => {
     await prepareWasmPackage();
   })
+  .command("web", "Web build").action(async () => {
+    await installWasmDeps();
+    await buildWasm();
+    await prepareWasmPackage();
+  })
   .parse(Deno.args);
