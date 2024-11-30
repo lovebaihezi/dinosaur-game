@@ -3,12 +3,9 @@ use bevy::{
     diagnostic::{DiagnosticsStore, FrameTimeDiagnosticsPlugin},
     input::ButtonInput,
     prelude::{
-        BuildChildren, Commands, KeyCode, MouseButton, NodeBundle, Query, Res, ResMut, TextBundle,
-        Touches,
+        BuildChildren, Commands, KeyCode, MouseButton, Node, Query, Res, ResMut, Text, Touches,
     },
-    text::{Text, TextStyle},
     time::{Time, Virtual},
-    ui::Style,
     utils::default,
     window::Window,
 };
@@ -18,8 +15,8 @@ use crate::{
     GameStatus,
 };
 
-fn base_node() -> NodeBundle {
-    NodeBundle {
+fn base_node() -> Node {
+    Node {
         style: Style {
             display: bevy::ui::Display::Flex,
             width: bevy::ui::Val::Vw(100.0),
@@ -33,7 +30,7 @@ fn base_node() -> NodeBundle {
     }
 }
 
-fn game_info_bundle() -> TextBundle {
+fn game_info_bundle() -> Text {
     const GAME_VERSION: &str = concat!(
         "game_version: ",
         env!("CARGO_PKG_VERSION"),
@@ -45,7 +42,7 @@ fn game_info_bundle() -> TextBundle {
 
     let game_info = format!("{}\n{}", BUILD_DATE, GAME_VERSION);
 
-    TextBundle {
+    Text {
         style: Style {
             align_self: bevy::ui::AlignSelf::Center,
             ..default()
@@ -62,9 +59,9 @@ fn game_info_bundle() -> TextBundle {
     }
 }
 
-fn branch_boundle() -> TextBundle {
+fn branch_boundle() -> Text {
     let branch = env!("GIT_BRANCH");
-    TextBundle {
+    Text {
         style: Style {
             align_self: bevy::ui::AlignSelf::Center,
             ..default()
@@ -81,9 +78,9 @@ fn branch_boundle() -> TextBundle {
     }
 }
 
-fn fps_bundle() -> (TextBundle, GameControl) {
+fn fps_bundle() -> (Text, GameControl) {
     (
-        TextBundle {
+        Text {
             style: Style {
                 align_self: bevy::ui::AlignSelf::Center,
                 ..default()
@@ -101,9 +98,9 @@ fn fps_bundle() -> (TextBundle, GameControl) {
     )
 }
 
-fn score_bundle() -> (TextBundle, GameControl) {
+fn score_bundle() -> (Text, GameControl) {
     (
-        TextBundle {
+        Text {
             style: Style {
                 align_self: bevy::ui::AlignSelf::Center,
                 ..default()
@@ -121,8 +118,8 @@ fn score_bundle() -> (TextBundle, GameControl) {
     )
 }
 
-fn banner() -> NodeBundle {
-    NodeBundle {
+fn banner() -> Node {
+    Node {
         style: Style {
             width: bevy::ui::Val::Vw(100.0),
             height: bevy::ui::Val::Auto,
