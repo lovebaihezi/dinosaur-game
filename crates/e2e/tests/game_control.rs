@@ -7,7 +7,7 @@ fn game_time_pause_as_no_focus() {
     let mut app = App::new();
 
     app.add_plugins((
-        MinimalPlugins.set(ScheduleRunnerPlugin::run_once()),
+        DefaultPlugin.set(ScheduleRunnerPlugin::run_once()),
         FrameTimeDiagnosticsPlugin,
     ));
 
