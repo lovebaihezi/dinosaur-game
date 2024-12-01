@@ -9,6 +9,8 @@ pub const DINO_WIDTH: f32 = 50.0;
 pub const DINO_HEIGHT: f32 = DINO_WIDTH / 0.618;
 pub const DINO_SIZE: Vec2 = Vec2::new(DINO_WIDTH, DINO_WIDTH / 0.618);
 pub const JUMP_HIGH: f32 = DINO_WIDTH / 0.618 * 2.4;
+pub static mut SPEED_INCREMENT: u64 = 100;
+pub static mut MAX_GAME_SPEED: u64 = u64::MAX;
 
 #[derive(Default)]
 pub enum GameState {
