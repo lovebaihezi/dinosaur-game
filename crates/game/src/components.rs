@@ -48,7 +48,6 @@ impl Dino {
 
 #[derive(Component)]
 pub enum GameControl {
-    FPS,
     Score,
 }
 

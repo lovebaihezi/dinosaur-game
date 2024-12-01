@@ -1,18 +1,14 @@
-use bevy::prelude::*;
-
-// use dinosaur_game::GameStatus;
-
 #[test]
 fn game_time_pause_as_no_focus() {
-    let _app = App::new();
+    //let _app = App::new();
 
-    app.add_plugins((
-        DefaultPlugins.set(ScheduleRunnerPlugin::run_once()),
-        FrameTimeDiagnosticsPlugin,
-    ));
+    //app.add_plugins((
+    //    DefaultPlugins.set(ScheduleRunnerPlugin::run_once()),
+    //    FrameTimeDiagnosticsPlugin,
+    //));
 
-    app.insert_resource(GameStatus { speed: 5, score: 0 });
-    app.insert_resource(ClearColor(Color::srgb(1.0, 1.0, 1.0)));
+    //app.insert_resource(GameStatus { speed: 5, score: 0 });
+    //app.insert_resource(ClearColor(Color::srgb(1.0, 1.0, 1.0)));
     // TODO: insert Window and event here to make bevy check happy...
     // app.add_systems(
     //     Startup,
