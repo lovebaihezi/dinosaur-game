@@ -1,4 +1,8 @@
-use bevy::{diagnostic::FrameTimeDiagnosticsPlugin, prelude::*};
+use bevy::{
+    dev_tools::fps_overlay::{FpsOverlayConfig, FpsOverlayPlugin},
+    prelude::*,
+    text::FontSmoothing,
+};
 use dinosaur_game::{
     dino_jump_animation, dino_jump_system, dino_pos_fix_system, game_info,
     game_logic::{dino_touched_tree, reset_game},
@@ -7,6 +11,7 @@ use dinosaur_game::{
 };
 
 fn main() {
+    // Using OpenGL backend
     let default_plugin = DefaultPlugins.set(WindowPlugin {
         primary_window: Some(Window {
             title: "Dinosaur Game".to_string(),
@@ -17,7 +22,24 @@ fn main() {
         ..Default::default()
     });
     let exit = App::new()
-        .add_plugins((default_plugin, FrameTimeDiagnosticsPlugin))
+        .add_plugins((
+            default_plugin,
+            FpsOverlayPlugin {
+                config: FpsOverlayConfig {
+                    text_config: TextFont {
+                        // Here we define size of our overlay
+                        font_size: 16.0,
+                        // If we want, we can use a custom font
+                        font: default(),
+                        // We could also disable font smoothing,
+                        font_smoothing: FontSmoothing::default(),
+                    },
+                    // We can also change color of the overlay
+                    text_color: Color::linear_rgba(0.0, 1.0, 0.0, 1.0),
+                    enabled: true,
+                },
+            },
+        ))
         .insert_resource(GameStatus { speed: 5, score: 0 })
         .insert_resource(SpeedControlInfo {
             speed_increment: 100,

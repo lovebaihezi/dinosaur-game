@@ -1,60 +1,48 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <title>Dinosaur</title>
-        <style>
-            html: {
-                margin: 0;
-                padding: 0;
-                border: 0;
-            }
-            body {
-                width: 100vw;
-                height: 100vh;
-                padding: 0;
-                margin: 0;
-                overflow: hidden;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            }
-            canvas:focus {
-                outline: none;
-            }
-        </style>
-    </head>
-    <body style="margin: 0px">
-        <canvas width="1024" height="960" id="game"></canvas>
-        <script type="module">
-            import "./restart-audio-context.js";
-            import init from "./dinosaur-game.js";
+  <head>
+    <title>Dinosaur</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Dinosaur game" />
+    <style>
+      html: {
+        margin: 0;
+        padding: 0;
+        border: 0;
+      }
+      body {
+        width: 100vw;
+        height: 100vh;
+        padding: 0;
+        margin: 0;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      canvas:focus {
+        outline: none;
+      }
+    </style>
+  </head>
+  <body style="margin: 0px">
+    <canvas width="1024" height="960" id="game"></canvas>
+    <script type="module">
+      import "./restart-audio-context.js";
+      import init from "./dinosaur-game.js";
 
-            const canvas = document.getElementById("game");
+      const canvas = document.getElementById("game");
 
-            function updateCanvasSize(window, canvas) {
-                canvas.style.width = window.innerWidth + "px";
-                canvas.style.height = window.innerHeight + "px";
-            }
-
-            // Resize Canvas on Window Resize
-            window.addEventListener("resize", () => {
-                updateCanvasSize(window, canvas);
-            });
-
-            init()
-                .then(() => {
-                    updateCanvasSize(window, canvas);
-                })
-                .catch((error) => {
-                    if (
-                        !error.message.startsWith(
-                            "Using exceptions for control flow, don't mind me. This isn't actually an error!",
-                        )
-                    ) {
-                        throw error;
-                    }
-                });
-        </script>
-    </body>
+      init().catch((error) => {
+        if (
+          !error.message.startsWith(
+            "Using exceptions for control flow, don't mind me. This isn't actually an error!",
+          )
+        ) {
+          throw error;
+        }
+      });
+    </script>
+  </body>
 </html>
