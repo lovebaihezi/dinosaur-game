@@ -59,20 +59,18 @@ pub fn tree_move_animation(
 }
 
 fn update_game_speed(status: &mut GameStatus, info: &mut SpeedControlInfo) {
-    unsafe {
-        if status.speed < info.max_game_speed {
-            let new_speed = status.speed.saturating_add(info.speed_increment);
-            info.speed_increment = info.speed_increment.saturating_add(info.speed_increment);
-            info.max_game_speed = info.max_game_speed.saturating_sub(info.speed_increment);
-            status.speed = if new_speed >= info.max_game_speed {
-                info.max_game_speed
-            } else {
-                new_speed
-            };
-        }
-        // info!(
-        //     "debug Modified speed: {}  MAX_GAME_SPEED {}",
-        //     status.speed, info.max_game_speed
-        // );
+    if status.speed < info.max_game_speed {
+        let new_speed = status.speed.saturating_add(info.speed_increment);
+        info.speed_increment = info.speed_increment.saturating_add(info.speed_increment);
+        info.max_game_speed = info.max_game_speed.saturating_sub(info.speed_increment);
+        status.speed = if new_speed >= info.max_game_speed {
+            info.max_game_speed
+        } else {
+            new_speed
+        };
     }
+    // info!(
+    //     "debug Modified speed: {}  MAX_GAME_SPEED {}",
+    //     status.speed, info.max_game_speed
+    // );
 }
