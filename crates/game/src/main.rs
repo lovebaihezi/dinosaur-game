@@ -7,6 +7,7 @@ use dinosaur_game::{
 };
 
 fn main() {
+    // Using OpenGL backend
     let default_plugin = DefaultPlugins.set(WindowPlugin {
         primary_window: Some(Window {
             title: "Dinosaur Game".to_string(),
