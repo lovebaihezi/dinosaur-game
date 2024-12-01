@@ -58,3 +58,6 @@ pub fn game_info(
     for dino in dino_query.iter() {
         if dino.is_over() {
             status.score = 0;
+        }
+    }
+}
