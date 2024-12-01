@@ -5,7 +5,7 @@ use bevy::{
     prelude::{
         default, Commands, EventReader, KeyCode, MouseButton, Query, Res, Touches, Transform, With,
     },
-    sprite::{Sprite, SpriteBundle},
+    sprite::Sprite,
     time::{Time, Virtual},
     window::WindowResized,
 };
@@ -14,15 +14,12 @@ use crate::components::{Dino, DINO_SIZE, DINO_WIDTH, JUMP_HIGH};
 
 pub fn setup_dino(mut commands: Commands) {
     commands.spawn((
-        SpriteBundle {
-            sprite: Sprite {
-                color: Color::srgb(0.05, 0.05, 0.05),
-                custom_size: Some(DINO_SIZE),
-                ..default()
-            },
-            transform: Transform::from_translation(Vec3::new(0.0, DINO_WIDTH / 2.0 / 0.618, 0.0)),
+        Sprite {
+            color: Color::srgb(0.05, 0.05, 0.05),
+            custom_size: Some(DINO_SIZE),
             ..default()
         },
+        Transform::from_translation(Vec3::new(0.0, DINO_WIDTH / 2.0 / 0.618, 0.0)),
         Dino::default(),
     ));
 }

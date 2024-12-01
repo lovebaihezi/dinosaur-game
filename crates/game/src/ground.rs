@@ -2,7 +2,7 @@ use bevy::{
     color::Color,
     math::{Vec2, Vec3},
     prelude::{default, Commands, EventReader, Query, Transform, With},
-    sprite::{Sprite, SpriteBundle},
+    sprite::Sprite,
     window::{Window, WindowResized},
 };
 
@@ -16,15 +16,12 @@ pub fn setup_ground(mut commands: Commands, window: Query<&Window>) {
     let window_width = window.width();
 
     commands.spawn((
-        SpriteBundle {
-            sprite: Sprite {
-                color: Color::srgba(0.0, 0.0, 0.0, 0.95),
-                custom_size: Some(Vec2::new(window_width * 0.8, 1.0)),
-                ..default()
-            },
-            transform: Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),
+        Sprite {
+            color: Color::srgba(0.0, 0.0, 0.0, 0.95),
+            custom_size: Some(Vec2::new(window_width * 0.8, 1.0)),
             ..default()
         },
+        Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),
         Ground,
     ));
 }
