@@ -3,8 +3,7 @@ use bevy::{
 };
 
 use crate::{
-    components::{Tree, MAX_GAME_SPEED, TREE_WIDTH, SPEED_INCREMENT},
-    GameStatus,
+    components::{Tree, TREE_WIDTH}, GameStatus, SpeedControlInfo
 };
 
 pub fn setup_tree(mut commands: Commands, window: Query<&Window>) {
@@ -34,6 +33,7 @@ pub fn tree_move_animation(
     time: Res<Time<Virtual>>,
     window: Query<&Window>,
     mut status: ResMut<GameStatus>,
+    mut speed_control_info: ResMut<SpeedControlInfo>
 ) {
     if time.is_paused() {
         return;
@@ -42,7 +42,7 @@ pub fn tree_move_animation(
     let window_width = window.width();
     for (mut transform, _) in tree_query.iter_mut() {
         transform.translation.x = if transform.translation.x < -window_width * 0.8 / 2.0 {
-            update_game_speed(&mut status);
+            update_game_speed(&mut status, &mut speed_control_info);
             window_width * 0.8 / 2.0
         } else {
             let more_hard_speed = (status.speed as f32).log2();
@@ -53,18 +53,18 @@ pub fn tree_move_animation(
 }
 
 
-fn update_game_speed(status: &mut GameStatus) {
+fn update_game_speed(status: &mut GameStatus, info: &mut SpeedControlInfo) {
     unsafe {
-        if status.speed < MAX_GAME_SPEED {
-            let new_speed = status.speed.saturating_add(SPEED_INCREMENT);
-            SPEED_INCREMENT = SPEED_INCREMENT.saturating_add(SPEED_INCREMENT);
-            MAX_GAME_SPEED = MAX_GAME_SPEED.saturating_sub(SPEED_INCREMENT);
-            status.speed = if new_speed >= MAX_GAME_SPEED {
-                MAX_GAME_SPEED
+        if status.speed < info.max_game_speed {
+            let new_speed = status.speed.saturating_add(info.speed_increment);
+            info.speed_increment = info.speed_increment.saturating_add(info.speed_increment);
+            info.max_game_speed = info.max_game_speed.saturating_sub(info.speed_increment);
+            status.speed = if new_speed >= info.max_game_speed {
+                info.max_game_speed
             } else {
                 new_speed
             };
         }
-        println!("tree_move_animation Modified speed: {}  MAX_GAME_SPEED {}", status.speed, MAX_GAME_SPEED);
+        println!("tree_move_animation Modified speed: {}  MAX_GAME_SPEED {}", status.speed, info.max_game_speed);
     }
 }

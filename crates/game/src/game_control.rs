@@ -16,6 +16,7 @@ use bevy::{
 use crate::{
     components::{Dino, GameControl},
     GameStatus,
+    SpeedControlInfo
 };
 
 fn base_node() -> NodeBundle {
@@ -178,6 +179,7 @@ pub fn game_info(
     dino_query: Query<&Dino>,
     diagnostics: Res<DiagnosticsStore>,
     mut status: ResMut<GameStatus>,
+    mut speed_info: ResMut<SpeedControlInfo>,
     time: Res<Time<Virtual>>,
 ) {
     if !time.is_paused() {
