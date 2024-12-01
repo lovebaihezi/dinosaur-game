@@ -15,8 +15,7 @@ use bevy::{
 
 use crate::{
     components::{Dino, GameControl},
-    GameStatus,
-    SpeedControlInfo
+    GameStatus, SpeedControlInfo,
 };
 
 fn base_node() -> NodeBundle {

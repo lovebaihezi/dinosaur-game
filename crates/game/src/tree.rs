@@ -1,10 +1,19 @@
 use bevy::{
-    color::Color, math::{Vec2, Vec3}, prelude::{default, Commands, Query, Res, ResMut, Transform}, sprite::{Sprite, SpriteBundle}, time::{Time, Virtual}, ui::update, window::Window
+    color::Color,
+    math::{Vec2, Vec3},
+    prelude::{default, Commands, Query, Res, ResMut, Transform},
+    sprite::{Sprite, SpriteBundle},
+    time::{Time, Virtual},
+    ui::update,
+    window::Window,
 };
 
 use crate::{
-    components::{Tree, TREE_WIDTH}, GameStatus, SpeedControlInfo
+    components::{Tree, TREE_WIDTH},
+    GameStatus, SpeedControlInfo,
 };
+
+use log::{debug, info, trace, warn};
 
 pub fn setup_tree(mut commands: Commands, window: Query<&Window>) {
     let window = window.single();
@@ -33,7 +42,7 @@ pub fn tree_move_animation(
     time: Res<Time<Virtual>>,
     window: Query<&Window>,
     mut status: ResMut<GameStatus>,
-    mut speed_control_info: ResMut<SpeedControlInfo>
+    mut speed_control_info: ResMut<SpeedControlInfo>,
 ) {
     if time.is_paused() {
         return;
@@ -52,7 +61,6 @@ pub fn tree_move_animation(
     }
 }
 
-
 fn update_game_speed(status: &mut GameStatus, info: &mut SpeedControlInfo) {
     unsafe {
         if status.speed < info.max_game_speed {
@@ -65,6 +73,9 @@ fn update_game_speed(status: &mut GameStatus, info: &mut SpeedControlInfo) {
                 new_speed
             };
         }
-        println!("tree_move_animation Modified speed: {}  MAX_GAME_SPEED {}", status.speed, info.max_game_speed);
+        // info!(
+        //     "debug Modified speed: {}  MAX_GAME_SPEED {}",
+        //     status.speed, info.max_game_speed
+        // );
     }
 }

@@ -9,5 +9,5 @@ pub struct GameStatus {
 #[derive(Debug, Default, Resource)]
 pub struct SpeedControlInfo {
     pub speed_increment: u64,
-    pub max_game_speed: u64
+    pub max_game_speed: u64,
 }
