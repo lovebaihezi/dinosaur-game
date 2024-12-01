@@ -1,5 +1,5 @@
 use bevy::{
-     dev_tools::fps_overlay::FpsOverlayConfig,
+    dev_tools::fps_overlay::FpsOverlayConfig,
     input::ButtonInput,
     prelude::{Commands, KeyCode, MouseButton, Query, Res, ResMut, Touches},
     time::{Time, Virtual},
