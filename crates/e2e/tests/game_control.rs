@@ -1,10 +1,10 @@
-use bevy::{app::ScheduleRunnerPlugin, diagnostic::FrameTimeDiagnosticsPlugin, prelude::*};
+use bevy::prelude::*;
 
-use dinosaur_game::GameStatus;
+// use dinosaur_game::GameStatus;
 
 #[test]
 fn game_time_pause_as_no_focus() {
-    let mut app = App::new();
+    let _app = App::new();
 
     //app.add_plugins((
     //    DefaultPlugins.set(ScheduleRunnerPlugin::run_once()),
