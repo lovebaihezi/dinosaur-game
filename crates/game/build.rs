@@ -23,14 +23,25 @@ fn get_branch() {
 }
 
 fn get_build_date() {
-    let build_date = Command::new("date")
-        .args(["+%Y-%m-%d %H:%M:%S"])
-        .output()
-        .unwrap();
+    if cfg!(target_os = "windows") {
+        let build_date = Command::new("pwsh")
+            .args(["-Command", "(Get-Date).ToString('yyyy-MM-dd HH:mm:ss')"])
+            .output()
+            .unwrap();
 
-    let date = String::from_utf8(build_date.stdout).unwrap();
+        let date = String::from_utf8(build_date.stdout).unwrap();
 
-    println!("cargo:rustc-env=BUILD_DATE={}", date);
+        println!("cargo:rustc-env=BUILD_DATE={}", date);
+    } else {
+        let build_date = Command::new("date")
+            .args(["+%Y-%m-%d %H:%M:%S"])
+            .output()
+            .unwrap();
+
+        let date = String::from_utf8(build_date.stdout).unwrap();
+
+        println!("cargo:rustc-env=BUILD_DATE={}", date);
+    }
 }
 
 fn main() {
