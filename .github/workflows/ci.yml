@@ -31,7 +31,7 @@ jobs:
       - uses: actions-rust-lang/setup-rust-toolchain@v1
       - uses: denoland/setup-deno@v2
         with:
-          deno-version: v1.46.3
+          deno-version: v2.0.2
       - run: |
           rustup component add rustc-codegen-cranelift-preview --toolchain nightly
       - name: Install Dependencies
@@ -64,7 +64,7 @@ jobs:
           rustup component add rustc-codegen-cranelift-preview --toolchain nightly
       - uses: denoland/setup-deno@v2
         with:
-          deno-version: v1.46.3
+          deno-version: v2.0.2
       - name: Install Dependencies
         run: |
           sudo apt-get update;
