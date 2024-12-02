@@ -8,7 +8,7 @@ use bevy::{
 
 use crate::{
     components::{Dino, GameControl},
-    GameStatus
+    GameStatus,
 };
 
 pub fn setup_game_control(commands: Commands, mut time: ResMut<Time<Virtual>>) {
