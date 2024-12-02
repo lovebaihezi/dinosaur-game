@@ -4,7 +4,6 @@ use bevy::{
     prelude::{default, Commands, Query, Res, ResMut, Transform},
     sprite::Sprite,
     time::{Time, Virtual},
-    ui::update,
     window::Window,
 };
 
@@ -12,8 +11,6 @@ use crate::{
     components::{Tree, TREE_WIDTH},
     GameStatus, SpeedControlInfo,
 };
-
-use log::{debug, info, trace, warn};
 
 pub fn setup_tree(mut commands: Commands, window: Query<&Window>) {
     let window = window.single();

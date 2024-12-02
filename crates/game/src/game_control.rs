@@ -8,7 +8,7 @@ use bevy::{
 
 use crate::{
     components::{Dino, GameControl},
-    GameStatus, SpeedControlInfo,
+    GameStatus
 };
 
 pub fn setup_game_control(commands: Commands, mut time: ResMut<Time<Virtual>>) {
@@ -49,7 +49,6 @@ pub fn user_control(
 pub fn game_info(
     dino_query: Query<&Dino>,
     mut status: ResMut<GameStatus>,
-    mut speed_info: ResMut<SpeedControlInfo>,
     time: Res<Time<Virtual>>,
 ) {
     if !time.is_paused() {
