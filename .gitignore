@@ -26,3 +26,5 @@ web/dinosaur-game_bg.wasm
 web/dinosaur-game.wasm.br
 wasm/
 /.zed
+
+.vscode\launch.json
