@@ -6,10 +6,7 @@ use bevy::{
     window::Window,
 };
 
-use crate::{
-    components::{Dino, GameControl},
-    GameStatus,
-};
+use crate::{components::Dino, GameStatus};
 
 pub fn setup_game_control(commands: Commands, mut time: ResMut<Time<Virtual>>) {
     time.pause();
