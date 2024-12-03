@@ -3,7 +3,7 @@ use crate::{
     game_logic::{dino_touched_tree, reset_game},
     setup_camera, setup_dino, setup_game_control, setup_ground, setup_tree,
     test_functions::{CaptureFramePlugin, ImageCopyPlugin},
-    tree_move_animation, update_ground, user_control, GameStatus,
+    tree_move_animation, update_ground, user_control, GameStatus, SpeedControlInfo,
 };
 use bevy::{
     app::PluginGroupBuilder,
@@ -66,6 +66,10 @@ impl Game {
             .add_plugins((default_plugins(app_type), fps_plugin()))
             .insert_resource(GameStatus { speed: 5, score: 0 })
             .insert_resource(ClearColor(Color::srgb(1.0, 1.0, 1.0)))
+            .insert_resource(SpeedControlInfo {
+                speed_increment: 100,
+                max_game_speed: u64::MAX,
+            })
             .add_systems(
                 Startup,
                 (
