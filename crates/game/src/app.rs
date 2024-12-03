@@ -21,7 +21,7 @@ pub struct Game {
 #[derive(Debug, Clone, Copy)]
 pub enum AppType {
     Normal,
-    TestNoRender,
+    NoWinitTesting,
 }
 
 fn default_plugins(app_type: AppType) -> PluginGroupBuilder {
@@ -32,14 +32,14 @@ fn default_plugins(app_type: AppType) -> PluginGroupBuilder {
             fit_canvas_to_parent: true,
             ..Default::default()
         }),
-        AppType::TestNoRender => None,
+        AppType::NoWinitTesting => None,
     };
     let plugin = DefaultPlugins.set(WindowPlugin {
         primary_window,
         ..Default::default()
     });
     match app_type {
-        AppType::TestNoRender => plugin.disable::<WinitPlugin>(),
+        AppType::NoWinitTesting => plugin.disable::<WinitPlugin>(),
         AppType::Normal => plugin,
     }
 }
@@ -93,7 +93,7 @@ impl Game {
             );
         match app_type {
             AppType::Normal => {}
-            AppType::TestNoRender => {
+            AppType::NoWinitTesting => {
                 game.app
                     .add_plugins(ImageCopyPlugin)
                     .add_plugins(CaptureFramePlugin);

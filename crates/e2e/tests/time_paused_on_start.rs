@@ -1,7 +1,8 @@
 use dinosaur_game::app::{AppType, Game};
 #[test]
 fn game_time_pause_as_no_focus() {
-    let test_game = Game::init(AppType::TestNoRender);
+    let test_game = Game::init(AppType::NoWinitTesting);
+    _ = test_game;
     //let _app = App::new();
 
     //app.add_plugins((
