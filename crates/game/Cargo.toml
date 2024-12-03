@@ -7,3 +7,4 @@ build = "build.rs"
 [dependencies]
 bevy = { workspace = true }
 log = { workspace = true }
+flume = { workspace = true }

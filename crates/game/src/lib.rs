@@ -1,3 +1,4 @@
+pub mod app;
 mod camera;
 pub mod components;
 mod dino;
@@ -5,6 +6,7 @@ mod game_control;
 pub mod game_logic;
 mod ground;
 mod resources;
+pub mod test_functions;
 mod tree;
 
 pub use camera::setup_camera;
