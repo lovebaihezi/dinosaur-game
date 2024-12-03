@@ -13,6 +13,7 @@ log = { version = "*", features = [
     "max_level_debug",
     "release_max_level_warn",
 ] }
+ruzstd = { version = "^0.7.3" }
 
 [profile.dev]
 opt-level = 1
