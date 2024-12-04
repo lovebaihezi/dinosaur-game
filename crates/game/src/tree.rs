@@ -1,7 +1,7 @@
 use bevy::{
     color::Color,
     math::{Vec2, Vec3},
-    prelude::{default, Commands, Query, Res, ResMut, Single, Transform},
+    prelude::{default, Commands, Query, Res, ResMut, Transform},
     sprite::Sprite,
     time::{Time, Virtual},
     window::Window,
