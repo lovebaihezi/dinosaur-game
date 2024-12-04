@@ -9,7 +9,7 @@ mod resources;
 pub mod test_functions;
 mod tree;
 
-pub use camera::setup_camera;
+pub use camera::normal_app_setup;
 pub use dino::*;
 pub use game_control::*;
 pub use ground::*;

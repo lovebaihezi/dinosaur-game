@@ -8,3 +8,4 @@ build = "build.rs"
 bevy = { workspace = true }
 log = { workspace = true }
 flume = { workspace = true }
+dotenv = { workspace = true }

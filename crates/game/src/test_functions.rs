@@ -1,8 +1,10 @@
 use bevy::{
     app::AppExit,
+    core_pipeline::tonemapping::Tonemapping,
     image::TextureFormatPixelInfo,
     prelude::*,
     render::{
+        self,
         camera::RenderTarget,
         render_asset::{RenderAssetUsages, RenderAssets},
         render_graph::{self, NodeRunError, RenderGraph, RenderGraphContext, RenderLabel},
@@ -12,6 +14,7 @@ use bevy::{
             TextureUsages,
         },
         renderer::{RenderContext, RenderDevice, RenderQueue},
+        texture::GpuImage,
         Extract, Render, RenderApp, RenderSet,
     },
 };
@@ -27,7 +30,7 @@ use std::{
 
 /// Capture image settings and state
 #[derive(Debug, Default, Resource)]
-struct SceneController {
+pub struct SceneController {
     state: SceneState,
     name: String,
     width: u32,
@@ -57,65 +60,40 @@ enum SceneState {
     Render(u32),
 }
 
-//fn setup(
-//    mut commands: Commands,
-//    mut meshes: ResMut<Assets<Mesh>>,
-//    mut materials: ResMut<Assets<StandardMaterial>>,
-//    mut images: ResMut<Assets<Image>>,
-//    mut scene_controller: ResMut<SceneController>,
-//    render_device: Res<RenderDevice>,
-//) {
-//    let render_target = setup_render_target(
-//        &mut commands,
-//        &mut images,
-//        &render_device,
-//        &mut scene_controller,
-//        // pre_roll_frames should be big enough for full scene render,
-//        // but the bigger it is, the longer example will run.
-//        // To visualize stages of scene rendering change this param to 0
-//        // and change AppConfig::single_image to false in main
-//        // Stages are:
-//        // 1. Transparent image
-//        // 2. Few black box images
-//        // 3. Fully rendered scene images
-//        // Exact number depends on device speed, device load and scene size
-//        40,
-//        "main_scene".into(),
-//    );
-//
-//    // Scene example for non black box picture
-//    // circular base
-//    commands.spawn((
-//        Mesh3d(meshes.add(Circle::new(4.0))),
-//        MeshMaterial3d(materials.add(Color::WHITE)),
-//        Transform::from_rotation(Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2)),
-//    ));
-//    // cube
-//    commands.spawn((
-//        Mesh3d(meshes.add(Cuboid::new(1.0, 1.0, 1.0))),
-//        MeshMaterial3d(materials.add(Color::srgb_u8(124, 144, 255))),
-//        Transform::from_xyz(0.0, 0.5, 0.0),
-//    ));
-//    // light
-//    commands.spawn((
-//        PointLight {
-//            shadows_enabled: true,
-//            ..default()
-//        },
-//        Transform::from_xyz(4.0, 8.0, 4.0),
-//    ));
-//
-//    commands.spawn((
-//        Camera3d::default(),
-//        Camera {
-//            // render to image
-//            target: render_target,
-//            ..default()
-//        },
-//        Tonemapping::None,
-//        Transform::from_xyz(-2.5, 4.5, 9.0).looking_at(Vec3::ZERO, Vec3::Y),
-//    ));
-//}
+pub fn render_to_image_setup(
+    mut commands: Commands,
+    mut images: ResMut<Assets<Image>>,
+    mut scene_controller: ResMut<SceneController>,
+    render_device: Res<RenderDevice>,
+) {
+    let render_target = setup_render_target(
+        &mut commands,
+        &mut images,
+        &render_device,
+        &mut scene_controller,
+        // pre_roll_frames should be big enough for full scene render,
+        // but the bigger it is, the longer example will run.
+        // To visualize stages of scene rendering change this param to 0
+        // and change AppConfig::single_image to false in main
+        // Stages are:
+        // 1. Transparent image
+        // 2. Few black box images
+        // 3. Fully rendered scene images
+        // Exact number depends on device speed, device load and scene size
+        40,
+        "main_scene".into(),
+    );
+
+    commands.spawn((
+        Camera2d,
+        Camera {
+            // render to image
+            target: render_target,
+            ..default()
+        },
+        Tonemapping::None,
+    ));
+}
 
 /// This will receive asynchronously any data sent from the render world
 #[derive(Resource, Deref)]
@@ -136,7 +114,7 @@ impl Plugin for ImageCopyPlugin {
 
         let mut graph = render_app.world_mut().resource_mut::<RenderGraph>();
         graph.add_node(ImageCopy, ImageCopyDriver);
-        graph.add_node_edge(bevy::render::graph::CameraDriverLabel, ImageCopy);
+        graph.add_node_edge(render::graph::CameraDriverLabel, ImageCopy);
 
         render_app
             .insert_resource(RenderWorldSender(s))
@@ -202,7 +180,6 @@ fn setup_render_target(
 pub struct CaptureFramePlugin;
 impl Plugin for CaptureFramePlugin {
     fn build(&self, app: &mut App) {
-        info!("Adding CaptureFramePlugin");
         app.add_systems(PostUpdate, update);
     }
 }
@@ -271,9 +248,7 @@ impl render_graph::Node for ImageCopyDriver {
         world: &World,
     ) -> Result<(), NodeRunError> {
         let image_copiers = world.get_resource::<ImageCopiers>().unwrap();
-        let gpu_images = world
-            .get_resource::<RenderAssets<bevy::render::texture::GpuImage>>()
-            .unwrap();
+        let gpu_images = world.get_resource::<RenderAssets<GpuImage>>().unwrap();
 
         for image_copier in image_copiers.iter() {
             if !image_copier.enabled() {

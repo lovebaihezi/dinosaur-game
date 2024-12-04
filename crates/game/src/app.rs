@@ -1,12 +1,14 @@
+use std::time::Duration;
+
 use crate::{
     dino_jump_animation, dino_jump_system, dino_pos_fix_system, game_info,
     game_logic::{dino_touched_tree, reset_game},
-    setup_camera, setup_dino, setup_game_control, setup_ground, setup_tree,
-    test_functions::{CaptureFramePlugin, ImageCopyPlugin},
+    normal_app_setup, setup_dino, setup_game_control, setup_ground, setup_tree,
+    test_functions::{render_to_image_setup, CaptureFramePlugin, ImageCopyPlugin, SceneController},
     tree_move_animation, update_ground, user_control, GameStatus, SpeedControlInfo,
 };
 use bevy::{
-    app::PluginGroupBuilder,
+    app::{PluginGroupBuilder, ScheduleRunnerPlugin},
     dev_tools::fps_overlay::{FpsOverlayConfig, FpsOverlayPlugin},
     prelude::*,
     text::FontSmoothing,
@@ -21,7 +23,7 @@ pub struct Game {
 #[derive(Debug, Clone, Copy)]
 pub enum AppType {
     Normal,
-    NoWinitTesting,
+    RenderToImageTesting,
 }
 
 fn default_plugins(app_type: AppType) -> PluginGroupBuilder {
@@ -32,14 +34,16 @@ fn default_plugins(app_type: AppType) -> PluginGroupBuilder {
             fit_canvas_to_parent: true,
             ..Default::default()
         }),
-        AppType::NoWinitTesting => None,
+        AppType::RenderToImageTesting => None,
     };
     let plugin = DefaultPlugins.set(WindowPlugin {
         primary_window,
         ..Default::default()
     });
     match app_type {
-        AppType::NoWinitTesting => plugin.disable::<WinitPlugin>(),
+        AppType::RenderToImageTesting => plugin
+            .disable::<WinitPlugin>()
+            .set(ImagePlugin::default_nearest()),
         AppType::Normal => plugin,
     }
 }
@@ -75,7 +79,7 @@ impl Game {
                 (
                     setup_ground,
                     setup_dino,
-                    setup_camera,
+                    normal_app_setup,
                     setup_tree,
                     setup_game_control,
                 ),
@@ -92,11 +96,19 @@ impl Game {
                 ),
             );
         match app_type {
-            AppType::Normal => {}
-            AppType::NoWinitTesting => {
+            AppType::Normal => {
+                game.app.add_systems(Startup, normal_app_setup);
+            }
+            AppType::RenderToImageTesting => {
                 game.app
+                    .add_systems(Startup, render_to_image_setup)
                     .add_plugins(ImageCopyPlugin)
-                    .add_plugins(CaptureFramePlugin);
+                    .add_plugins(CaptureFramePlugin)
+                    .add_plugins(ScheduleRunnerPlugin::run_loop(
+                        // Run 60 times per second.
+                        Duration::from_secs_f64(1.0 / 60.0),
+                    ))
+                    .init_resource::<SceneController>();
             }
         };
         game
