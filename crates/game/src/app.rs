@@ -68,7 +68,12 @@ impl Game {
         let mut game = Game { app: App::new() };
         game.app
             .add_plugins((default_plugins(app_type), fps_plugin()))
-            .insert_resource(GameStatus { speed: 5, score: 0 })
+            .insert_resource(GameStatus {
+                speed: 5,
+                score: 0,
+                window_width: 1920,
+                window_height: 1080,
+            })
             .insert_resource(ClearColor(Color::srgb(1.0, 1.0, 1.0)))
             .insert_resource(SpeedControlInfo {
                 speed_increment: 100,
