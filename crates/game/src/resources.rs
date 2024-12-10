@@ -4,8 +4,8 @@ use bevy::prelude::*;
 pub struct GameStatus {
     pub score: u64,
     pub speed: u64,
-    pub window_width: u32,
-    pub window_height: u32,
+    pub window_width: f32,
+    pub window_height: f32,
 }
 
 #[derive(Debug, Default, Resource)]

@@ -1,12 +1,9 @@
-use std::borrow::Borrow;
-
 use bevy::{
     color::Color,
     math::{Vec2, Vec3},
     prelude::{default, Commands, Query, Res, ResMut, Transform},
     sprite::Sprite,
     time::{Time, Virtual},
-    window::Window,
 };
 
 use crate::{
@@ -14,8 +11,8 @@ use crate::{
     GameStatus, SpeedControlInfo,
 };
 
-pub fn setup_tree(mut commands: Commands, status: Res<&GameStatus>) {
-    let window_width = status.window_width as f32;
+pub fn setup_tree(mut commands: Commands, status: Res<GameStatus>) {
+    let window_width = status.window_width;
 
     commands.spawn((
         Sprite {
@@ -35,15 +32,13 @@ pub fn setup_tree(mut commands: Commands, status: Res<&GameStatus>) {
 pub fn tree_move_animation(
     mut tree_query: Query<(&mut Transform, &mut Tree)>,
     time: Res<Time<Virtual>>,
-    window: Query<&Window>,
     mut status: ResMut<GameStatus>,
     mut speed_control_info: ResMut<SpeedControlInfo>,
 ) {
     if time.is_paused() {
         return;
     }
-    let window = window.single();
-    let window_width = window.width();
+    let window_width = status.window_width;
     for (mut transform, _) in tree_query.iter_mut() {
         transform.translation.x = if transform.translation.x < -window_width * 0.8 / 2.0 {
             update_game_speed(&mut status, &mut speed_control_info);
@@ -67,8 +62,4 @@ fn update_game_speed(status: &mut GameStatus, info: &mut SpeedControlInfo) {
             new_speed
         };
     }
-    // info!(
-    //     "debug Modified speed: {}  MAX_GAME_SPEED {}",
-    //     status.speed, info.max_game_speed
-    // );
 }
