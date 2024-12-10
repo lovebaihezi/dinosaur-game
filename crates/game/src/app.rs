@@ -5,7 +5,8 @@ use crate::{
     game_logic::{dino_touched_tree, reset_game},
     normal_app_setup, setup_dino, setup_game_control, setup_ground, setup_tree,
     test_functions::{render_to_image_setup, CaptureFramePlugin, ImageCopyPlugin, SceneController},
-    tree_move_animation, update_ground, user_control, GameStatus, SpeedControlInfo,
+    tree_move_animation, update_ground, update_window_size, user_control, GameStatus,
+    SpeedControlInfo,
 };
 use bevy::{
     app::{PluginGroupBuilder, ScheduleRunnerPlugin},
@@ -102,7 +103,9 @@ impl Game {
             );
         match app_type {
             AppType::Normal => {
-                game.app.add_systems(Startup, normal_app_setup);
+                game.app
+                    .add_systems(Startup, normal_app_setup)
+                    .add_systems(Update, update_window_size);
             }
             AppType::RenderToImageTesting => {
                 game.app

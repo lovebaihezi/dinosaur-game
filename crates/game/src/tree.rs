@@ -1,3 +1,5 @@
+use std::borrow::Borrow;
+
 use bevy::{
     color::Color,
     math::{Vec2, Vec3},
@@ -12,9 +14,8 @@ use crate::{
     GameStatus, SpeedControlInfo,
 };
 
-pub fn setup_tree(mut commands: Commands, window: Query<&Window>) {
-    let window = window.single();
-    let window_width = window.width();
+pub fn setup_tree(mut commands: Commands, status: Res<&GameStatus>) {
+    let window_width = status.window_width as f32;
 
     commands.spawn((
         Sprite {
