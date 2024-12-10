@@ -82,13 +82,7 @@ impl Game {
             })
             .add_systems(
                 Startup,
-                (
-                    setup_ground,
-                    setup_dino,
-                    normal_app_setup,
-                    setup_tree,
-                    setup_game_control,
-                ),
+                (setup_ground, setup_dino, setup_tree, setup_game_control),
             )
             .add_systems(
                 Update,
