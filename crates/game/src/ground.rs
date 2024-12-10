@@ -1,19 +1,17 @@
 use bevy::{
     color::Color,
     math::{Vec2, Vec3},
-    prelude::{default, Commands, EventReader, Query, Transform, With},
+    prelude::{default, Commands, Query, Res, Transform, With},
     sprite::Sprite,
-    window::{Window, WindowResized},
 };
 
-use crate::components::Ground;
+use crate::{components::Ground, GameStatus};
 
-pub fn setup_ground(mut commands: Commands, window: Query<&Window>) {
+pub fn setup_ground(mut commands: Commands, game_status: Res<GameStatus>) {
     // the ground width is the same as the window width
     // the ground height is 100 pixels
     // the ground x at 0, y at center of the window
-    let window = window.single();
-    let window_width = window.width();
+    let window_width = game_status.window_width;
 
     commands.spawn((
         Sprite {
@@ -28,13 +26,12 @@ pub fn setup_ground(mut commands: Commands, window: Query<&Window>) {
 
 /// Update the ground width, position on window resize
 pub fn update_ground(
+    game_status: Res<GameStatus>,
     mut query: Query<(&mut Transform, &Sprite), With<Ground>>,
-    mut resize_reader: EventReader<WindowResized>,
 ) {
-    for resize_event in resize_reader.read() {
-        for (mut transform, sprite) in query.iter_mut() {
-            let sprite_width = sprite.custom_size.unwrap().x;
-            transform.scale = Vec3::new(resize_event.width * 0.8 / sprite_width, 1.0, 1.0);
-        }
+    let window_width = game_status.window_width;
+    for (mut transform, sprite) in query.iter_mut() {
+        let sprite_width = sprite.custom_size.unwrap().x;
+        transform.scale = Vec3::new(window_width * 0.8 / sprite_width, 1.0, 1.0);
     }
 }

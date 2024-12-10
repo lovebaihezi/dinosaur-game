@@ -5,7 +5,8 @@ use crate::{
     game_logic::{dino_touched_tree, reset_game},
     normal_app_setup, setup_dino, setup_game_control, setup_ground, setup_tree,
     test_functions::{render_to_image_setup, CaptureFramePlugin, ImageCopyPlugin, SceneController},
-    tree_move_animation, update_ground, user_control, GameStatus, SpeedControlInfo,
+    tree_move_animation, update_ground, update_window_size, user_control, GameStatus,
+    SpeedControlInfo,
 };
 use bevy::{
     app::{PluginGroupBuilder, ScheduleRunnerPlugin},
@@ -68,7 +69,12 @@ impl Game {
         let mut game = Game { app: App::new() };
         game.app
             .add_plugins((default_plugins(app_type), fps_plugin()))
-            .insert_resource(GameStatus { speed: 5, score: 0 })
+            .insert_resource(GameStatus {
+                speed: 5,
+                score: 0,
+                window_width: 1920.0,
+                window_height: 1080.0,
+            })
             .insert_resource(ClearColor(Color::srgb(1.0, 1.0, 1.0)))
             .insert_resource(SpeedControlInfo {
                 speed_increment: 100,
@@ -76,13 +82,7 @@ impl Game {
             })
             .add_systems(
                 Startup,
-                (
-                    setup_ground,
-                    setup_dino,
-                    normal_app_setup,
-                    setup_tree,
-                    setup_game_control,
-                ),
+                (setup_ground, setup_dino, setup_tree, setup_game_control),
             )
             .add_systems(
                 Update,
@@ -97,7 +97,9 @@ impl Game {
             );
         match app_type {
             AppType::Normal => {
-                game.app.add_systems(Startup, normal_app_setup);
+                game.app
+                    .add_systems(Startup, normal_app_setup)
+                    .add_systems(Update, update_window_size);
             }
             AppType::RenderToImageTesting => {
                 game.app
