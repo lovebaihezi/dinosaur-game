@@ -2,15 +2,15 @@ use bevy::{
     color::Color,
     input::ButtonInput,
     math::Vec3,
-    prelude::{
-        default, Commands, EventReader, KeyCode, MouseButton, Query, Res, Touches, Transform, With,
-    },
+    prelude::{default, Commands, KeyCode, MouseButton, Query, Res, Touches, Transform, With},
     sprite::Sprite,
     time::{Time, Virtual},
-    window::WindowResized,
 };
 
-use crate::components::{Dino, DINO_SIZE, DINO_WIDTH, JUMP_HIGH};
+use crate::{
+    components::{Dino, DINO_SIZE, DINO_WIDTH, JUMP_HIGH},
+    GameStatus,
+};
 
 pub fn setup_dino(mut commands: Commands) {
     commands.spawn((
@@ -26,13 +26,11 @@ pub fn setup_dino(mut commands: Commands) {
 
 pub fn dino_pos_fix_system(
     mut query: Query<(&mut Transform, &Sprite), With<Dino>>,
-    mut events: EventReader<WindowResized>,
+    game_status: Res<GameStatus>,
 ) {
-    for e in events.read() {
-        for (mut transform, _sprite) in query.iter_mut() {
-            let window_width = e.width;
-            transform.translation.x = -window_width / 2.0 + DINO_WIDTH / 2.0 + 0.2 * window_width;
-        }
+    for (mut transform, _sprite) in query.iter_mut() {
+        let window_width = game_status.window_width;
+        transform.translation.x = -window_width / 2.0 + DINO_WIDTH / 2.0 + 0.2 * window_width;
     }
 }
 
