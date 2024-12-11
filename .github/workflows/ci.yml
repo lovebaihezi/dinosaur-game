@@ -10,7 +10,7 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  # Run cargo test
+  # Run cargo test on Linux
   test:
     name: Test Suite
     runs-on: ubuntu-latest
@@ -35,11 +35,18 @@ jobs:
       - run: |
           rustup component add rustc-codegen-cranelift-preview --toolchain nightly
       - name: Install Dependencies
-        run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev clang mold libwayland-dev libxkbcommon-dev
+        run: |
+          set -e
+          sudo apt-get update -y -qq
+          sudo apt-get install --no-install-recommends libasound2-dev libudev-dev clang mold libwayland-dev libxkbcommon-dev
+          # vulkan sdk
+          wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add -
+          sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-$VULKAN_SDK_VERSION-jammy.list https://packages.lunarg.com/vulkan/$VULKAN_SDK_VERSION/lunarg-vulkan-$VULKAN_SDK_VERSION-jammy.list
+          sudo apt-get update
+          sudo apt install -y vulkan-sdk
       - name: Run cargo test
         run: |
-          # To run WGPU, we need GPU, setup another Linux server for specific testing
-          #cargo test
+          cargo test
 
   # Run cargo clippy -- -D warnings
   clippy_check:
