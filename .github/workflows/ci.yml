@@ -8,7 +8,11 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  # Variable Above comes from wgpu ci
   VULKAN_SDK_VERSION: "1.3.290"
+  MESA_VERSION: "24.2.3"
+  # Corresponds to https://github.com/gfx-rs/ci-build/releases
+  CI_BINARY_BUILD: "build19"
 
 jobs:
   # Run cargo test on Linux
