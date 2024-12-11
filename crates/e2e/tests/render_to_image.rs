@@ -1,3 +1,5 @@
+use dinosaur_game::app::{AppType, Game};
+
 #[test]
 fn render_game_to_image() {
     let test_game = Game::init(AppType::RenderToImageTesting);
