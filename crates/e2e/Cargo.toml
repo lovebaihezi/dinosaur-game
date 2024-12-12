@@ -6,3 +6,4 @@ build = "build.rs"
 
 [dependencies]
 dinosaur-game = { path = "../game" }
+flume = { workspace = true }
