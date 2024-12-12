@@ -201,7 +201,7 @@ fn setup(
 pub struct ImageCopyPlugin;
 impl Plugin for ImageCopyPlugin {
     fn build(&self, app: &mut App) {
-        let (s, r) = crossbeam_channel::unbounded();
+        let (s, r) = flume::unbounded();
 
         let render_app = app
             .insert_resource(MainWorldReceiver(r))
@@ -440,7 +440,7 @@ fn receive_image_from_buffer(
         // channels is wholly unnecessary, for the sake of portability to Wasm
         // we'll use async channels that work on both native and Wasm.
 
-        let (s, r) = crossbeam_channel::bounded(1);
+        let (s, r) = flume::bounded(1);
 
         // Maps the buffer so it can be read on the cpu
         buffer_slice.map_async(MapMode::Read, move |r| match r {
