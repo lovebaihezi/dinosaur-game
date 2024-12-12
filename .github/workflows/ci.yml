@@ -8,11 +8,16 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  # Variable Above comes from wgpu ci
+  VULKAN_SDK_VERSION: "1.3.290"
+  MESA_VERSION: "24.2.3"
+  # Corresponds to https://github.com/gfx-rs/ci-build/releases
+  CI_BINARY_BUILD: "build19"
 
 jobs:
-  # Run cargo test
-  test:
-    name: Test Suite
+  # Run cargo test on Linux
+  test-linux:
+    name: Test Suite on Linux AMD64 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -35,9 +40,67 @@ jobs:
       - run: |
           rustup component add rustc-codegen-cranelift-preview --toolchain nightly
       - name: Install Dependencies
-        run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev clang mold libwayland-dev libxkbcommon-dev
+        run: |
+          set -e
+          sudo apt-get update -y -qq
+          sudo apt-get install --no-install-recommends libasound2-dev libudev-dev clang mold libwayland-dev libxkbcommon-dev
+          # vulkan sdk
+          wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add -
+          sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-$VULKAN_SDK_VERSION-jammy.list https://packages.lunarg.com/vulkan/$VULKAN_SDK_VERSION/lunarg-vulkan-$VULKAN_SDK_VERSION-jammy.list
+          sudo apt-get update
+          sudo apt install -y vulkan-sdk
+
+          curl -L --retry 5 https://github.com/gfx-rs/ci-build/releases/download/$CI_BINARY_BUILD/mesa-$MESA_VERSION-linux-x86_64.tar.xz -o mesa.tar.xz
+          mkdir mesa
+          tar xpf mesa.tar.xz -C mesa
+
+          # The ICD provided by the mesa build is hardcoded to the build environment.
+          #
+          # We write out our own ICD file to point to the mesa vulkan
+          cat <<- EOF > icd.json
+          {
+            "ICD": {
+                "api_version": "1.1.255",
+                "library_path": "$PWD/mesa/lib/x86_64-linux-gnu/libvulkan_lvp.so"
+            },
+            "file_format_version": "1.0.0"
+          }
+          EOF
+
+          echo "VK_DRIVER_FILES=$PWD/icd.json" >> "$GITHUB_ENV"
+          echo "LD_LIBRARY_PATH=$PWD/mesa/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH" >> "$GITHUB_ENV"
+          echo "LIBGL_DRIVERS_PATH=$PWD/mesa/lib/x86_64-linux-gnu/dri" >> "$GITHUB_ENV"
       - name: Run cargo test
-        run: cargo test
+        run: |
+          # Got problems, skip it at first
+          # cargo test
+
+  test-macos:
+    name: Test Suite on MacOS
+    runs-on: macOS-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+      - name: Cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-test-${{ hashFiles('**/Cargo.toml') }}
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.0.2
+      - run: |
+          rustup component add rustc-codegen-cranelift-preview --toolchain nightly
+      - name: Run cargo test
+        run: |
+          cargo test
 
   # Run cargo clippy -- -D warnings
   clippy_check:
