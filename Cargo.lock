@@ -1901,7 +1901,6 @@ name = "dinosaur-e2e"
 version = "0.0.1"
 dependencies = [
  "dinosaur-game",
- "flume",
 ]
 
 [[package]]

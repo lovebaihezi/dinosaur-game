@@ -64,7 +64,8 @@ struct AppConfig {
     single_image: bool,
 }
 
-fn main() {
+#[test]
+fn test_head_less_image_render() {
     let config = AppConfig {
         width: 1920,
         height: 1080,
