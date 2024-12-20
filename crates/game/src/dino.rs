@@ -4,9 +4,7 @@ use bevy::{
     color::Color,
     input::ButtonInput,
     math::Vec3,
-    prelude::{
-        default, Commands, KeyCode, MouseButton, Query, Res, Touches, Transform, With,
-    },
+    prelude::{default, Commands, KeyCode, MouseButton, Query, Res, Touches, Transform, With},
     sprite::Sprite,
     time::{Time, Virtual},
 };
