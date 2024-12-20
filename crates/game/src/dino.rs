@@ -23,7 +23,7 @@ pub fn setup_dino(mut commands: Commands, asset_server: Res<AssetServer>) {
         },
         Transform::from_translation(Vec3::new(0.0, DINO_WIDTH / 2.0 / 0.618, 0.0)),
         Dino::default(),
-        AudioPlayer::new(asset_server.load("assets/Jump.ogg")),
+        AudioPlayer::new(asset_server.load("Jump.ogg")),
     ));
 }
 
