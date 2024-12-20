@@ -1,8 +1,12 @@
 use bevy::{
+    asset::AssetServer,
+    audio::{AudioPlayer, AudioSink, AudioSinkPlayback},
     color::Color,
     input::ButtonInput,
     math::Vec3,
-    prelude::{default, Commands, KeyCode, MouseButton, Query, Res, Touches, Transform, With},
+    prelude::{
+        default, Commands, KeyCode, MouseButton, Query, Res, Single, Touches, Transform, With,
+    },
     sprite::Sprite,
     time::{Time, Virtual},
 };
@@ -12,7 +16,7 @@ use crate::{
     GameStatus,
 };
 
-pub fn setup_dino(mut commands: Commands) {
+pub fn setup_dino(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn((
         Sprite {
             color: Color::srgb(0.05, 0.05, 0.05),
@@ -21,6 +25,7 @@ pub fn setup_dino(mut commands: Commands) {
         },
         Transform::from_translation(Vec3::new(0.0, DINO_WIDTH / 2.0 / 0.618, 0.0)),
         Dino::default(),
+        AudioPlayer::new(asset_server.load("sounds/Windless Slopes.ogg")),
     ));
 }
 
@@ -41,6 +46,7 @@ pub fn dino_jump_system(
     mouse: Res<ButtonInput<MouseButton>>,
     touch: Res<Touches>,
     time: Res<Time<Virtual>>,
+    sink: Query<&AudioSink, With<Dino>>,
 ) {
     if time.is_paused() {
         return;
@@ -56,6 +62,9 @@ pub fn dino_jump_system(
             if dino.in_air_start_time.is_some() {
                 continue;
             } else {
+                if let Ok(sink) = sink.get_single() {
+                    sink.toggle();
+                }
                 dino.in_air_start_time = Some(*time);
             }
         }
