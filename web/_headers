@@ -4,3 +4,6 @@
 
 /*.js
     Content-Type: application/javascript
+
+/assets/*.ogg
+    Content-Type: audio/ogg
