@@ -5,7 +5,7 @@ use bevy::{
     input::ButtonInput,
     math::Vec3,
     prelude::{
-        default, Commands, KeyCode, MouseButton, Query, Res, Single, Touches, Transform, With,
+        default, Commands, KeyCode, MouseButton, Query, Res, Touches, Transform, With,
     },
     sprite::Sprite,
     time::{Time, Virtual},
