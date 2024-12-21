@@ -41,6 +41,7 @@ jobs:
           rustup component add rustc-codegen-cranelift-preview --toolchain nightly
       - name: Install Dependencies
         run: |
+          exit 0
           set -e
           sudo apt-get update -y -qq
           sudo apt-get install --no-install-recommends libasound2-dev libudev-dev clang mold libwayland-dev libxkbcommon-dev
