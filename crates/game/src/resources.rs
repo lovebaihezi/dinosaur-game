@@ -13,3 +13,6 @@ pub struct SpeedControlInfo {
     pub speed_increment: u64,
     pub max_game_speed: u64,
 }
+
+#[derive(Resource, Deref)]
+pub struct DinoJumpMusic(pub Handle<AudioSource>);

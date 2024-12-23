@@ -1,6 +1,9 @@
 use bevy::{
+    asset::AssetServer,
+    audio::{AudioPlayer, AudioSink, AudioSinkPlayback, PlaybackSettings},
     color::Color,
     input::ButtonInput,
+    log::info,
     math::Vec3,
     prelude::{default, Commands, KeyCode, MouseButton, Query, Res, Touches, Transform, With},
     sprite::Sprite,
@@ -9,10 +12,12 @@ use bevy::{
 
 use crate::{
     components::{Dino, DINO_SIZE, DINO_WIDTH, JUMP_HIGH},
-    GameStatus,
+    DinoJumpMusic, GameStatus,
 };
 
-pub fn setup_dino(mut commands: Commands) {
+pub fn setup_dino(mut commands: Commands, assert_server: Res<AssetServer>) {
+    let sound = assert_server.load("Jump.ogg");
+    commands.insert_resource(DinoJumpMusic(sound));
     commands.spawn((
         Sprite {
             color: Color::srgb(0.05, 0.05, 0.05),
@@ -41,6 +46,8 @@ pub fn dino_jump_system(
     mouse: Res<ButtonInput<MouseButton>>,
     touch: Res<Touches>,
     time: Res<Time<Virtual>>,
+    mut commands: Commands,
+    sound: Res<DinoJumpMusic>,
 ) {
     if time.is_paused() {
         return;
@@ -56,6 +63,7 @@ pub fn dino_jump_system(
             if dino.in_air_start_time.is_some() {
                 continue;
             } else {
+                commands.spawn((AudioPlayer(sound.clone()), PlaybackSettings::DESPAWN));
                 dino.in_air_start_time = Some(*time);
             }
         }
@@ -65,6 +73,7 @@ pub fn dino_jump_system(
 pub fn dino_jump_animation(
     time: Res<Time<Virtual>>,
     mut query: Query<(&mut Transform, &mut Dino)>,
+    sink: Query<&AudioSink, With<Dino>>,
 ) {
     if time.is_paused() {
         return;
@@ -74,6 +83,10 @@ pub fn dino_jump_animation(
             let elapsed = time.elapsed() - start_time.elapsed();
             // Over
             let y = if elapsed.as_millis() > 500 {
+                if let Ok(sink) = sink.get_single() {
+                    info!("Pause Sink");
+                    sink.pause();
+                }
                 dino.in_air_start_time = None;
                 DINO_WIDTH / 2.0 / 0.618
             } else {
