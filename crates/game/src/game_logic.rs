@@ -55,10 +55,11 @@ pub fn reset_game(
         if dino.is_over() && press_reset {
             dino.ready();
             tree.ready();
-            let window = window.single();
-            let window_width = window.width();
-            tree_transform.translation.x = window_width - TREE_WIDTH;
-            dino_transform.translation.y = DINO_HEIGHT / 2.0;
+            if let Ok(window) = window.single() {
+                let window_width = window.width();
+                tree_transform.translation.x = window_width - TREE_WIDTH;
+                dino_transform.translation.y = DINO_HEIGHT / 2.0;
+            }
         }
     }
 }

@@ -83,7 +83,7 @@ pub fn dino_jump_animation(
             let elapsed = time.elapsed() - start_time.elapsed();
             // Over
             let y = if elapsed.as_millis() > 500 {
-                if let Ok(sink) = sink.get_single() {
+                if let Ok(sink) = sink.single() {
                     info!("Pause Sink");
                     sink.pause();
                 }
