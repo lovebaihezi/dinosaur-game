@@ -6,7 +6,6 @@ mod game_control;
 pub mod game_logic;
 mod ground;
 mod resources;
-pub mod test_functions;
 mod tree;
 mod windows_handler;
 
