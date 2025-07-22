@@ -12,7 +12,7 @@ use bevy::{
     app::{PluginGroupBuilder, ScheduleRunnerPlugin},
     dev_tools::fps_overlay::{FpsOverlayConfig, FpsOverlayPlugin},
     prelude::*,
-    text::FontSmoothing,
+    text::{FontSmoothing, LineHeight},
     winit::WinitPlugin,
 };
 
@@ -54,12 +54,14 @@ fn fps_plugin() -> FpsOverlayPlugin {
         config: FpsOverlayConfig {
             text_config: TextFont {
                 font_size: 16.0,
+                line_height: LineHeight::Px(16.0),
                 font: default(),
                 font_smoothing: FontSmoothing::default(),
             },
             // We can also change color of the overlay
             text_color: Color::linear_rgba(0.0, 1.0, 0.0, 1.0),
             enabled: true,
+            refresh_interval: Duration::from_millis(100),
         },
     }
 }
