@@ -49,4 +49,3 @@ fn main() {
     get_branch();
     get_build_date();
 }
-
