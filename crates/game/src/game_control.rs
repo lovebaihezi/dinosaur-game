@@ -27,19 +27,20 @@ pub fn user_control(
     mouse: Res<ButtonInput<MouseButton>>,
     touches: Res<Touches>,
 ) {
-    let window = window.single();
-    for mut dino in dino_query.iter_mut() {
-        if window.focused
-            && time.is_paused()
-            && (keyboard.just_pressed(KeyCode::Space)
-                || touches.any_just_pressed()
-                || mouse.just_pressed(MouseButton::Left))
-        {
-            dino.start();
-            time.unpause();
-        } else if !window.focused && !time.is_paused() {
-            time.pause();
-        };
+    if let Ok(window) = window.single() {
+        for mut dino in dino_query.iter_mut() {
+            if window.focused
+                && time.is_paused()
+                && (keyboard.just_pressed(KeyCode::Space)
+                    || touches.any_just_pressed()
+                    || mouse.just_pressed(MouseButton::Left))
+            {
+                dino.start();
+                time.unpause();
+            } else if !window.focused && !time.is_paused() {
+                time.pause();
+            };
+        }
     }
 }
 

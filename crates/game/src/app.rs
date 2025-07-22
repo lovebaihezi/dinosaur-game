@@ -4,15 +4,14 @@ use crate::{
     dino_jump_animation, dino_jump_system, dino_pos_fix_system, game_info,
     game_logic::{dino_touched_tree, reset_game},
     normal_app_setup, setup_dino, setup_game_control, setup_ground, setup_tree,
-    test_functions::{render_to_image_setup, CaptureFramePlugin, ImageCopyPlugin, SceneController},
     tree_move_animation, update_ground, update_window_size, user_control, GameStatus,
     SpeedControlInfo,
 };
 use bevy::{
-    app::{PluginGroupBuilder, ScheduleRunnerPlugin},
+    app::PluginGroupBuilder,
     dev_tools::fps_overlay::{FpsOverlayConfig, FpsOverlayPlugin},
     prelude::*,
-    text::FontSmoothing,
+    text::{FontSmoothing, LineHeight},
     winit::WinitPlugin,
 };
 
@@ -54,12 +53,14 @@ fn fps_plugin() -> FpsOverlayPlugin {
         config: FpsOverlayConfig {
             text_config: TextFont {
                 font_size: 16.0,
+                line_height: LineHeight::Px(16.0),
                 font: default(),
                 font_smoothing: FontSmoothing::default(),
             },
             // We can also change color of the overlay
             text_color: Color::linear_rgba(0.0, 1.0, 0.0, 1.0),
             enabled: true,
+            refresh_interval: Duration::from_millis(100),
         },
     }
 }
@@ -102,15 +103,7 @@ impl Game {
                     .add_systems(Update, update_window_size);
             }
             AppType::RenderToImageTesting => {
-                game.app
-                    .add_systems(Startup, render_to_image_setup)
-                    .add_plugins(ImageCopyPlugin)
-                    .add_plugins(CaptureFramePlugin)
-                    .add_plugins(ScheduleRunnerPlugin::run_loop(
-                        // Run 60 times per second.
-                        Duration::from_secs_f64(1.0 / 60.0),
-                    ))
-                    .init_resource::<SceneController>();
+                todo!("Follow bevy render test example to setup one render to image test");
             }
         };
         game

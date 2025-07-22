@@ -8,7 +8,7 @@ fn get_version() {
 
     let git_hash = String::from_utf8(version_output.stdout).unwrap();
 
-    println!("cargo:rustc-env=GIT_HASH={}", git_hash);
+    println!("cargo:rustc-env=GIT_HASH={git_hash}");
 }
 
 fn get_branch() {
@@ -19,7 +19,7 @@ fn get_branch() {
 
     let git_branch = String::from_utf8(branch_output.stdout).unwrap();
 
-    println!("cargo:rustc-env=GIT_BRANCH={}", git_branch);
+    println!("cargo:rustc-env=GIT_BRANCH={git_branch}");
 }
 
 fn get_build_date() {
@@ -31,7 +31,7 @@ fn get_build_date() {
 
         let date = String::from_utf8(build_date.stdout).unwrap();
 
-        println!("cargo:rustc-env=BUILD_DATE={}", date);
+        println!("cargo:rustc-env=BUILD_DATE={date}");
     } else {
         let build_date = Command::new("date")
             .args(["+%Y-%m-%d %H:%M:%S"])
@@ -40,7 +40,7 @@ fn get_build_date() {
 
         let date = String::from_utf8(build_date.stdout).unwrap();
 
-        println!("cargo:rustc-env=BUILD_DATE={}", date);
+        println!("cargo:rustc-env=BUILD_DATE={date}");
     }
 }
 
