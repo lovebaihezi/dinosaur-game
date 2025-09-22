@@ -1,16 +1,21 @@
 use bevy::{
+    app::{FixedUpdate, Plugin, Startup},
     dev_tools::fps_overlay::FpsOverlayConfig,
     input::ButtonInput,
     prelude::{Commands, KeyCode, MouseButton, Query, Res, ResMut, Touches},
+    state::state::{NextState, State},
     time::{Time, Virtual},
     window::Window,
 };
 
-use crate::{components::Dino, GameStatus};
+use crate::GameScreen;
 
-pub fn setup_game_control(commands: Commands, mut time: ResMut<Time<Virtual>>) {
-    time.pause();
-    _ = commands;
+pub struct GameControlPlugin;
+
+impl Plugin for GameControlPlugin {
+    fn build(&self, app: &mut bevy::app::App) {
+        app.add_systems(FixedUpdate, (show_fps_overlay, screen_changes));
+    }
 }
 
 pub fn show_fps_overlay(input: Res<ButtonInput<KeyCode>>, mut overlay: ResMut<FpsOverlayConfig>) {
@@ -19,42 +24,25 @@ pub fn show_fps_overlay(input: Res<ButtonInput<KeyCode>>, mut overlay: ResMut<Fp
     }
 }
 
-pub fn user_control(
+pub fn screen_changes(
     mut time: ResMut<Time<Virtual>>,
-    mut dino_query: Query<&mut Dino>,
     window: Query<&Window>,
     keyboard: Res<ButtonInput<KeyCode>>,
     mouse: Res<ButtonInput<MouseButton>>,
     touches: Res<Touches>,
+    cur_screen: Res<State<GameScreen>>,
+    mut next_screen: ResMut<NextState<GameScreen>>,
 ) {
     if let Ok(window) = window.single() {
-        for mut dino in dino_query.iter_mut() {
-            if window.focused
-                && time.is_paused()
-                && (keyboard.just_pressed(KeyCode::Space)
-                    || touches.any_just_pressed()
-                    || mouse.just_pressed(MouseButton::Left))
-            {
-                dino.start();
-                time.unpause();
-            } else if !window.focused && !time.is_paused() {
-                time.pause();
-            };
-        }
-    }
-}
-
-pub fn game_info(
-    dino_query: Query<&Dino>,
-    mut status: ResMut<GameStatus>,
-    time: Res<Time<Virtual>>,
-) {
-    if !time.is_paused() {
-        status.score += 1;
-    }
-    for dino in dino_query.iter() {
-        if dino.is_over() {
-            status.score = 0;
-        }
+        // If user back to window
+        if window.focused
+            && (keyboard.just_pressed(KeyCode::Space)
+                || touches.any_just_pressed()
+                || mouse.just_pressed(MouseButton::Left))
+        {
+            time.unpause();
+        } else if !window.focused && !time.is_paused() {
+            time.pause();
+        };
     }
 }

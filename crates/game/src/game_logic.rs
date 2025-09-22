@@ -4,8 +4,6 @@ use bevy::prelude::*;
 
 use crate::components::Dino;
 use crate::components::Tree;
-use crate::components::DINO_HEIGHT;
-use crate::components::TREE_WIDTH;
 
 pub fn dino_touched_tree(
     mut dino_query: Query<(&Sprite, &mut Dino, &Transform)>,

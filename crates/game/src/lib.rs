@@ -6,8 +6,10 @@ mod game_control;
 pub mod game_logic;
 mod ground;
 mod resources;
+mod screens;
 mod tree;
 mod windows_handler;
+pub use screens::GameScreen;
 
 pub use camera::normal_app_setup;
 pub use dino::*;
