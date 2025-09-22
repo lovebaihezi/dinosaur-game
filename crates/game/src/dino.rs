@@ -9,7 +9,7 @@ use bevy::{
     sprite::Sprite,
     state::{
         condition::in_state,
-        state::{OnEnter, OnExit, OnTransition},
+        state::{OnEnter, OnTransition},
     },
     time::{Time, Virtual},
 };

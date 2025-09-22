@@ -1,8 +1,8 @@
 use bevy::{
-    app::{FixedUpdate, Plugin, Startup},
+    app::{FixedUpdate, Plugin},
     dev_tools::fps_overlay::FpsOverlayConfig,
     input::ButtonInput,
-    prelude::{Commands, KeyCode, MouseButton, Query, Res, ResMut, Touches},
+    prelude::{KeyCode, MouseButton, Query, Res, ResMut, Touches},
     state::state::{NextState, State},
     time::{Time, Virtual},
     window::Window,
@@ -34,15 +34,30 @@ pub fn screen_changes(
     mut next_screen: ResMut<NextState<GameScreen>>,
 ) {
     if let Ok(window) = window.single() {
-        // If user back to window
         if window.focused
             && (keyboard.just_pressed(KeyCode::Space)
                 || touches.any_just_pressed()
                 || mouse.just_pressed(MouseButton::Left))
         {
-            time.unpause();
+            if *cur_screen == GameScreen::UnfocusedPauseScreen {
+                time.unpause();
+                next_screen.set(GameScreen::PlayScreen);
+            }
         } else if !window.focused && !time.is_paused() {
-            time.pause();
+            if *cur_screen == GameScreen::PlayScreen {
+                time.pause();
+                next_screen.set(GameScreen::UnfocusedPauseScreen);
+            }
         };
+
+        if window.focused && keyboard.just_released(KeyCode::Escape) {
+            if *cur_screen == GameScreen::ManuallyPauseScreen {
+                time.unpause();
+                next_screen.set(GameScreen::PlayScreen);
+            } else {
+                time.pause();
+                next_screen.set(GameScreen::ManuallyPauseScreen);
+            }
+        }
     }
 }
