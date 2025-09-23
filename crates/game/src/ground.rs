@@ -1,11 +1,23 @@
 use bevy::{
+    app::{FixedUpdate, Plugin},
     color::Color,
     math::{Vec2, Vec3},
     prelude::{default, Commands, Query, Res, Transform, With},
     sprite::Sprite,
+    state::state::{OnEnter, OnTransition},
 };
 
-use crate::{components::Ground, GameStatus};
+use crate::{components::Ground, GameScreen, GameStatus};
+
+pub struct GroundPlugin;
+
+impl Plugin for GroundPlugin {
+    fn build(&self, app: &mut bevy::app::App) {
+        app.add_systems(OnEnter(GameScreen::PlayScreen), setup_ground)
+            .add_systems(FixedUpdate, update_ground)
+            .add_systems(OnEnter(GameScreen::ExitScreen), cleanup_ground);
+    }
+}
 
 pub fn setup_ground(mut commands: Commands, game_status: Res<GameStatus>) {
     // the ground width is the same as the window width

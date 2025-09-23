@@ -12,4 +12,6 @@ pub enum GameScreen {
     ManuallyPauseScreen,
     // Dino touchs tree
     GameOverScreen,
+    // End State
+    ExitScreen,
 }

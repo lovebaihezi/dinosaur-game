@@ -4,21 +4,32 @@ use bevy::prelude::*;
 
 use crate::components::Dino;
 use crate::components::Tree;
+use crate::GameScreen;
+
+pub struct GameLogicPlugin;
+
+impl Plugin for GameLogicPlugin {
+    fn build(&self, app: &mut bevy::app::App) {
+        app.add_systems(
+            FixedUpdate,
+            (dino_touched_tree, back_to_play_while_game_over).chain(),
+        );
+    }
+}
 
 pub fn dino_touched_tree(
-    mut dino_query: Query<(&Sprite, &mut Dino, &Transform)>,
+    mut dino_query: Query<&mut Dino>,
     tree_query: Query<(&Sprite, &Transform), With<Tree>>,
     mut time: ResMut<Time<Virtual>>,
+    mut next_screen: ResMut<NextState<GameScreen>>,
 ) {
     if time.is_paused() {
         return;
     }
-    for ((dino_sprite, mut entity, dino_transform), (tree_sprite, tree_transform)) in
-        dino_query.iter_mut().zip(tree_query.iter())
-    {
+    for (dino, (tree_sprite, tree_transform)) in dino_query.iter_mut().zip(tree_query.iter()) {
         let aabb_dino = Aabb2d::new(
-            dino_transform.translation.xy(),
-            dino_sprite.custom_size.unwrap() / 2.0 / dino_transform.scale.xy(),
+            dino.transform.translation.xy(),
+            dino.sprite.custom_size.unwrap() / 2.0 / dino.transform.scale.xy(),
         );
 
         let aabb_tree = Aabb2d::new(
@@ -28,36 +39,24 @@ pub fn dino_touched_tree(
 
         if aabb_tree.intersects(&aabb_dino) {
             time.pause();
-            entity.over();
+            next_screen.set(GameScreen::GameOverScreen);
         }
     }
 }
 
-pub fn reset_game(
-    mut dino_query: Query<(&mut Dino, &mut Transform), Without<Tree>>,
-    mut tree_query: Query<(&mut Tree, &mut Transform), Without<Dino>>,
+pub fn back_to_play_while_game_over(
+    cur_screen: Res<State<GameScreen>>,
+    mut next_screen: ResMut<NextState<GameScreen>>,
     keyboard: Res<ButtonInput<KeyCode>>,
     mouse: Res<ButtonInput<MouseButton>>,
     touch: Res<Touches>,
-    window: Query<&Window>,
 ) {
-    let press_reset = keyboard.just_pressed(KeyCode::Space)
-        || keyboard.just_pressed(KeyCode::KeyW)
-        || keyboard.just_pressed(KeyCode::ArrowUp)
-        || keyboard.just_pressed(KeyCode::KeyK)
-        || mouse.just_pressed(MouseButton::Left)
-        || touch.any_just_pressed();
-    for ((mut dino, mut dino_transform), (mut tree, mut tree_transform)) in
-        dino_query.iter_mut().zip(tree_query.iter_mut())
-    {
-        if dino.is_over() && press_reset {
-            dino.ready();
-            tree.ready();
-            if let Ok(window) = window.single() {
-                let window_width = window.width();
-                tree_transform.translation.x = window_width - TREE_WIDTH;
-                dino_transform.translation.y = DINO_HEIGHT / 2.0;
-            }
+    if *cur_screen == GameScreen::GameOverScreen {
+        if keyboard.just_pressed(KeyCode::Space)
+            || touch.any_just_pressed()
+            || mouse.just_pressed(MouseButton::Left)
+        {
+            next_screen.set(GameScreen::PlayScreen);
         }
     }
 }
