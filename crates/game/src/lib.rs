@@ -8,13 +8,14 @@ mod ground;
 mod resources;
 mod screens;
 mod tree;
+pub mod utils;
 mod windows_handler;
-pub use screens::GameScreen;
 
 pub use camera::normal_app_setup;
 pub use dino::*;
 pub use game_control::*;
 pub use ground::*;
 pub use resources::*;
+pub use screens::GameScreen;
 pub use tree::*;
 pub use windows_handler::*;

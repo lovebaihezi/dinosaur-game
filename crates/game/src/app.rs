@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use crate::{
     game_logic::GameLogicPlugin, normal_app_setup, setup_tree, tree_move_animation, update_ground,
-    update_window_size, DinoPlugin, GameControlPlugin, GameStatus, SpeedControlInfo,
+    update_window_size, DinoPlugin, GameControlPlugin, GameStatus, SpeedControlInfo, TreePlugin,
 };
 use bevy::{
     app::PluginGroupBuilder,
@@ -78,9 +78,7 @@ impl Game {
                 speed_increment: 100,
                 max_game_speed: u64::MAX,
             })
-            .add_plugins((DinoPlugin, GameControlPlugin, GameLogicPlugin))
-            .add_systems(Startup, setup_tree)
-            .add_systems(Update, (update_ground, tree_move_animation));
+            .add_plugins((DinoPlugin, GameControlPlugin, GameLogicPlugin, TreePlugin));
         match app_type {
             AppType::Normal => {
                 game.app

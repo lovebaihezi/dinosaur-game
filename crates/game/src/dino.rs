@@ -2,19 +2,16 @@ use bevy::{
     app::{Plugin, Update},
     asset::AssetServer,
     audio::{AudioPlayer, AudioSink, AudioSinkPlayback, PlaybackSettings},
-    ecs::{entity::Entity, schedule::IntoScheduleConfigs},
+    ecs::schedule::IntoScheduleConfigs,
     input::ButtonInput,
     log::info,
     prelude::{Commands, KeyCode, MouseButton, Query, Res, Touches, Transform, With},
     sprite::Sprite,
-    state::{
-        condition::in_state,
-        state::{OnEnter, OnTransition},
-    },
+    state::{condition::in_state, state::OnEnter},
     time::{Time, Virtual},
 };
 
-use crate::{components::Dino, DinoJumpMusic, GameScreen, GameStatus};
+use crate::{components::Dino, utils::cleanup_component, DinoJumpMusic, GameScreen, GameStatus};
 
 pub struct DinoPlugin;
 
@@ -26,28 +23,7 @@ impl Plugin for DinoPlugin {
                 .run_if(in_state(GameScreen::PlayScreen)),
         )
         .add_systems(OnEnter(GameScreen::PlayScreen), setup_dino)
-        // TODO: the state should optimzed to DFA
-        .add_systems(
-            OnTransition {
-                exited: GameScreen::PlayScreen,
-                entered: GameScreen::GameOverScreen,
-            },
-            cleanup_dino,
-        )
-        .add_systems(
-            OnTransition {
-                exited: GameScreen::ManuallyPauseScreen,
-                entered: GameScreen::GameOverScreen,
-            },
-            cleanup_dino,
-        )
-        .add_systems(
-            OnTransition {
-                exited: GameScreen::UnfocusedPauseScreen,
-                entered: GameScreen::GameOverScreen,
-            },
-            cleanup_dino,
-        );
+        .add_systems(OnEnter(GameScreen::ExitScreen), cleanup_component::<Dino>);
     }
 }
 
@@ -57,11 +33,8 @@ pub fn setup_dino(mut commands: Commands, assert_server: Res<AssetServer>) {
     commands.spawn(Dino::new());
 }
 
-pub fn cleanup_dino(mut commands: Commands, dinos: Query<Entity, With<Dino>>) {
+pub fn cleanup_dino(mut commands: Commands) {
     commands.remove_resource::<DinoJumpMusic>();
-    for entity in dinos {
-        commands.entity(entity).remove::<Dino>();
-    }
 }
 
 pub fn dino_pos_fix_system(
@@ -70,7 +43,7 @@ pub fn dino_pos_fix_system(
 ) {
     for (mut transform, _sprite) in query.iter_mut() {
         let window_width = game_status.window_width;
-        transform.translation.x = -window_width / 2.0 + Dino::DINO_WIDTH / 2.0 + 0.2 * window_width;
+        transform.translation.x = -window_width / 2.0 + Dino::WIDTH / 2.0 + 0.2 * window_width;
     }
 }
 
@@ -123,11 +96,11 @@ pub fn dino_jump_animation(
                     sink.pause();
                 }
                 dino.in_air_start_time = None;
-                Dino::DINO_WIDTH / 2.0 / 0.618
+                Dino::WIDTH / 2.0 / 0.618
             } else {
                 let x = elapsed.as_millis() as f64 / 500.0 * std::f64::consts::PI;
                 let x = x as f32;
-                x.sin() * Dino::JUMP_HIGH + Dino::DINO_WIDTH / 2.0 / 0.618
+                x.sin() * Dino::JUMP_HIGH + Dino::WIDTH / 2.0 / 0.618
             };
             dino.transform.translation.y = y;
         }
