@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use crate::{
-    game_logic::GameLogicPlugin, normal_app_setup, setup_tree, tree_move_animation, update_ground,
+    game_logic::GameLogicPlugin, normal_app_setup,
     update_window_size, DinoPlugin, GameControlPlugin, GameStatus, SpeedControlInfo, TreePlugin,
 };
 use bevy::{

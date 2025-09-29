@@ -1,15 +1,13 @@
 use bevy::{
     app::{FixedUpdate, Plugin},
-    color::Color,
-    math::{Vec2, Vec3},
-    prelude::{default, Commands, Query, Res, ResMut, Transform},
-    sprite::Sprite,
+    math::Vec3,
+    prelude::{Commands, Query, Res, ResMut},
     state::state::OnEnter,
     time::{Time, Virtual},
 };
 
 use crate::{
-    components::Tree, tree, utils::cleanup_component, GameScreen, GameStatus, SpeedControlInfo,
+    components::Tree, utils::cleanup_component, GameScreen, GameStatus, SpeedControlInfo,
 };
 
 pub struct TreePlugin;

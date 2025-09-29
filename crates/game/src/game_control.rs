@@ -43,12 +43,11 @@ pub fn screen_changes(
                 time.unpause();
                 next_screen.set(GameScreen::PlayScreen);
             }
-        } else if !window.focused && !time.is_paused() {
-            if *cur_screen == GameScreen::PlayScreen {
+        } else if !window.focused && !time.is_paused()
+            && *cur_screen == GameScreen::PlayScreen {
                 time.pause();
                 next_screen.set(GameScreen::UnfocusedPauseScreen);
-            }
-        };
+            };
 
         if window.focused && keyboard.just_released(KeyCode::Escape) {
             if *cur_screen == GameScreen::ManuallyPauseScreen {

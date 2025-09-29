@@ -51,12 +51,11 @@ pub fn back_to_play_while_game_over(
     mouse: Res<ButtonInput<MouseButton>>,
     touch: Res<Touches>,
 ) {
-    if *cur_screen == GameScreen::GameOverScreen {
-        if keyboard.just_pressed(KeyCode::Space)
+    if *cur_screen == GameScreen::GameOverScreen
+        && (keyboard.just_pressed(KeyCode::Space)
             || touch.any_just_pressed()
-            || mouse.just_pressed(MouseButton::Left)
+            || mouse.just_pressed(MouseButton::Left))
         {
             next_screen.set(GameScreen::PlayScreen);
         }
-    }
 }
