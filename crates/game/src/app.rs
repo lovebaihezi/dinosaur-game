@@ -1,8 +1,8 @@
 use std::time::Duration;
 
 use crate::{
-    game_logic::GameLogicPlugin, normal_app_setup,
-    update_window_size, DinoPlugin, GameControlPlugin, GameStatus, SpeedControlInfo, TreePlugin,
+    game_logic::GameLogicPlugin, normal_app_setup, update_window_size, DinoPlugin,
+    GameControlPlugin, GameScreen, GameStatus, SpeedControlInfo, TreePlugin,
 };
 use bevy::{
     app::PluginGroupBuilder,
@@ -73,6 +73,7 @@ impl Game {
                 window_width: 1920.0,
                 window_height: 1080.0,
             })
+            .init_state::<GameScreen>()
             .insert_resource(ClearColor(Color::srgb(1.0, 1.0, 1.0)))
             .insert_resource(SpeedControlInfo {
                 speed_increment: 100,
