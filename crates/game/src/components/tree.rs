@@ -1,11 +1,9 @@
-use std::ops::Mul;
 
 use bevy::{
     color::Color,
     math::{Vec2, Vec3},
     prelude::Component,
     sprite::Sprite,
-    time::{Time, Virtual},
     transform::components::Transform,
     utils::default,
 };

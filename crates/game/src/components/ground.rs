@@ -5,7 +5,6 @@ use bevy::{
     math::{Vec2, Vec3},
     prelude::Component,
     sprite::Sprite,
-    time::{Time, Virtual},
     transform::components::Transform,
     utils::default,
 };
