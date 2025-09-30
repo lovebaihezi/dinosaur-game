@@ -6,9 +6,7 @@ use bevy::{
     time::{Time, Virtual},
 };
 
-use crate::{
-    components::Tree, utils::cleanup_component, GameScreen, GameStatus, SpeedControlInfo,
-};
+use crate::{components::Tree, utils::cleanup_component, GameScreen, GameStatus, SpeedControlInfo};
 
 pub struct TreePlugin;
 

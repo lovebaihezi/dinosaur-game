@@ -55,7 +55,7 @@ pub fn back_to_play_while_game_over(
         && (keyboard.just_pressed(KeyCode::Space)
             || touch.any_just_pressed()
             || mouse.just_pressed(MouseButton::Left))
-        {
-            next_screen.set(GameScreen::PlayScreen);
-        }
+    {
+        next_screen.set(GameScreen::PlayScreen);
+    }
 }
