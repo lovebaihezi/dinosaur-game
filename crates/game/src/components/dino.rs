@@ -1,4 +1,3 @@
-
 use bevy::{
     color::Color,
     math::{Vec2, Vec3},
