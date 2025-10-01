@@ -2,7 +2,8 @@ use std::time::Duration;
 
 use crate::{
     game_logic::GameLogicPlugin, normal_app_setup, update_window_size, DinoPlugin,
-    GameControlPlugin, GameScreen, GameStatus, SpeedControlInfo, TreePlugin,
+    GameControlPlugin, GameScreen, GameStartPlugin, GameStatus, GroundPlugin, SpeedControlInfo,
+    TreePlugin,
 };
 use bevy::{
     app::PluginGroupBuilder,
@@ -54,8 +55,7 @@ fn fps_plugin() -> FpsOverlayPlugin {
                 font: default(),
                 font_smoothing: FontSmoothing::default(),
             },
-            // We can also change color of the overlay
-            text_color: Color::linear_rgba(0.0, 1.0, 0.0, 1.0),
+            text_color: Color::BLACK,
             enabled: true,
             refresh_interval: Duration::from_millis(100),
         },
@@ -79,7 +79,14 @@ impl Game {
                 speed_increment: 100,
                 max_game_speed: u64::MAX,
             })
-            .add_plugins((DinoPlugin, GameControlPlugin, GameLogicPlugin, TreePlugin));
+            .add_plugins((
+                DinoPlugin,
+                GameControlPlugin,
+                GameLogicPlugin,
+                TreePlugin,
+                GroundPlugin,
+                GameStartPlugin,
+            ));
         match app_type {
             AppType::Normal => {
                 game.app
