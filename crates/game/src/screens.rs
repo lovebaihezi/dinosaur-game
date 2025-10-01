@@ -10,7 +10,7 @@ pub enum GameScreen {
     UnfocusedPauseScreen,
     // Esc
     ManuallyPauseScreen,
-    // Dino touchs tree
+    // Dino touched tree
     GameOverScreen,
     // End State
     ExitScreen,
