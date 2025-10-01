@@ -18,14 +18,14 @@ impl Plugin for TreePlugin {
     }
 }
 
-pub fn setup_tree(mut commands: Commands, status: Res<GameStatus>) {
+fn setup_tree(mut commands: Commands, status: Res<GameStatus>) {
     let window_width = status.window_width;
     let tree_pos = Vec3::new(window_width - Tree::WIDTH, Tree::WIDTH / 2.0 / 0.618, 0.0);
 
     commands.spawn(Tree::new(tree_pos));
 }
 
-pub fn tree_move_animation(
+fn tree_move_animation(
     mut tree_query: Query<&mut Tree>,
     time: Res<Time<Virtual>>,
     mut status: ResMut<GameStatus>,

@@ -17,7 +17,7 @@ impl Plugin for GroundPlugin {
     }
 }
 
-pub fn setup_ground(mut commands: Commands, game_status: Res<GameStatus>) {
+fn setup_ground(mut commands: Commands, game_status: Res<GameStatus>) {
     // the ground width is the same as the window width
     // the ground height is 100 pixels
     // the ground x at 0, y at center of the window
@@ -27,7 +27,7 @@ pub fn setup_ground(mut commands: Commands, game_status: Res<GameStatus>) {
 }
 
 /// Update the ground width, position on window resize
-pub fn update_ground(game_status: Res<GameStatus>, mut query: Query<&mut Ground>) {
+fn update_ground(game_status: Res<GameStatus>, mut query: Query<&mut Ground>) {
     let window_width = game_status.window_width;
     for mut ground in query.iter_mut() {
         let sprite_width = ground.sprite.custom_size.unwrap().x;

@@ -12,12 +12,15 @@ impl Plugin for GameLogicPlugin {
     fn build(&self, app: &mut bevy::app::App) {
         app.add_systems(
             FixedUpdate,
-            (dino_touched_tree, back_to_play_while_game_over).chain(),
+            (
+                dino_touched_tree.run_if(in_state(GameScreen::PlayScreen)),
+                back_to_play_while_game_over.run_if(in_state(GameScreen::GameOverScreen)),
+            ),
         );
     }
 }
 
-pub fn dino_touched_tree(
+fn dino_touched_tree(
     mut dino_query: Query<&mut Dino>,
     tree_query: Query<(&Sprite, &Transform), With<Tree>>,
     mut time: ResMut<Time<Virtual>>,
@@ -44,7 +47,7 @@ pub fn dino_touched_tree(
     }
 }
 
-pub fn back_to_play_while_game_over(
+fn back_to_play_while_game_over(
     cur_screen: Res<State<GameScreen>>,
     mut next_screen: ResMut<NextState<GameScreen>>,
     keyboard: Res<ButtonInput<KeyCode>>,

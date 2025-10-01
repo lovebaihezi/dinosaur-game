@@ -18,13 +18,13 @@ impl Plugin for GameControlPlugin {
     }
 }
 
-pub fn show_fps_overlay(input: Res<ButtonInput<KeyCode>>, mut overlay: ResMut<FpsOverlayConfig>) {
+fn show_fps_overlay(input: Res<ButtonInput<KeyCode>>, mut overlay: ResMut<FpsOverlayConfig>) {
     if input.just_pressed(KeyCode::F1) {
         overlay.enabled = !overlay.enabled;
     }
 }
 
-pub fn screen_changes(
+fn screen_changes(
     mut time: ResMut<Time<Virtual>>,
     window: Query<&Window>,
     keyboard: Res<ButtonInput<KeyCode>>,

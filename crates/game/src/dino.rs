@@ -23,21 +23,24 @@ impl Plugin for DinoPlugin {
                 .run_if(in_state(GameScreen::PlayScreen)),
         )
         .add_systems(OnEnter(GameScreen::PlayScreen), setup_dino)
-        .add_systems(OnEnter(GameScreen::ExitScreen), cleanup_component::<Dino>);
+        .add_systems(
+            OnEnter(GameScreen::ExitScreen),
+            (cleanup_component::<Dino>, clean_dino_jump_music),
+        );
     }
 }
 
-pub fn setup_dino(mut commands: Commands, assert_server: Res<AssetServer>) {
+fn setup_dino(mut commands: Commands, assert_server: Res<AssetServer>) {
     let sound = assert_server.load("Jump.ogg");
     commands.insert_resource(DinoJumpMusic(sound));
     commands.spawn(Dino::new());
 }
 
-pub fn cleanup_dino(mut commands: Commands) {
+fn clean_dino_jump_music(mut commands: Commands) {
     commands.remove_resource::<DinoJumpMusic>();
 }
 
-pub fn dino_pos_fix_system(
+fn dino_pos_fix_system(
     mut query: Query<(&mut Transform, &Sprite), With<Dino>>,
     game_status: Res<GameStatus>,
 ) {
@@ -48,7 +51,7 @@ pub fn dino_pos_fix_system(
 }
 
 /// Dino will jump when user press space, w, Up, k, or left mouse button
-pub fn dino_jump_system(
+fn dino_jump_system(
     mut dino_query: Query<&mut Dino>,
     keyboard: Res<ButtonInput<KeyCode>>,
     mouse: Res<ButtonInput<MouseButton>>,
@@ -78,7 +81,7 @@ pub fn dino_jump_system(
     }
 }
 
-pub fn dino_jump_animation(
+fn dino_jump_animation(
     time: Res<Time<Virtual>>,
     mut query: Query<&mut Dino>,
     sink: Query<&AudioSink, With<Dino>>,
