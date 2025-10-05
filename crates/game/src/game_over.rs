@@ -7,10 +7,7 @@ pub struct GameOverPlugin;
 impl Plugin for GameOverPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
         app.add_systems(OnEnter(GameScreen::GameOverScreen), show_game_over_info)
-            .add_systems(
-                FixedUpdate,
-                restart_game_by_space.run_if(in_state(GameScreen::GameOverScreen)),
-            )
+            .add_systems(FixedUpdate, restart_game_by_space)
             .add_systems(
                 OnExit(GameScreen::GameOverScreen),
                 cleanup_component::<GameOverTextUI>,
@@ -59,12 +56,13 @@ fn restart_game_by_space(
     keyboard: Res<ButtonInput<KeyCode>>,
     mouse: Res<ButtonInput<MouseButton>>,
     touches: Res<Touches>,
+    cur_screen: Res<State<GameScreen>>,
     mut next_state: ResMut<NextState<GameScreen>>,
 ) {
-    info!("KEY");
-    if keyboard.just_pressed(KeyCode::Space)
-        || mouse.just_pressed(MouseButton::Left)
-        || touches.any_just_pressed()
+    if *cur_screen == GameScreen::GameOverScreen
+        && (keyboard.just_pressed(KeyCode::Space)
+            || mouse.just_pressed(MouseButton::Left)
+            || touches.any_just_pressed())
     {
         info!("Restart Game");
         next_state.set(GameScreen::StartScreen);

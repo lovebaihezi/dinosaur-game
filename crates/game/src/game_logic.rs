@@ -23,12 +23,8 @@ impl Plugin for GameLogicPlugin {
 fn dino_touched_tree(
     dino_query: Query<(&Transform, &Sprite), With<Dino>>,
     tree_query: Query<(&Sprite, &Transform), With<Tree>>,
-    mut time: ResMut<Time<Virtual>>,
     mut next_screen: ResMut<NextState<GameScreen>>,
 ) {
-    if time.is_paused() {
-        return;
-    }
     for ((dino_transform, dino_sprite), (tree_sprite, tree_transform)) in
         dino_query.iter().zip(tree_query.iter())
     {
@@ -43,7 +39,6 @@ fn dino_touched_tree(
         );
 
         if aabb_tree.intersects(&aabb_dino) {
-            time.pause();
             next_screen.set(GameScreen::GameOverScreen);
         }
     }
