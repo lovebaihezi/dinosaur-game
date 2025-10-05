@@ -16,7 +16,10 @@ impl Plugin for TreePlugin {
     fn build(&self, app: &mut bevy::app::App) {
         app.add_systems(OnEnter(GameScreen::PlayScreen), setup_tree)
             .add_systems(FixedUpdate, tree_move_animation)
-            .add_systems(OnEnter(GameScreen::ExitScreen), cleanup_component::<Tree>);
+            .add_systems(
+                OnEnter(GameScreen::GameOverScreen),
+                cleanup_component::<Tree>,
+            );
     }
 }
 

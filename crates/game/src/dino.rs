@@ -24,7 +24,7 @@ impl Plugin for DinoPlugin {
         )
         .add_systems(OnEnter(GameScreen::PlayScreen), setup_dino)
         .add_systems(
-            OnEnter(GameScreen::ExitScreen),
+            OnEnter(GameScreen::GameOverScreen),
             (cleanup_component::<Dino>, clean_dino_jump_music),
         );
     }
