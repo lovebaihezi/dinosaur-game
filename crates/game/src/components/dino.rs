@@ -10,8 +10,6 @@ use bevy::{
 
 #[derive(Component, Default)]
 pub struct Dino {
-    pub sprite: Sprite,
-    pub transform: Transform,
     pub in_air_start_time: Option<Time<Virtual>>,
 }
 
@@ -21,15 +19,17 @@ impl Dino {
     pub const SIZE: Vec2 = Vec2::new(Self::WIDTH, Self::WIDTH / 0.618);
     pub const JUMP_HIGH: f32 = Self::WIDTH / 0.618 * 2.4;
 
-    pub fn new() -> Self {
-        Self {
-            sprite: Sprite {
+    pub fn new() -> (Self, Sprite, Transform) {
+        (
+            Self {
+                in_air_start_time: None,
+            },
+            Sprite {
                 color: Color::srgb(0.05, 0.05, 0.05),
                 custom_size: Some(Self::SIZE),
                 ..default()
             },
-            transform: Transform::from_translation(Vec3::new(0.0, Self::WIDTH / 2.0 / 0.618, 0.0)),
-            in_air_start_time: None,
-        }
+            Transform::from_translation(Vec3::new(0.0, Self::WIDTH / 2.0 / 0.618, 0.0)),
+        )
     }
 }

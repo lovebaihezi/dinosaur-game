@@ -8,21 +8,19 @@ use bevy::{
 };
 
 #[derive(Component, Default)]
-pub struct Tree {
-    pub sprite: Sprite,
-    pub transform: Transform,
-}
+pub struct Tree;
 
 impl Tree {
     pub const WIDTH: f32 = 30.0;
-    pub fn new(original_pos: Vec3) -> Self {
-        Self {
-            sprite: Sprite {
+    pub fn new(original_pos: Vec3) -> (Self, Sprite, Transform) {
+        (
+            Self,
+            Sprite {
                 color: Color::srgb(0.35, 0.35, 0.35),
                 custom_size: Some(Vec2::new(Tree::WIDTH, Tree::WIDTH / 0.618)),
                 ..default()
             },
-            transform: Transform::from_translation(original_pos),
-        }
+            Transform::from_translation(original_pos),
+        )
     }
 }

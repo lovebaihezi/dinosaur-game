@@ -1,8 +1,11 @@
 use bevy::{
     app::{FixedUpdate, Plugin},
+    ecs::query::With,
     math::Vec3,
     prelude::{Commands, Query, Res},
+    sprite::Sprite,
     state::state::OnEnter,
+    transform::components::Transform,
 };
 
 use crate::{components::Ground, utils::cleanup_component, GameScreen, GameStatus};
@@ -27,10 +30,13 @@ fn setup_ground(mut commands: Commands, game_status: Res<GameStatus>) {
 }
 
 /// Update the ground width, position on window resize
-fn update_ground(game_status: Res<GameStatus>, mut query: Query<&mut Ground>) {
+fn update_ground(
+    game_status: Res<GameStatus>,
+    mut query: Query<(&mut Transform, &Sprite), With<Ground>>,
+) {
     let window_width = game_status.window_width;
-    for mut ground in query.iter_mut() {
-        let sprite_width = ground.sprite.custom_size.unwrap().x;
-        ground.transform.scale = Vec3::new(window_width * 0.8 / sprite_width, 1.0, 1.0);
+    for (mut transform, sprite) in query.iter_mut() {
+        let sprite_width = sprite.custom_size.unwrap().x;
+        transform.scale = Vec3::new(window_width * 0.8 / sprite_width, 1.0, 1.0);
     }
 }

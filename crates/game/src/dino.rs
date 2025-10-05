@@ -83,13 +83,13 @@ fn dino_jump_system(
 
 fn dino_jump_animation(
     time: Res<Time<Virtual>>,
-    mut query: Query<&mut Dino>,
+    mut query: Query<(&mut Transform, &mut Dino)>,
     sink: Query<&AudioSink, With<Dino>>,
 ) {
     if time.is_paused() {
         return;
     }
-    for mut dino in query.iter_mut() {
+    for (mut transform, mut dino) in query.iter_mut() {
         if let Some(start_time) = dino.in_air_start_time {
             let elapsed = time.elapsed() - start_time.elapsed();
             // Over
@@ -105,7 +105,7 @@ fn dino_jump_animation(
                 let x = x as f32;
                 x.sin() * Dino::JUMP_HIGH + Dino::WIDTH / 2.0 / 0.618
             };
-            dino.transform.translation.y = y;
+            transform.translation.y = y;
         }
     }
 }

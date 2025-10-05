@@ -1,9 +1,11 @@
 use bevy::{
     app::{FixedUpdate, Plugin},
+    ecs::query::With,
     math::Vec3,
     prelude::{Commands, Query, Res, ResMut},
     state::state::OnEnter,
     time::{Time, Virtual},
+    transform::components::Transform,
 };
 
 use crate::{components::Tree, utils::cleanup_component, GameScreen, GameStatus, SpeedControlInfo};
@@ -26,7 +28,7 @@ fn setup_tree(mut commands: Commands, status: Res<GameStatus>) {
 }
 
 fn tree_move_animation(
-    mut tree_query: Query<&mut Tree>,
+    mut tree_query: Query<&mut Transform, With<Tree>>,
     time: Res<Time<Virtual>>,
     mut status: ResMut<GameStatus>,
     mut speed_control_info: ResMut<SpeedControlInfo>,
@@ -35,13 +37,13 @@ fn tree_move_animation(
         return;
     }
     let window_width = status.window_width;
-    for mut tree in tree_query.iter_mut() {
-        tree.transform.translation.x = if tree.transform.translation.x < -window_width * 0.8 / 2.0 {
+    for mut transform in tree_query.iter_mut() {
+        transform.translation.x = if transform.translation.x < -window_width * 0.8 / 2.0 {
             update_game_speed(&mut status, &mut speed_control_info);
             window_width * 0.8 / 2.0
         } else {
             let more_hard_speed = (status.speed as f32).log2();
-            tree.transform.translation.x
+            transform.translation.x
                 - time.delta_secs() * (window_width / 3.0 + (Tree::WIDTH / 2.0) * more_hard_speed)
         };
     }

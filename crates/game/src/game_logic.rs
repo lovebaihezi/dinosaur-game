@@ -21,7 +21,7 @@ impl Plugin for GameLogicPlugin {
 }
 
 fn dino_touched_tree(
-    mut dino_query: Query<&mut Dino>,
+    dino_query: Query<(&Transform, &Sprite), With<Dino>>,
     tree_query: Query<(&Sprite, &Transform), With<Tree>>,
     mut time: ResMut<Time<Virtual>>,
     mut next_screen: ResMut<NextState<GameScreen>>,
@@ -29,10 +29,12 @@ fn dino_touched_tree(
     if time.is_paused() {
         return;
     }
-    for (dino, (tree_sprite, tree_transform)) in dino_query.iter_mut().zip(tree_query.iter()) {
+    for ((dino_transform, dino_sprite), (tree_sprite, tree_transform)) in
+        dino_query.iter().zip(tree_query.iter())
+    {
         let aabb_dino = Aabb2d::new(
-            dino.transform.translation.xy(),
-            dino.sprite.custom_size.unwrap() / 2.0 / dino.transform.scale.xy(),
+            dino_transform.translation.xy(),
+            dino_sprite.custom_size.unwrap() / 2.0 / dino_transform.scale.xy(),
         );
 
         let aabb_tree = Aabb2d::new(

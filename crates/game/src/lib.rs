@@ -1,6 +1,7 @@
 pub mod app;
 mod camera;
 pub mod components;
+mod debug;
 mod dino;
 mod game_control;
 mod game_logic;
@@ -12,7 +13,8 @@ mod tree;
 pub mod utils;
 mod windows_handler;
 
-pub use camera::normal_app_setup;
+pub use camera::setup_2d_camera;
+pub use debug::DebugPlugin;
 pub use dino::DinoPlugin;
 pub use game_control::GameControlPlugin;
 pub use game_logic::GameLogicPlugin;

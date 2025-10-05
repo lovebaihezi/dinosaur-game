@@ -1,6 +1,5 @@
 use bevy::{
     app::{FixedUpdate, Plugin},
-    dev_tools::fps_overlay::FpsOverlayConfig,
     input::ButtonInput,
     prelude::{KeyCode, MouseButton, Query, Res, ResMut, Touches},
     state::state::{NextState, State},
@@ -14,13 +13,7 @@ pub struct GameControlPlugin;
 
 impl Plugin for GameControlPlugin {
     fn build(&self, app: &mut bevy::app::App) {
-        app.add_systems(FixedUpdate, (show_fps_overlay, screen_changes));
-    }
-}
-
-fn show_fps_overlay(input: Res<ButtonInput<KeyCode>>, mut overlay: ResMut<FpsOverlayConfig>) {
-    if input.just_pressed(KeyCode::F1) {
-        overlay.enabled = !overlay.enabled;
+        app.add_systems(FixedUpdate, screen_changes);
     }
 }
 

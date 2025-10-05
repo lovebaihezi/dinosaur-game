@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use crate::{
-    game_logic::GameLogicPlugin, normal_app_setup, update_window_size, DinoPlugin,
+    game_logic::GameLogicPlugin, setup_2d_camera, update_window_size, DebugPlugin, DinoPlugin,
     GameControlPlugin, GameScreen, GameStartPlugin, GameStatus, GroundPlugin, SpeedControlInfo,
     TreePlugin,
 };
@@ -86,11 +86,12 @@ impl Game {
                 TreePlugin,
                 GroundPlugin,
                 GameStartPlugin,
+                DebugPlugin,
             ));
         match app_type {
             AppType::Normal => {
                 game.app
-                    .add_systems(Startup, normal_app_setup)
+                    .add_systems(Startup, setup_2d_camera)
                     .add_systems(Update, update_window_size);
             }
             AppType::RenderToImageTesting => {
