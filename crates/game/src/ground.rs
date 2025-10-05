@@ -1,31 +1,39 @@
 use bevy::{
-    color::Color,
-    math::{Vec2, Vec3},
-    prelude::{default, Commands, Query, Res, Transform, With},
+    app::{FixedUpdate, Plugin},
+    ecs::query::With,
+    math::Vec3,
+    prelude::{Commands, Query, Res},
     sprite::Sprite,
+    state::state::OnEnter,
+    transform::components::Transform,
 };
 
-use crate::{components::Ground, GameStatus};
+use crate::{components::Ground, utils::cleanup_component, GameScreen, GameStatus};
 
-pub fn setup_ground(mut commands: Commands, game_status: Res<GameStatus>) {
+pub struct GroundPlugin;
+
+impl Plugin for GroundPlugin {
+    fn build(&self, app: &mut bevy::app::App) {
+        app.add_systems(OnEnter(GameScreen::PlayScreen), setup_ground)
+            .add_systems(FixedUpdate, update_ground)
+            .add_systems(
+                OnEnter(GameScreen::GameOverScreen),
+                cleanup_component::<Ground>,
+            );
+    }
+}
+
+fn setup_ground(mut commands: Commands, game_status: Res<GameStatus>) {
     // the ground width is the same as the window width
     // the ground height is 100 pixels
     // the ground x at 0, y at center of the window
     let window_width = game_status.window_width;
 
-    commands.spawn((
-        Sprite {
-            color: Color::srgba(0.0, 0.0, 0.0, 0.95),
-            custom_size: Some(Vec2::new(window_width * 0.8, 1.0)),
-            ..default()
-        },
-        Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),
-        Ground,
-    ));
+    commands.spawn(Ground::new(window_width));
 }
 
 /// Update the ground width, position on window resize
-pub fn update_ground(
+fn update_ground(
     game_status: Res<GameStatus>,
     mut query: Query<(&mut Transform, &Sprite), With<Ground>>,
 ) {

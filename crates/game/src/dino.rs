@@ -1,46 +1,57 @@
 use bevy::{
+    app::{Plugin, Update},
     asset::AssetServer,
     audio::{AudioPlayer, AudioSink, AudioSinkPlayback, PlaybackSettings},
-    color::Color,
+    ecs::schedule::IntoScheduleConfigs,
     input::ButtonInput,
     log::info,
-    math::Vec3,
-    prelude::{default, Commands, KeyCode, MouseButton, Query, Res, Touches, Transform, With},
+    prelude::{Commands, KeyCode, MouseButton, Query, Res, Touches, Transform, With},
     sprite::Sprite,
+    state::{condition::in_state, state::OnEnter},
     time::{Time, Virtual},
 };
 
-use crate::{
-    components::{Dino, DINO_SIZE, DINO_WIDTH, JUMP_HIGH},
-    DinoJumpMusic, GameStatus,
-};
+use crate::{components::Dino, utils::cleanup_component, DinoJumpMusic, GameScreen, GameStatus};
 
-pub fn setup_dino(mut commands: Commands, assert_server: Res<AssetServer>) {
-    let sound = assert_server.load("Jump.ogg");
-    commands.insert_resource(DinoJumpMusic(sound));
-    commands.spawn((
-        Sprite {
-            color: Color::srgb(0.05, 0.05, 0.05),
-            custom_size: Some(DINO_SIZE),
-            ..default()
-        },
-        Transform::from_translation(Vec3::new(0.0, DINO_WIDTH / 2.0 / 0.618, 0.0)),
-        Dino::default(),
-    ));
+pub struct DinoPlugin;
+
+impl Plugin for DinoPlugin {
+    fn build(&self, app: &mut bevy::app::App) {
+        app.add_systems(
+            Update,
+            (dino_pos_fix_system, dino_jump_system, dino_jump_animation)
+                .run_if(in_state(GameScreen::PlayScreen)),
+        )
+        .add_systems(OnEnter(GameScreen::PlayScreen), setup_dino)
+        .add_systems(
+            OnEnter(GameScreen::GameOverScreen),
+            (cleanup_component::<Dino>, clean_dino_jump_music),
+        );
+    }
 }
 
-pub fn dino_pos_fix_system(
+fn setup_dino(mut commands: Commands, assert_server: Res<AssetServer>) {
+    let sound = assert_server.load("Jump.ogg");
+    commands.insert_resource(DinoJumpMusic(sound));
+    commands.spawn(Dino::new());
+}
+
+fn clean_dino_jump_music(mut commands: Commands) {
+    commands.remove_resource::<DinoJumpMusic>();
+}
+
+fn dino_pos_fix_system(
     mut query: Query<(&mut Transform, &Sprite), With<Dino>>,
     game_status: Res<GameStatus>,
 ) {
     for (mut transform, _sprite) in query.iter_mut() {
         let window_width = game_status.window_width;
-        transform.translation.x = -window_width / 2.0 + DINO_WIDTH / 2.0 + 0.2 * window_width;
+        transform.translation.x = -window_width / 2.0 + Dino::WIDTH / 2.0 + 0.2 * window_width;
     }
 }
 
 /// Dino will jump when user press space, w, Up, k, or left mouse button
-pub fn dino_jump_system(
+fn dino_jump_system(
     mut dino_query: Query<&mut Dino>,
     keyboard: Res<ButtonInput<KeyCode>>,
     mouse: Res<ButtonInput<MouseButton>>,
@@ -70,7 +81,7 @@ pub fn dino_jump_system(
     }
 }
 
-pub fn dino_jump_animation(
+fn dino_jump_animation(
     time: Res<Time<Virtual>>,
     mut query: Query<(&mut Transform, &mut Dino)>,
     sink: Query<&AudioSink, With<Dino>>,
@@ -88,11 +99,11 @@ pub fn dino_jump_animation(
                     sink.pause();
                 }
                 dino.in_air_start_time = None;
-                DINO_WIDTH / 2.0 / 0.618
+                Dino::WIDTH / 2.0 / 0.618
             } else {
                 let x = elapsed.as_millis() as f64 / 500.0 * std::f64::consts::PI;
                 let x = x as f32;
-                x.sin() * JUMP_HIGH + DINO_WIDTH / 2.0 / 0.618
+                x.sin() * Dino::JUMP_HIGH + Dino::WIDTH / 2.0 / 0.618
             };
             transform.translation.y = y;
         }

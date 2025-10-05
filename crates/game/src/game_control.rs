@@ -1,60 +1,54 @@
 use bevy::{
-    dev_tools::fps_overlay::FpsOverlayConfig,
+    app::{FixedUpdate, Plugin},
     input::ButtonInput,
-    prelude::{Commands, KeyCode, MouseButton, Query, Res, ResMut, Touches},
+    prelude::{KeyCode, MouseButton, Query, Res, ResMut, Touches},
+    state::state::{NextState, State},
     time::{Time, Virtual},
     window::Window,
 };
 
-use crate::{components::Dino, GameStatus};
+use crate::GameScreen;
 
-pub fn setup_game_control(commands: Commands, mut time: ResMut<Time<Virtual>>) {
-    time.pause();
-    _ = commands;
-}
+pub struct GameControlPlugin;
 
-pub fn show_fps_overlay(input: Res<ButtonInput<KeyCode>>, mut overlay: ResMut<FpsOverlayConfig>) {
-    if input.just_pressed(KeyCode::F1) {
-        overlay.enabled = !overlay.enabled;
+impl Plugin for GameControlPlugin {
+    fn build(&self, app: &mut bevy::app::App) {
+        app.add_systems(FixedUpdate, screen_changes);
     }
 }
 
-pub fn user_control(
+fn screen_changes(
     mut time: ResMut<Time<Virtual>>,
-    mut dino_query: Query<&mut Dino>,
     window: Query<&Window>,
     keyboard: Res<ButtonInput<KeyCode>>,
     mouse: Res<ButtonInput<MouseButton>>,
     touches: Res<Touches>,
+    cur_screen: Res<State<GameScreen>>,
+    mut next_screen: ResMut<NextState<GameScreen>>,
 ) {
     if let Ok(window) = window.single() {
-        for mut dino in dino_query.iter_mut() {
-            if window.focused
-                && time.is_paused()
-                && (keyboard.just_pressed(KeyCode::Space)
-                    || touches.any_just_pressed()
-                    || mouse.just_pressed(MouseButton::Left))
-            {
-                dino.start();
+        if window.focused
+            && (keyboard.just_pressed(KeyCode::Space)
+                || touches.any_just_pressed()
+                || mouse.just_pressed(MouseButton::Left))
+        {
+            if *cur_screen == GameScreen::UnfocusedPauseScreen {
                 time.unpause();
-            } else if !window.focused && !time.is_paused() {
-                time.pause();
-            };
-        }
-    }
-}
+                next_screen.set(GameScreen::PlayScreen);
+            }
+        } else if !window.focused && !time.is_paused() && *cur_screen == GameScreen::PlayScreen {
+            time.pause();
+            next_screen.set(GameScreen::UnfocusedPauseScreen);
+        };
 
-pub fn game_info(
-    dino_query: Query<&Dino>,
-    mut status: ResMut<GameStatus>,
-    time: Res<Time<Virtual>>,
-) {
-    if !time.is_paused() {
-        status.score += 1;
-    }
-    for dino in dino_query.iter() {
-        if dino.is_over() {
-            status.score = 0;
+        if window.focused && keyboard.just_released(KeyCode::Escape) {
+            if *cur_screen == GameScreen::ManuallyPauseScreen {
+                time.unpause();
+                next_screen.set(GameScreen::PlayScreen);
+            } else {
+                time.pause();
+                next_screen.set(GameScreen::ManuallyPauseScreen);
+            }
         }
     }
 }

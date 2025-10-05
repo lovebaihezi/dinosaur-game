@@ -1,11 +1,9 @@
 use std::time::Duration;
 
 use crate::{
-    dino_jump_animation, dino_jump_system, dino_pos_fix_system, game_info,
-    game_logic::{dino_touched_tree, reset_game},
-    normal_app_setup, setup_dino, setup_game_control, setup_ground, setup_tree,
-    tree_move_animation, update_ground, update_window_size, user_control, GameStatus,
-    SpeedControlInfo,
+    game_logic::GameLogicPlugin, setup_2d_camera, update_window_size, DebugPlugin, DinoPlugin,
+    GameControlPlugin, GameOverPlugin, GameScreen, GameStartPlugin, GameStatus, GroundPlugin,
+    SpeedControlInfo, TreePlugin,
 };
 use bevy::{
     app::PluginGroupBuilder,
@@ -57,8 +55,7 @@ fn fps_plugin() -> FpsOverlayPlugin {
                 font: default(),
                 font_smoothing: FontSmoothing::default(),
             },
-            // We can also change color of the overlay
-            text_color: Color::linear_rgba(0.0, 1.0, 0.0, 1.0),
+            text_color: Color::BLACK,
             enabled: true,
             refresh_interval: Duration::from_millis(100),
         },
@@ -76,30 +73,26 @@ impl Game {
                 window_width: 1920.0,
                 window_height: 1080.0,
             })
+            .init_state::<GameScreen>()
             .insert_resource(ClearColor(Color::srgb(1.0, 1.0, 1.0)))
             .insert_resource(SpeedControlInfo {
                 speed_increment: 100,
                 max_game_speed: u64::MAX,
             })
-            .add_systems(
-                Startup,
-                (setup_ground, setup_dino, setup_tree, setup_game_control),
-            )
-            .add_systems(
-                Update,
-                (
-                    update_ground,
-                    dino_jump_system,
-                    (user_control, game_info).chain(),
-                    (dino_pos_fix_system, dino_jump_animation).chain(),
-                    tree_move_animation,
-                    (dino_touched_tree, reset_game).chain(),
-                ),
-            );
+            .add_plugins((
+                DinoPlugin,
+                GameControlPlugin,
+                GameLogicPlugin,
+                TreePlugin,
+                GroundPlugin,
+                GameStartPlugin,
+                DebugPlugin,
+                GameOverPlugin,
+            ));
         match app_type {
             AppType::Normal => {
                 game.app
-                    .add_systems(Startup, normal_app_setup)
+                    .add_systems(Startup, setup_2d_camera)
                     .add_systems(Update, update_window_size);
             }
             AppType::RenderToImageTesting => {
