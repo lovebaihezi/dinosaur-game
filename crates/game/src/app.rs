@@ -2,8 +2,8 @@ use std::time::Duration;
 
 use crate::{
     game_logic::GameLogicPlugin, setup_2d_camera, update_window_size, DebugPlugin, DinoPlugin,
-    GameControlPlugin, GameScreen, GameStartPlugin, GameStatus, GroundPlugin, SpeedControlInfo,
-    TreePlugin,
+    GameControlPlugin, GameOverPlugin, GameScreen, GameStartPlugin, GameStatus, GroundPlugin,
+    SpeedControlInfo, TreePlugin,
 };
 use bevy::{
     app::PluginGroupBuilder,
@@ -87,6 +87,7 @@ impl Game {
                 GroundPlugin,
                 GameStartPlugin,
                 DebugPlugin,
+                GameOverPlugin,
             ));
         match app_type {
             AppType::Normal => {

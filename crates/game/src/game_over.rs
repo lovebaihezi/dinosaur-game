@@ -2,30 +2,30 @@ use bevy::prelude::*;
 
 use crate::{utils::cleanup_component, GameScreen};
 
-pub struct GameStartPlugin;
+pub struct GameOverPlugin;
 
-impl Plugin for GameStartPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameScreen::StartScreen), show_start_message)
+impl Plugin for GameOverPlugin {
+    fn build(&self, app: &mut bevy::prelude::App) {
+        app.add_systems(OnEnter(GameScreen::GameOverScreen), show_game_over_info)
             .add_systems(
                 FixedUpdate,
-                enter_play_by_space.run_if(in_state(GameScreen::StartScreen)),
+                restart_game_by_space.run_if(in_state(GameScreen::GameOverScreen)),
             )
             .add_systems(
-                OnExit(GameScreen::StartScreen),
-                cleanup_component::<WelcomeTextUI>,
+                OnExit(GameScreen::GameOverScreen),
+                cleanup_component::<GameOverTextUI>,
             );
     }
 }
 
 #[derive(Component)]
-struct WelcomeTextUI;
+pub struct GameOverTextUI;
 
-fn show_start_message(mut commands: Commands) {
-    info!("Showing start message");
+fn show_game_over_info(mut commands: Commands) {
+    info!("Showing Game Over");
     commands
         .spawn((
-            WelcomeTextUI,
+            GameOverTextUI,
             Node {
                 display: Display::Flex,
                 flex_direction: FlexDirection::Column,
@@ -37,10 +37,11 @@ fn show_start_message(mut commands: Commands) {
                 height: Val::Percent(100.0),
                 ..Default::default()
             },
+            BackgroundColor(Color::linear_rgba(1.0, 1.0, 1.0, 0.8)),
         ))
         .with_children(|parent| {
             parent.spawn((
-                Text::new("Press Space/Touch/Click to Start!"),
+                Text::new("Press Space/Touch/Click to Restart!"),
                 TextFont {
                     font_size: 48.0,
                     ..Default::default()
@@ -54,17 +55,18 @@ fn show_start_message(mut commands: Commands) {
         });
 }
 
-fn enter_play_by_space(
+fn restart_game_by_space(
     keyboard: Res<ButtonInput<KeyCode>>,
     mouse: Res<ButtonInput<MouseButton>>,
     touches: Res<Touches>,
-    mut next_screen: ResMut<NextState<GameScreen>>,
+    mut next_state: ResMut<NextState<GameScreen>>,
 ) {
+    info!("KEY");
     if keyboard.just_pressed(KeyCode::Space)
-        || touches.any_just_pressed()
         || mouse.just_pressed(MouseButton::Left)
+        || touches.any_just_pressed()
     {
-        info!("Start Playing");
-        next_screen.set(GameScreen::PlayScreen);
+        info!("Restart Game");
+        next_state.set(GameScreen::StartScreen);
     }
 }
