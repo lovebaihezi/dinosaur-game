@@ -2,42 +2,89 @@
 resolver = "2"
 members = ["crates/e2e", "crates/game"]
 
-[workspace.dependencies]
-bevy = { version = "0.17", features = [
-    "wayland",
-    "bevy_remote",
-    "bevy_dev_tools",
-    "serialize",
-] }
-log = { version = "*", features = [
-    "max_level_trace",
-    "release_max_level_warn",
-] }
-flume = { version = "0.11" }
-dotenv = "0.15.0"
+[profile.dev.package."*"]
+opt-level = 3
 
 [profile.dev]
 opt-level = 1
 
-[profile.dev.package."*"]
-opt-level = 3
-
-# Enable more optimization in the release profile at the cost of compile time.
+# This is used by trunk as it doesn't support custom profiles: https://github.com/trunk-rs/trunk/issues/605
+# xbuild also uses this profile for building android AABs because I couldn't find a configuration for it
 [profile.release]
-opt-level = 3
-# Compile the entire crate as one unit.
-# Slows compile times, marginal improvements.
-codegen-units = 1
-# Do a second optimization pass over the entire program, including dependencies.
-# Slows compile times, marginal improvements.
-lto = "thin"
-
-# Optimize for size in the wasm-release profile to reduce load times and bandwidth usage on web.
-[profile.wasm-release]
-# Default to release profile values.
-inherits = "release"
-# Optimize with size in mind (also try "z", sometimes it is better).
-# Slightly slows compile times, great improvements to file size and runtime performance.
 opt-level = "s"
-# Strip all debugging information from the binary to slightly reduce file size.
-strip = "debuginfo"
+lto = true
+codegen-units = 1
+strip = true
+
+# Profile for distribution
+[profile.dist]
+inherits = "release"
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
+
+[workspace.dependencies]
+bevy = { version = "0.17.2", default-features = false, features = [
+    "std",
+    "async_executor",
+    "animation",
+    "bevy_asset",
+    "bevy_color",
+    "bevy_core_pipeline",
+    "bevy_post_process",
+    "bevy_anti_alias",
+    "bevy_gilrs",
+    "bevy_gizmos",
+    "bevy_gltf",
+    "bevy_input_focus",
+    "bevy_log",
+    "bevy_dev_tools",
+    "bevy_mesh_picking_backend",
+    "bevy_pbr",
+    "bevy_picking",
+    "bevy_render",
+    "bevy_scene",
+    "bevy_image",
+    "bevy_mesh",
+    "bevy_camera",
+    "bevy_light",
+    "bevy_shader",
+    "bevy_sprite",
+    "bevy_sprite_picking_backend",
+    "bevy_sprite_render",
+    "bevy_state",
+    "bevy_text",
+    "bevy_ui",
+    "bevy_ui_picking_backend",
+    "bevy_ui_render",
+    "bevy_window",
+    "bevy_winit",
+    "custom_cursor",
+    "default_font",
+    "hdr",
+    "ktx2",
+    "multi_threaded",
+    "png",
+    "reflect_auto_register",
+    "smaa_luts",
+    "sysinfo_plugin",
+    "tonemapping_luts",
+    "webgl2",
+    "wayland",
+    "debug",
+    "zstd_rust",
+] }
+bevy_kira_audio = { version = "0.24", features = ["android_shared_stdcxx"] }
+bevy_asset_loader = { version = "0.24.0-rc.1" }
+rand = { version = "0.8.3" }
+webbrowser = { version = "1", features = ["hardened"] }
+
+# keep the following in sync with Bevy's dependencies
+winit = { version = "0.30", default-features = false }
+image = { version = "0.25.2", default-features = false }
+## This greatly improves WGPU's performance due to its heavy use of trace! calls
+log = { version = "0.4", features = ["max_level_debug", "release_max_level_warn"] }
+
+[workspace.build-dependencies]
+embed-resource = "1"
