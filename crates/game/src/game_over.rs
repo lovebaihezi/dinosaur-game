@@ -44,7 +44,7 @@ fn show_game_over_info(mut commands: Commands) {
                     ..Default::default()
                 },
                 TextLayout {
-                    justify: JustifyText::Center,
+                    justify: Justify::Center,
                     ..Default::default()
                 },
                 TextColor(Color::BLACK),

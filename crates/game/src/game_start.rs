@@ -46,7 +46,7 @@ fn show_start_message(mut commands: Commands) {
                     ..Default::default()
                 },
                 TextLayout {
-                    justify: JustifyText::Center,
+                    justify: Justify::Center,
                     ..Default::default()
                 },
                 TextColor(Color::BLACK),
