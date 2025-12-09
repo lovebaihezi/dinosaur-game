@@ -23,7 +23,7 @@ async function installWasmDeps() {
 }
 
 async function buildWasm() {
-  await $`cargo build --release --target wasm32-unknown-unknown`;
+  await $`RUSTFLAGS='--cfg getrandom_backend="wasm_js"' cargo build --release --target wasm32-unknown-unknown`;
 }
 
 async function prepareWasmPackage(env: Env = { binary: "dinosaur-game" }) {
