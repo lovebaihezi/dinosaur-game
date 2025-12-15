@@ -34,9 +34,8 @@ jobs:
             target/
           key: ${{ runner.os }}-cargo-test-${{ hashFiles('**/Cargo.toml') }}
       - uses: actions-rust-lang/setup-rust-toolchain@v1
-      - uses: denoland/setup-deno@v2
-        with:
-          deno-version: v2.0.2
+      - uses: oven-sh/setup-bun@v1
+      - run: bun install
       - run: |
           rustup component add rustc-codegen-cranelift-preview --toolchain nightly
       - name: Install Dependencies
@@ -94,9 +93,8 @@ jobs:
             target/
           key: ${{ runner.os }}-cargo-test-${{ hashFiles('**/Cargo.toml') }}
       - uses: actions-rust-lang/setup-rust-toolchain@v1
-      - uses: denoland/setup-deno@v2
-        with:
-          deno-version: v2.0.2
+      - uses: oven-sh/setup-bun@v1
+      - run: bun install
       - run: |
           rustup component add rustc-codegen-cranelift-preview --toolchain nightly
       - name: Run cargo test
@@ -126,15 +124,14 @@ jobs:
           components: clippy
       - run: |
           rustup component add rustc-codegen-cranelift-preview --toolchain nightly
-      - uses: denoland/setup-deno@v2
-        with:
-          deno-version: v2.0.2
+      - uses: oven-sh/setup-bun@v1
+      - run: bun install
       - name: Install Dependencies
         run: |
           sudo apt-get update;
           sudo apt-get install --no-install-recommends pkg-config libx11-dev libasound2-dev libudev-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev clang mold libwayland-dev libxkbcommon-dev;
       - name: Run clippy
-        run: cargo clippy -- -D warnings
+        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
 
   # Run cargo fmt --all -- --check
   format:

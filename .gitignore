@@ -30,3 +30,4 @@ wasm/
 .vscode\launch.json
 
 .env
+node_modules

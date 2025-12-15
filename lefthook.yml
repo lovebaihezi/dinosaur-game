@@ -1,0 +1,13 @@
+# Lefthook configuration
+
+pre-commit:
+  parallel: true
+  commands:
+    fmt:
+      run: cargo fmt --all -- --check
+    clippy:
+      run: cargo clippy --workspace --all-targets --all-features -- -D warnings
+    typos:
+      run: typos
+    just:
+      run: ./just.ts --help
