@@ -10,7 +10,7 @@ use bevy::{
     state::{condition::in_state, state::OnEnter},
     time::{Time, Virtual},
 };
-use bevy_kira_audio::{prelude::*, Audio, AudioControl};
+use bevy_kira_audio::{prelude::*, Audio, AudioControl, AudioInstance};
 
 use crate::{components::Dino, utils::cleanup_component, DinoJumpMusic, GameScreen, GameStatus};
 

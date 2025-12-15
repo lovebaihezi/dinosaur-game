@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_kira_audio::AudioSource;
 
 #[derive(Debug, Default, Resource)]
 pub struct GameStatus {
@@ -15,4 +16,4 @@ pub struct SpeedControlInfo {
 }
 
 #[derive(Resource, Deref)]
-pub struct DinoJumpMusic(pub Handle<bevy_kira_audio::AudioSource>);
+pub struct DinoJumpMusic(pub Handle<AudioSource>);
