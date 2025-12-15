@@ -7,3 +7,7 @@ build = "build.rs"
 [dependencies]
 bevy = { workspace = true }
 log = { workspace = true }
+bevy_kira_audio = { workspace = true }
+bevy_asset_loader = { workspace = true }
+rand = { workspace = true }
+webbrowser = { workspace = true }

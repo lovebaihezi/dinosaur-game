@@ -1,7 +1,6 @@
 use bevy::{
     app::{Plugin, Update},
     asset::AssetServer,
-    audio::{AudioPlayer, AudioSink, AudioSinkPlayback, PlaybackSettings},
     ecs::schedule::IntoScheduleConfigs,
     input::ButtonInput,
     log::info,
@@ -10,6 +9,7 @@ use bevy::{
     state::{condition::in_state, state::OnEnter},
     time::{Time, Virtual},
 };
+use bevy_kira_audio::prelude::*;
 
 use crate::{components::Dino, utils::cleanup_component, DinoJumpMusic, GameScreen, GameStatus};
 
