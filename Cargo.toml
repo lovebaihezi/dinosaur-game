@@ -75,7 +75,7 @@ bevy = { version = "0.17.2", default-features = false, features = [
     "debug",
     "zstd_rust",
 ] }
-bevy_kira_audio = { version = "0.24", features = ["android_shared_stdcxx"] }
+bevy_kira_audio = { version = "0.24", features = ["android_shared_stdcxx", "ogg"] }
 bevy_asset_loader = { version = "0.24.0-rc.1" }
 rand = { version = "0.8.3" }
 webbrowser = { version = "1", features = ["hardened"] }
