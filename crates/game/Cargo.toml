@@ -4,8 +4,16 @@ version = "0.0.3"
 edition = "2021"
 build = "build.rs"
 
+[lib]
+crate-type = ["cdylib", "rlib"]
+
 [dependencies]
 bevy = { workspace = true }
 log = { workspace = true }
-flume = { workspace = true }
-dotenv = { workspace = true }
+bevy_kira_audio = { workspace = true }
+bevy_asset_loader = { workspace = true }
+rand = { workspace = true }
+webbrowser = { workspace = true }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+getrandom = { workspace = true }

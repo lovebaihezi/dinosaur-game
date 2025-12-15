@@ -18,21 +18,19 @@ async function installLinuxDeps() {
 async function installWasmDeps() {
   await Promise.all([
     $`rustup component add rustc-codegen-cranelift-preview --toolchain nightly`,
-    $`cargo install wasm-bindgen-cli --version 0.2.100`,
-    $`cargo install wasm-opt`,
+    $`cargo install wasm-pack`,
   ]);
 }
 
-async function buildWasm() {
-  await $`cargo build --release --target wasm32-unknown-unknown`;
+async function buildWasm(env: Env = { binary: "dinosaur-game" }) {
+  // We use wasm-pack to build the project
+  // We need to set the RUSTFLAGS to use the wasm_js backend for getrandom
+  await $`RUSTFLAGS='--cfg getrandom_backend="wasm_js"' wasm-pack build crates/game --target web --release --out-dir ../../wasm --out-name ${env.binary}`;
 }
 
 async function prepareWasmPackage(env: Env = { binary: "dinosaur-game" }) {
-  // Gen JS
-  await $`wasm-bindgen --out-name ${env.binary} --out-dir wasm --target web target/wasm32-unknown-unknown/release/${env.binary}.wasm`;
-  // Optimize Wasm
-  await $`wasm-opt -O wasm/${env.binary}_bg.wasm -o ${env.binary}.wasm`;
   // Compress Wasm using brotli
+  // wasm-pack output is in wasm/ folder
   await $`brotli wasm/${env.binary}_bg.wasm -o web/${env.binary}_bg.wasm`;
   await $`mv wasm/${env.binary}.js web/`;
   // Copy assets

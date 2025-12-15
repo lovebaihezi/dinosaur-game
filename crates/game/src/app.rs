@@ -7,11 +7,12 @@ use crate::{
 };
 use bevy::{
     app::PluginGroupBuilder,
-    dev_tools::fps_overlay::{FpsOverlayConfig, FpsOverlayPlugin},
+    dev_tools::fps_overlay::{FpsOverlayConfig, FpsOverlayPlugin, FrameTimeGraphConfig},
     prelude::*,
     text::{FontSmoothing, LineHeight},
     winit::WinitPlugin,
 };
+use bevy_kira_audio::prelude::AudioPlugin as KiraAudioPlugin;
 
 pub struct Game {
     app: App,
@@ -57,7 +58,12 @@ fn fps_plugin() -> FpsOverlayPlugin {
             },
             text_color: Color::BLACK,
             enabled: true,
-            refresh_interval: Duration::from_millis(100),
+            refresh_interval: Duration::from_millis(166),
+            frame_time_graph_config: FrameTimeGraphConfig {
+                enabled: true,
+                min_fps: 60.,
+                target_fps: 144.,
+            },
         },
     }
 }
@@ -88,6 +94,7 @@ impl Game {
                 GameStartPlugin,
                 DebugPlugin,
                 GameOverPlugin,
+                KiraAudioPlugin,
             ));
         match app_type {
             AppType::Normal => {
