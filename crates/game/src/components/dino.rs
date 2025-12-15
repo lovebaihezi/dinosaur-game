@@ -7,10 +7,13 @@ use bevy::{
     transform::components::Transform,
     utils::default,
 };
+use bevy::prelude::Handle;
+use bevy_kira_audio::AudioInstance;
 
 #[derive(Component, Default)]
 pub struct Dino {
     pub in_air_start_time: Option<Time<Virtual>>,
+    pub jump_sound: Option<Handle<AudioInstance>>,
 }
 
 impl Dino {
@@ -23,6 +26,7 @@ impl Dino {
         (
             Self {
                 in_air_start_time: None,
+                jump_sound: None,
             },
             Sprite {
                 color: Color::srgb(0.05, 0.05, 0.05),
