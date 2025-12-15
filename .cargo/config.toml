@@ -18,7 +18,7 @@ rustflags = ["--cfg=web_sys_unstable_apis"]
 rustflags = [
   # (Nightly) Make the current crate share its generic instantiations
   "-Zshare-generics=y",
-  "-C", 
-  "link-arg=-fuse-ld=/usr/bin/mold"
+  # "-C",
+  # "link-arg=-fuse-ld=/usr/bin/mold"
 ]
 linker = "clang"

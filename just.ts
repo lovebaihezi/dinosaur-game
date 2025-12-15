@@ -1,8 +1,9 @@
-#!/usr/bin/env -S deno run --allow-all
-import $ from "@david/dax";
-import { Command, EnumType } from "@cliffy/command";
+#!/usr/bin/env bun
+import { $ } from "bun";
+import { cac } from "cac";
 
-const envEnum = new EnumType(["linux", "windows", "macos", "macos"]);
+// If you need env types similar to EnumType in cliffy, you can handle validation manually
+const VALID_ENVS = ["linux", "windows", "macos"];
 
 interface Env {
   binary: string;
@@ -37,7 +38,7 @@ async function prepareWasmPackage(env: Env = { binary: "dinosaur-game" }) {
   // Copy assets
   await $`cp -r crates/game/assets web/`;
   // Check assets folder exists under web
-  if (!(await $`test -d web/assets`)) {
+  if ((await $`test -d web/assets`.nothrow()).exitCode !== 0) {
     throw new Error("Assets folder not copied");
   }
 }
@@ -46,35 +47,49 @@ async function buildRelease() {
   await $`cargo b --release`;
 }
 
-// TODO: Migrate All workflow script to this file
-await new Command()
-  .name("just")
-  .description("Command used to build whole project")
-  .version("0.1.0")
-  .type("env", envEnum)
-  .globalOption("--env <level:env>", "Environment to build", {
+const cli = cac("just");
+
+cli
+  .option("--env <level>", "Environment to build", {
     default: "linux",
   })
-  .description("Script for the dinosaur game").action(async () => {
+  .command("", "Script for the dinosaur game")
+  .action(async (options) => {
+    if (options.env && !VALID_ENVS.includes(options.env)) {
+        console.error(`Invalid env: ${options.env}. Must be one of: ${VALID_ENVS.join(", ")}`);
+        process.exit(1);
+    }
     await buildRelease();
-  })
-  .command("install-linux-deps", "Install dependencies").action(async () => {
+  });
+
+cli.command("install-linux-deps", "Install dependencies")
+  .action(async () => {
     await installLinuxDeps();
-  })
-  .command("install-wasm-deps", "Install wasm dependencies").action(
-    async () => {
-      await installWasmDeps();
-    },
-  )
-  .command("build-wasm", "Build wasm").action(async () => {
+  });
+
+cli.command("install-wasm-deps", "Install wasm dependencies")
+  .action(async () => {
+    await installWasmDeps();
+  });
+
+cli.command("build-wasm", "Build wasm")
+  .action(async () => {
     await buildWasm();
-  })
-  .command("prepare-wasm-package", "Prepare wasm package").action(async () => {
+  });
+
+cli.command("prepare-wasm-package", "Prepare wasm package")
+  .action(async () => {
     await prepareWasmPackage();
-  })
-  .command("web", "Web build").action(async () => {
+  });
+
+cli.command("web", "Web build")
+  .action(async () => {
     await installWasmDeps();
     await buildWasm();
     await prepareWasmPackage();
-  })
-  .parse(Deno.args);
+  });
+
+cli.help();
+cli.version("0.1.0");
+
+cli.parse();
