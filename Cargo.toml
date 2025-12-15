@@ -85,6 +85,8 @@ winit = { version = "0.30", default-features = false }
 image = { version = "0.25.2", default-features = false }
 ## This greatly improves WGPU's performance due to its heavy use of trace! calls
 log = { version = "0.4", features = ["max_level_debug", "release_max_level_warn"] }
+# To use with bevy and wasm, we specific the version to 0.2
+getrandom = { version = "0.2", features = ["js"] }
 
 [workspace.build-dependencies]
 embed-resource = "1"
