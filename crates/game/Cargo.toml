@@ -11,3 +11,6 @@ bevy_kira_audio = { workspace = true }
 bevy_asset_loader = { workspace = true }
 rand = { workspace = true }
 webbrowser = { workspace = true }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+getrandom = { version = "0.2", features = ["js"] }

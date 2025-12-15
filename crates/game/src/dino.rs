@@ -3,13 +3,14 @@ use bevy::{
     asset::AssetServer,
     ecs::schedule::IntoScheduleConfigs,
     input::ButtonInput,
-    log::info,
-    prelude::{Commands, KeyCode, MouseButton, Query, Res, Touches, Transform, With},
+    prelude::{
+        Assets, Commands, KeyCode, MouseButton, Query, Res, ResMut, Touches, Transform, With,
+    },
     sprite::Sprite,
     state::{condition::in_state, state::OnEnter},
     time::{Time, Virtual},
 };
-use bevy_kira_audio::prelude::*;
+use bevy_kira_audio::{prelude::*, Audio, AudioControl};
 
 use crate::{components::Dino, utils::cleanup_component, DinoJumpMusic, GameScreen, GameStatus};
 
@@ -57,8 +58,8 @@ fn dino_jump_system(
     mouse: Res<ButtonInput<MouseButton>>,
     touch: Res<Touches>,
     time: Res<Time<Virtual>>,
-    mut commands: Commands,
     sound: Res<DinoJumpMusic>,
+    audio: Res<Audio>,
 ) {
     if time.is_paused() {
         return;
@@ -74,7 +75,8 @@ fn dino_jump_system(
             if dino.in_air_start_time.is_some() {
                 continue;
             } else {
-                commands.spawn((AudioPlayer(sound.clone()), PlaybackSettings::DESPAWN));
+                let handle = audio.play(sound.clone()).handle();
+                dino.jump_sound = Some(handle);
                 dino.in_air_start_time = Some(*time);
             }
         }
@@ -84,7 +86,7 @@ fn dino_jump_system(
 fn dino_jump_animation(
     time: Res<Time<Virtual>>,
     mut query: Query<(&mut Transform, &mut Dino)>,
-    sink: Query<&AudioSink, With<Dino>>,
+    mut audio_instances: ResMut<Assets<AudioInstance>>,
 ) {
     if time.is_paused() {
         return;
@@ -94,9 +96,10 @@ fn dino_jump_animation(
             let elapsed = time.elapsed() - start_time.elapsed();
             // Over
             let y = if elapsed.as_millis() > 500 {
-                if let Ok(sink) = sink.single() {
-                    info!("Pause Sink");
-                    sink.pause();
+                if let Some(handle) = dino.jump_sound.take() {
+                    if let Some(instance) = audio_instances.get_mut(&handle) {
+                        instance.pause(Default::default());
+                    }
                 }
                 dino.in_air_start_time = None;
                 Dino::WIDTH / 2.0 / 0.618

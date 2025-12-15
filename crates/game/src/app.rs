@@ -12,6 +12,7 @@ use bevy::{
     text::{FontSmoothing, LineHeight},
     winit::WinitPlugin,
 };
+use bevy_kira_audio::prelude::AudioPlugin as KiraAudioPlugin;
 
 pub struct Game {
     app: App,
@@ -93,6 +94,7 @@ impl Game {
                 GameStartPlugin,
                 DebugPlugin,
                 GameOverPlugin,
+                KiraAudioPlugin,
             ));
         match app_type {
             AppType::Normal => {

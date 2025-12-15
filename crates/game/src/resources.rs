@@ -15,4 +15,4 @@ pub struct SpeedControlInfo {
 }
 
 #[derive(Resource, Deref)]
-pub struct DinoJumpMusic(pub Handle<AudioSource>);
+pub struct DinoJumpMusic(pub Handle<bevy_kira_audio::AudioSource>);
