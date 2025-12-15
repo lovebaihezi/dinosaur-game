@@ -1,3 +1,4 @@
+use bevy::prelude::Handle;
 use bevy::{
     color::Color,
     math::{Vec2, Vec3},
@@ -7,7 +8,6 @@ use bevy::{
     transform::components::Transform,
     utils::default,
 };
-use bevy::prelude::Handle;
 use bevy_kira_audio::AudioInstance;
 
 #[derive(Component, Default)]
