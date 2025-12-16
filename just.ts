@@ -1,6 +1,8 @@
 #!/usr/bin/env bun
 import { $ } from "bun";
 import { cac } from "cac";
+import fs from "node:fs/promises";
+import path from "node:path";
 
 // If you need env types similar to EnumType in cliffy, you can handle validation manually
 const VALID_ENVS = ["linux", "windows", "macos"];
@@ -46,18 +48,6 @@ async function buildRelease() {
   await $`cargo b --release`;
 }
 
-/**
- * Builds the Rust project for a specified native target.
- *
- * @param {string} target - The Rust target triple to build for (e.g., "x86_64-unknown-linux-gnu", "aarch64-apple-darwin").
- *   This should be a valid Rust target as recognized by rustup and cargo.
- * @returns {Promise<void>} Resolves when the build is complete.
- *
- * Side effects:
- * - Installs the specified target and required toolchain components if not already present.
- * - For Apple targets, sets environment variables (CFLAGS, MACOSX_DEPLOYMENT_TARGET) as needed for compatibility.
- *   These environment variables are set globally for the process and may affect subsequent commands.
- */
 async function buildNative(target: string) {
     // Ensure target is added
     await $`rustup target add ${target}`;
@@ -95,11 +85,16 @@ async function packageLinux(target: string, binary: string, version: string) {
 }
 
 async function packageWindows(target: string, binary: string, version: string) {
-    await $`rm -rf windows`;
-    await $`mkdir -p windows`;
-    await $`cp target/${target}/release/${binary}.exe windows/`;
-    if ((await $`test -d assets`.nothrow()).exitCode === 0) {
-        await $`cp -r assets windows/`;
+    const destDir = "windows";
+    await fs.rm(destDir, { recursive: true, force: true });
+    await fs.mkdir(destDir, { recursive: true });
+
+    await fs.copyFile(`target/${target}/release/${binary}.exe`, path.join(destDir, `${binary}.exe`));
+
+    try {
+        await fs.cp("assets", path.join(destDir, "assets"), { recursive: true });
+    } catch (e) {
+        // Ignored if assets don't exist, similar to previous logic or explicit check
     }
 
     const zipName = `${binary}-windows-${version}.zip`;
@@ -112,7 +107,6 @@ async function packageMac(target: string, binary: string, version: string) {
     const arch = target.includes("aarch64") ? "apple-silicon" : "intel";
     const appName = `${binary}.app`;
 
-    await $`rm -rf ${appName}`;
     await $`mkdir -p ${appName}/Contents/MacOS`;
     await $`cp target/${target}/release/${binary} ${appName}/Contents/MacOS/`;
     if ((await $`test -d assets`.nothrow()).exitCode === 0) {
@@ -125,14 +119,6 @@ async function packageMac(target: string, binary: string, version: string) {
     console.log(`Created ${dmgName}`);
 }
 
-/**
- * Packages the compiled binary for the specified target platform.
- *
- * @param {string} target - The target triple or identifier (e.g., "x86_64-unknown-linux-gnu", "x86_64-pc-windows-msvc", "aarch64-apple-darwin").
- * @param {string} binary - The name of the binary to package (without extension).
- * @param {string} [version] - Optional version string to use in the package name. If not provided, defaults to the current git short SHA.
- * @throws {Error} If the target is not supported.
- */
 async function packageNative(target: string, binary: string, version?: string) {
     if (!version) {
         version = (await $`git rev-parse --short HEAD`.text()).trim();
