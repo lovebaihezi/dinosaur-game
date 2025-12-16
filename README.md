@@ -4,7 +4,7 @@ A Rust implementation of the classic Chrome Dinosaur Game. This project is built
 
 ## How to Play
 
-You can play the web version of the game [here](https://dinosaur-game.lovebaihezi.com).
+You can play the web version of the game [here](https://dino.lqxclqxc.com).
 
 ## Downloads
 
