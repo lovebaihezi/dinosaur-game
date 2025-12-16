@@ -2,6 +2,8 @@ name: Build All On All Possible Platforms
 
 # Also run on Tag created
 on:
+  schedule:
+    - cron: '0 9 * * 1-5'
   push:
     branches: [main]
     tags:
@@ -17,16 +19,43 @@ env:
   use_git_lfs: false
 
 jobs:
+  pre-release-check:
+    runs-on: ubuntu-latest
+    outputs:
+      should_release: ${{ steps.check.outputs.should_release }}
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: ${{ env.use_git_lfs }}
+          fetch-depth: 0 # Needed to check git history
+      - uses: oven-sh/setup-bun@v1
+      - run: bun install
+      - name: Check if release is needed
+        id: check
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RESULT=$(./just.ts check-should-release)
+          echo "should_release=$RESULT" >> "$GITHUB_OUTPUT"
+          echo "Release needed: $RESULT"
+      - name: Get Version
+        id: version
+        run: |
+          VERSION=$(./just.ts get-version)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Version: $VERSION"
+
   # Build for wasm
   release-wasm:
+    needs: pre-release-check
+    if: needs.pre-release-check.outputs.should_release == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
       deployments: write
 
     steps:
-      - uses: olegtarasov/get-tag@v2.1.3
-        id: get_version
       - uses: actions/checkout@v4
         with:
           lfs: ${{ env.use_git_lfs }}
@@ -47,16 +76,16 @@ jobs:
           directory: ./web
           # Optional parameters
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ github.event.pull_request.head.ref }}
+          branch: ${{ github.event.pull_request.head.ref || 'main' }}
           wranglerVersion: "3"
 
   # Build for Linux
   release-linux:
+    needs: pre-release-check
+    if: needs.pre-release-check.outputs.should_release == 'true'
     runs-on: ubuntu-latest
 
     steps:
-      - uses: olegtarasov/get-tag@v2.1.2
-        id: get_version
       - uses: actions/checkout@v4
         with:
           lfs: ${{ env.use_git_lfs }}
@@ -83,26 +112,27 @@ jobs:
         run: |
           zip --recurse-paths ../${{ env.binary }}.zip .
       - name: Upload binaries to artifacts
-        if: startsWith(github.ref, 'refs/tags/')
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'schedule'
         uses: actions/upload-artifact@v4
         with:
           path: ${{ env.binary }}.zip
           name: linux
           retention-days: 1
       - name: Upload binaries to release
-        if: startsWith(github.ref, 'refs/tags/')
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'schedule'
         uses: softprops/action-gh-release@v2
         with:
           files: ${{ env.binary }}.zip
-          name: ${{ env.binary }}-linux-${{ steps.get_version.outputs.tag }}.zip
+          tag_name: ${{ needs.pre-release-check.outputs.version }}
+          name: ${{ env.binary }}-linux-${{ needs.pre-release-check.outputs.version }}.zip
 
   # Build for Windows
   run-windows:
+    needs: pre-release-check
+    if: needs.pre-release-check.outputs.should_release == 'true'
     runs-on: windows-latest
 
     steps:
-      - uses: olegtarasov/get-tag@v2.1.2
-        id: get_version
       - uses: actions/checkout@v4
         with:
           lfs: ${{ env.use_git_lfs }}
@@ -127,26 +157,27 @@ jobs:
         run: |
           Compress-Archive -Path windows/* -DestinationPath ${{ env.binary }}.zip
       - name: Upload binaries to artifacts
-        if: startsWith(github.ref, 'refs/tags/')
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'schedule'
         uses: actions/upload-artifact@v4
         with:
           path: ${{ env.binary }}.zip
           name: windows
           retention-days: 1
       - name: Upload binaries to release
-        if: startsWith(github.ref, 'refs/tags/')
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'schedule'
         uses: softprops/action-gh-release@v2
         with:
           files: ${{ env.binary }}.zip
-          name: ${{ env.binary }}-windows-${{ steps.get_version.outputs.tag }}.zip
+          tag_name: ${{ needs.pre-release-check.outputs.version }}
+          name: ${{ env.binary }}-windows-${{ needs.pre-release-check.outputs.version }}.zip
 
   # Build for MacOS x86_64
   run-macOS-intel:
+    needs: pre-release-check
+    if: needs.pre-release-check.outputs.should_release == 'true'
     runs-on: macOS-latest
 
     steps:
-      - uses: olegtarasov/get-tag@v2.1.2
-        id: get_version
       - uses: actions/checkout@v4
         with:
           lfs: ${{ env.use_git_lfs }}
@@ -176,26 +207,27 @@ jobs:
           cp -r assets ${{ env.binary }}.app/Contents/MacOS/ || true # Try to copy, but ignore if it can't copy if source directory does not exist
           hdiutil create -fs HFS+ -volname "${{ env.binary }}" -srcfolder ${{ env.binary }}.app ${{ env.binary }}-macOS-intel.dmg
       - name: Upload binaries to artifacts
-        if: startsWith(github.ref, 'refs/tags/')
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'schedule'
         uses: actions/upload-artifact@v4
         with:
           path: ${{ env.binary }}-macOS-intel.dmg
           name: macOS-intel
           retention-days: 1
       - name: Upload binaries to release
-        if: startsWith(github.ref, 'refs/tags/')
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'schedule'
         uses: softprops/action-gh-release@v2
         with:
           files: ${{ env.binary }}-macOS-intel.dmg
-          name: ${{ env.binary }}-macOS-intel-${{ github.ref }}.dmg
+          tag_name: ${{ needs.pre-release-check.outputs.version }}
+          name: ${{ env.binary }}-macOS-intel-${{ needs.pre-release-check.outputs.version }}.dmg
 
   # Build for MacOS Apple Silicon
   run-macOS-apple-silicon:
+    needs: pre-release-check
+    if: needs.pre-release-check.outputs.should_release == 'true'
     runs-on: macOS-latest
 
     steps:
-      - uses: olegtarasov/get-tag@v2.1.2
-        id: get_version
       - uses: actions/checkout@v4
         with:
           lfs: ${{ env.use_git_lfs }}
@@ -222,7 +254,7 @@ jobs:
           hdiutil create -fs HFS+ -volname "${{ env.binary }}-macOS-apple-silicon" -srcfolder ${{ env.binary }}.app ${{ env.binary }}-macOS-apple-silicon.dmg
 
       - name: Upload binaries to artifacts
-        if: startsWith(github.ref, 'refs/tags/')
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'schedule'
         uses: actions/upload-artifact@v4
         with:
           path: ${{ env.binary }}-macOS-apple-silicon.dmg
@@ -230,8 +262,9 @@ jobs:
           retention-days: 1
 
       - name: Upload binaries to release
-        if: startsWith(github.ref, 'refs/tags/')
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'schedule'
         uses: softprops/action-gh-release@v2
         with:
           files: ${{ env.binary }}-macOS-apple-silicon.dmg
-          name: ${{ env.binary }}-macOS-apple-silicon-${{ github.ref }}.dmg
+          tag_name: ${{ needs.pre-release-check.outputs.version }}
+          name: ${{ env.binary }}-macOS-apple-silicon-${{ needs.pre-release-check.outputs.version }}.dmg

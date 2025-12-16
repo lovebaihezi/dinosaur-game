@@ -45,6 +45,70 @@ async function buildRelease() {
   await $`cargo b --release`;
 }
 
+async function checkShouldRelease() {
+    // If explicitly triggered by a tag or push (not schedule), we usually always want to release
+    // But the job logic in GHA might rely on this too.
+    // However, the requirement is specifically for SCHEDULED builds: "only if main branch got updates".
+
+    const eventName = process.env.GITHUB_EVENT_NAME;
+    if (eventName !== "schedule") {
+        console.log("true");
+        return;
+    }
+
+    try {
+        // Fetch the latest release's target commit
+        // We assume 'gh' is installed and authenticated in the CI environment
+        // output format: title, tagName, targetCommitish
+        const result = await $`gh release list --limit 1 --json targetCommitish`.text();
+        const releases = JSON.parse(result);
+
+        if (releases.length === 0) {
+            // No releases yet, so we should release
+            console.log("true");
+            return;
+        }
+
+        const lastReleaseCommit = releases[0].targetCommitish;
+        const currentCommit = (await $`git rev-parse HEAD`.text()).trim();
+
+        if (lastReleaseCommit === currentCommit) {
+            console.log("false");
+        } else {
+            console.log("true");
+        }
+    } catch (error) {
+        // If something fails (e.g. gh not found, no releases), default to true to be safe?
+        // Or false?
+        console.error("Error checking release status:", error);
+        // Defaulting to true so we don't miss a release due to error,
+        // but arguably if we can't verify, we might fail.
+        // Let's print true but log error to stderr.
+        console.log("true");
+    }
+}
+
+async function getVersion() {
+    const ref = process.env.GITHUB_REF || "";
+    const eventName = process.env.GITHUB_EVENT_NAME;
+
+    if (ref.startsWith("refs/tags/")) {
+        console.log(ref.replace("refs/tags/", ""));
+        return;
+    }
+
+    if (eventName === "schedule") {
+        const date = new Date().toISOString().split("T")[0];
+        console.log(`nightly-${date}`);
+        return;
+    }
+
+    // Fallback for non-tag, non-schedule (e.g. manual dispatch or push to main without tag)
+    // Use short sha
+    const sha = (await $`git rev-parse --short HEAD`.text()).trim();
+    console.log(`dev-${sha}`);
+}
+
 const cli = cac("just");
 
 cli
@@ -86,6 +150,16 @@ cli.command("web", "Web build")
     await buildWasm();
     await prepareWasmPackage();
   });
+
+cli.command("check-should-release", "Check if a release is needed")
+    .action(async () => {
+        await checkShouldRelease();
+    });
+
+cli.command("get-version", "Get the version string")
+    .action(async () => {
+        await getVersion();
+    });
 
 cli.help();
 cli.version("0.1.0");
