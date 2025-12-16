@@ -117,7 +117,11 @@ cli.command("install-linux-deps", "Install dependencies")
   });
 
 cli.command("install-rust-deps", "Install rust dependencies")
-  .action(async () => {
+  .option("--target <target>", "Target architecture")
+  .action(async (options) => {
+    if (options.target) {
+        await $`rustup target add ${options.target}`;
+    }
     await $`rustup component add rustc-codegen-cranelift-preview --toolchain nightly`;
   });
 
@@ -135,6 +139,64 @@ cli.command("web", "Web build")
   .action(async () => {
     await installWasmDeps();
     await buildWasm();
+  });
+
+cli.command("build-native", "Build native binary")
+  .option("--target <target>", "Target architecture")
+  .action(async (options) => {
+    if (options.target) {
+        await $`cargo build --release --target ${options.target}`;
+    } else {
+        await $`cargo build --release`;
+    }
+  });
+
+cli.command("package-native", "Package native binary")
+  .option("--target <target>", "Target architecture")
+  .option("--binary <binary>", "Binary name")
+  .option("--os <os>", "Operating system (linux, windows, macos)")
+  .option("--arch <arch>", "Architecture (intel, silicon) for macOS")
+  .option("--app-version <version>", "App version for naming")
+  .action(async (options) => {
+    const binary = options.binary || "dinosaur-game";
+    const os = options.os || "linux";
+    const target = options.target || "x86_64-unknown-linux-gnu";
+    const version = options.appVersion || "latest";
+
+    // Clean previous package dirs if needed, but CI usually is clean.
+
+    if (os === "linux") {
+        await $`mkdir -p linux`;
+        await $`cp target/${target}/release/${binary} linux/`;
+        // Use nothrow() for optional copy, or check existence.
+        // Bun shell throws on error by default.
+        if ((await $`test -d assets`.nothrow()).exitCode === 0) {
+             await $`cp -r assets linux/`;
+        }
+        await $`rm -f ${binary}.zip`;
+        await $`cd linux && zip -r ../${binary}.zip .`;
+    } else if (os === "windows") {
+        await $`mkdir -p windows`;
+        await $`cp target/${target}/release/${binary}.exe windows/`;
+        if ((await $`test -d assets`.nothrow()).exitCode === 0) {
+            await $`mkdir -p windows/assets`;
+             await $`cp -r assets windows/`;
+        }
+        await $`rm -f ${binary}.zip`;
+        // Use PowerShell to zip on Windows
+        await $`powershell Compress-Archive -Path windows/* -DestinationPath ${binary}.zip`;
+    } else if (os === "macos") {
+        const appName = `${binary}.app`;
+        const dmgName = `${binary}-${options.arch === "silicon" ? "macOS-apple-silicon" : "macOS-intel"}.dmg`;
+
+        await $`mkdir -p ${appName}/Contents/MacOS`;
+        await $`cp target/${target}/release/${binary} ${appName}/Contents/MacOS/`;
+         if ((await $`test -d assets`.nothrow()).exitCode === 0) {
+             await $`cp -r assets ${appName}/Contents/MacOS/`;
+        }
+        await $`rm -f ${dmgName}`;
+        await $`hdiutil create -fs HFS+ -volname "${binary}" -srcfolder ${appName} ${dmgName}`;
+    }
   });
 
 cli.command("check-should-release", "Check if a release is needed")
