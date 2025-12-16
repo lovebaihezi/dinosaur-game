@@ -100,6 +100,7 @@ async function packageMac(target: string, binary: string, version: string) {
     const arch = target.includes("aarch64") ? "apple-silicon" : "intel";
     const appName = `${binary}.app`;
 
+    await $`rm -rf ${appName}`;
     await $`mkdir -p ${appName}/Contents/MacOS`;
     await $`cp target/${target}/release/${binary} ${appName}/Contents/MacOS/`;
     if ((await $`test -d assets`.nothrow()).exitCode === 0) {
