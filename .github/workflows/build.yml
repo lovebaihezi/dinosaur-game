@@ -99,7 +99,7 @@ jobs:
       - name: Build and Package
         run: |
           ./just.ts build-native x86_64-unknown-linux-gnu
-          ./just.ts package-native x86_64-unknown-linux-gnu --version ${{ needs.pre-release-check.outputs.version }}
+          ./just.ts package-native x86_64-unknown-linux-gnu --app-version ${{ needs.pre-release-check.outputs.version }}
 
       - name: Upload binaries to artifacts
         if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'schedule'
@@ -133,7 +133,7 @@ jobs:
       - name: Build and Package
         run: |
           ./just.ts build-native x86_64-pc-windows-msvc
-          ./just.ts package-native x86_64-pc-windows-msvc --version ${{ needs.pre-release-check.outputs.version }}
+          ./just.ts package-native x86_64-pc-windows-msvc --app-version ${{ needs.pre-release-check.outputs.version }}
 
       - name: Upload binaries to artifacts
         if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'schedule'
@@ -167,7 +167,7 @@ jobs:
       - name: Build and Package
         run: |
           ./just.ts build-native x86_64-apple-darwin
-          ./just.ts package-native x86_64-apple-darwin --version ${{ needs.pre-release-check.outputs.version }}
+          ./just.ts package-native x86_64-apple-darwin --app-version ${{ needs.pre-release-check.outputs.version }}
 
       - name: Upload binaries to artifacts
         if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'schedule'
@@ -201,7 +201,7 @@ jobs:
       - name: Build and Package
         run: |
           ./just.ts build-native aarch64-apple-darwin
-          ./just.ts package-native aarch64-apple-darwin --version ${{ needs.pre-release-check.outputs.version }}
+          ./just.ts package-native aarch64-apple-darwin --app-version ${{ needs.pre-release-check.outputs.version }}
 
       - name: Upload binaries to artifacts
         if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'schedule'

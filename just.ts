@@ -262,9 +262,9 @@ cli.command("build-native <target>", "Build native binary for target")
     });
 
 cli.command("package-native <target>", "Package native binary for target")
-    .option("--version <version>", "Version string")
+    .option("--app-version <version>", "Version string")
     .action(async (target, options) => {
-        await packageNative(target, DEFAULT_BINARY, options.version);
+        await packageNative(target, DEFAULT_BINARY, options.appVersion);
     });
 
 cli.help();
