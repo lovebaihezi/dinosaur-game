@@ -16,11 +16,8 @@ async function installLinuxDeps() {
 }
 
 async function installWasmDeps() {
-  await Promise.all([
-    $`rustup component add rustc-codegen-cranelift-preview --toolchain nightly`,
-    // Install trunk for WASM builds
-    $`cargo install trunk`,
-  ]);
+  // Install trunk for WASM builds
+  await $`cargo install trunk`;
 }
 
 async function buildWasm(env: Env = { binary: "dinosaur-game" }) {
