@@ -1,7 +1,6 @@
 export default function initializer() {
     return {
         onStart: () => {
-            console.log("Loading...");
             document.querySelector("#loading").style.display = "block";
         },
         onProgress: ({ current, total }) => {
@@ -11,7 +10,6 @@ export default function initializer() {
             }
         },
         onComplete: () => {
-            console.log("Done!");
             document.querySelector("#loading").style.display = "none";
         },
         onFailure: (error) => {

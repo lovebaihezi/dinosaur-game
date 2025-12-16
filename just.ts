@@ -116,6 +116,11 @@ cli.command("install-linux-deps", "Install dependencies")
     await installLinuxDeps();
   });
 
+cli.command("install-rust-deps", "Install rust dependencies")
+  .action(async () => {
+    await $`rustup component add rustc-codegen-cranelift-preview --toolchain nightly`;
+  });
+
 cli.command("install-wasm-deps", "Install wasm dependencies")
   .action(async () => {
     await installWasmDeps();

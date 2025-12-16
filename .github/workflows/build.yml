@@ -96,8 +96,7 @@ jobs:
           target: x86_64-unknown-linux-gnu
       - run: ./just.ts install-linux-deps
       - name: install dependencies
-        run: |
-          rustup component add rustc-codegen-cranelift-preview --toolchain nightly
+        run: ./just.ts install-rust-deps
       - name: Build
         run: |
           cargo build --release --target x86_64-unknown-linux-gnu
@@ -144,7 +143,7 @@ jobs:
 
       - name: Build
         run: |
-          rustup component add rustc-codegen-cranelift-preview --toolchain nightly
+          ./just.ts install-rust-deps
           cargo build --release --target x86_64-pc-windows-msvc
 
       - name: Prepare package
@@ -196,7 +195,7 @@ jobs:
           cargo clean
           rustup update
           rustup target add x86_64-apple-darwin
-          rustup component add rustc-codegen-cranelift-preview --toolchain nightly
+          ./just.ts install-rust-deps
           # cargo build -Z build-std --target x86_64-apple-darwin
           cargo build --release --target x86_64-apple-darwin
 
@@ -243,7 +242,7 @@ jobs:
 
       - name: Build
         run: |
-          rustup component add rustc-codegen-cranelift-preview --toolchain nightly
+          ./just.ts install-rust-deps
           cargo build --release --target aarch64-apple-darwin
 
       - name: Prepare Package
