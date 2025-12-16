@@ -1,8 +1,6 @@
 #!/usr/bin/env bun
 import { $ } from "bun";
 import { cac } from "cac";
-import fs from "node:fs/promises";
-import path from "node:path";
 
 // If you need env types similar to EnumType in cliffy, you can handle validation manually
 const VALID_ENVS = ["linux", "windows", "macos"];
@@ -85,20 +83,18 @@ async function packageLinux(target: string, binary: string, version: string) {
 }
 
 async function packageWindows(target: string, binary: string, version: string) {
-    const destDir = "windows";
-    await fs.rm(destDir, { recursive: true, force: true });
-    await fs.mkdir(destDir, { recursive: true });
+    await $`rm -rf windows`;
+    await $`mkdir -p windows`;
+    await $`cp target/${target}/release/${binary}.exe windows/`;
 
-    await fs.copyFile(`target/${target}/release/${binary}.exe`, path.join(destDir, `${binary}.exe`));
-
-    try {
-        await fs.cp("assets", path.join(destDir, "assets"), { recursive: true });
-    } catch (e) {
-        // Ignored if assets don't exist, similar to previous logic or explicit check
+    // Check if assets directory exists before copying
+    if ((await $`test -d assets`.nothrow()).exitCode === 0) {
+        await $`cp -r assets windows/`;
     }
 
     const zipName = `${binary}-windows-${version}.zip`;
-    // Using PowerShell to zip
+    // Using PowerShell to zip because zip might not be available on Windows environment,
+    // and Bun shell doesn't have a built-in zip command (it delegates to system).
     await $`powershell -Command "Compress-Archive -Path windows/* -DestinationPath ${zipName} -Force"`;
     console.log(`Created ${zipName}`);
 }
@@ -109,6 +105,7 @@ async function packageMac(target: string, binary: string, version: string) {
 
     await $`mkdir -p ${appName}/Contents/MacOS`;
     await $`cp target/${target}/release/${binary} ${appName}/Contents/MacOS/`;
+
     if ((await $`test -d assets`.nothrow()).exitCode === 0) {
         await $`cp -r assets ${appName}/Contents/MacOS/`;
     }
