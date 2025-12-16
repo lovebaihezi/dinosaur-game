@@ -46,6 +46,18 @@ async function buildRelease() {
   await $`cargo b --release`;
 }
 
+/**
+ * Builds the Rust project for a specified native target.
+ *
+ * @param {string} target - The Rust target triple to build for (e.g., "x86_64-unknown-linux-gnu", "aarch64-apple-darwin").
+ *   This should be a valid Rust target as recognized by rustup and cargo.
+ * @returns {Promise<void>} Resolves when the build is complete.
+ *
+ * Side effects:
+ * - Installs the specified target and required toolchain components if not already present.
+ * - For Apple targets, sets environment variables (CFLAGS, MACOSX_DEPLOYMENT_TARGET) as needed for compatibility.
+ *   These environment variables are set globally for the process and may affect subsequent commands.
+ */
 async function buildNative(target: string) {
     // Ensure target is added
     await $`rustup target add ${target}`;
