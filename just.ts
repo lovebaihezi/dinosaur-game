@@ -125,6 +125,14 @@ async function packageMac(target: string, binary: string, version: string) {
     console.log(`Created ${dmgName}`);
 }
 
+/**
+ * Packages the compiled binary for the specified target platform.
+ *
+ * @param {string} target - The target triple or identifier (e.g., "x86_64-unknown-linux-gnu", "x86_64-pc-windows-msvc", "aarch64-apple-darwin").
+ * @param {string} binary - The name of the binary to package (without extension).
+ * @param {string} [version] - Optional version string to use in the package name. If not provided, defaults to the current git short SHA.
+ * @throws {Error} If the target is not supported.
+ */
 async function packageNative(target: string, binary: string, version?: string) {
     if (!version) {
         version = (await $`git rev-parse --short HEAD`.text()).trim();
