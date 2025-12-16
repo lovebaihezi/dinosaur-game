@@ -18,27 +18,17 @@ async function installLinuxDeps() {
 async function installWasmDeps() {
   await Promise.all([
     $`rustup component add rustc-codegen-cranelift-preview --toolchain nightly`,
-    $`cargo install wasm-pack`,
+    // Install trunk for WASM builds
+    $`cargo install trunk`,
   ]);
 }
 
 async function buildWasm(env: Env = { binary: "dinosaur-game" }) {
-  // We use wasm-pack to build the project
-  // We need to set the RUSTFLAGS to use the wasm_js backend for getrandom
-  await $`RUSTFLAGS='--cfg getrandom_backend="wasm_js"' wasm-pack build crates/game --target web --release --out-dir ../../wasm --out-name ${env.binary}`;
-}
-
-async function prepareWasmPackage(env: Env = { binary: "dinosaur-game" }) {
-  // Compress Wasm using brotli
-  // wasm-pack output is in wasm/ folder
-  await $`brotli wasm/${env.binary}_bg.wasm -o web/${env.binary}_bg.wasm`;
-  await $`mv wasm/${env.binary}.js web/`;
-  // Copy assets
-  await $`cp -r crates/game/assets web/`;
-  // Check assets folder exists under web
-  if ((await $`test -d web/assets`.nothrow()).exitCode !== 0) {
-    throw new Error("Assets folder not copied");
-  }
+  // We use trunk to build the project
+  // Trunk handles assets and entry points via web/index.html
+  // We explicitly output to 'dist' (default, but explicit is good)
+  // We specify the manifest path to the game crate
+  await $`RUSTFLAGS='--cfg getrandom_backend="wasm_js"' trunk build web/index.html --release --dist dist --manifest-path crates/game/Cargo.toml`;
 }
 
 async function buildRelease() {
@@ -139,16 +129,10 @@ cli.command("build-wasm", "Build wasm")
     await buildWasm();
   });
 
-cli.command("prepare-wasm-package", "Prepare wasm package")
-  .action(async () => {
-    await prepareWasmPackage();
-  });
-
 cli.command("web", "Web build")
   .action(async () => {
     await installWasmDeps();
     await buildWasm();
-    await prepareWasmPackage();
   });
 
 cli.command("check-should-release", "Check if a release is needed")
