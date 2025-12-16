@@ -9,11 +9,10 @@ interface Env {
   binary: string;
 }
 
-const DEFAULT_BINARY = "dinosaur-game";
-
 async function installLinuxDeps() {
+  // TODO: check if Ubuntu
   await $`sudo apt-get update`;
-  await $`sudo apt-get install -y --no-install-recommends pkg-config libx11-dev libasound2-dev libudev-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev clang mold libwayland-dev libxkbcommon-dev`;
+  await $`sudo apt-get install --no-install-recommends pkg-config libx11-dev libasound2-dev libudev-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev clang mold libwayland-dev libxkbcommon-dev`;
 }
 
 async function installWasmDeps() {
@@ -33,93 +32,11 @@ async function buildRelease() {
   await $`cargo b --release`;
 }
 
-async function buildNative(target: string) {
-    // Ensure target is added
-    await $`rustup target add ${target}`;
-    // Install cranelift component
-    await $`rustup component add rustc-codegen-cranelift-preview --toolchain nightly`;
-
-    // Set env vars specific to targets
-    if (target.includes("apple")) {
-        if (target.includes("x86_64")) {
-             process.env.CFLAGS = "-fno-stack-check";
-             process.env.MACOSX_DEPLOYMENT_TARGET = "10.9";
-        } else if (target.includes("aarch64")) {
-             process.env.MACOSX_DEPLOYMENT_TARGET = "11";
-        }
-    }
-
-    await $`cargo build --release --target ${target}`;
-}
-
-async function packageLinux(target: string, binary: string, version: string) {
-    await $`rm -rf linux`;
-    await $`mkdir -p linux`;
-    await $`cp target/${target}/release/${binary} linux/`;
-    if ((await $`test -d assets`.nothrow()).exitCode === 0) {
-        await $`cp -r assets linux/`;
-    }
-
-    // Zip naming convention: binary-linux-version.zip
-    // The CI currently names it ${binary}.zip inside the artifact, and renames it for release.
-    // We will create the properly named file.
-    const zipName = `${binary}-linux-${version}.zip`;
-    // zip -r relative path
-    await $`cd linux && zip -r ../${zipName} .`;
-    console.log(`Created ${zipName}`);
-}
-
-async function packageWindows(target: string, binary: string, version: string) {
-    await $`rm -rf windows`;
-    await $`mkdir -p windows`;
-    await $`cp target/${target}/release/${binary}.exe windows/`;
-
-    // Check if assets directory exists before copying
-    if ((await $`test -d assets`.nothrow()).exitCode === 0) {
-        await $`cp -r assets windows/`;
-    }
-
-    const zipName = `${binary}-windows-${version}.zip`;
-    // Using PowerShell to zip because zip might not be available on Windows environment,
-    // and Bun shell doesn't have a built-in zip command (it delegates to system).
-    await $`powershell -Command "Compress-Archive -Path windows/* -DestinationPath ${zipName} -Force"`;
-    console.log(`Created ${zipName}`);
-}
-
-async function packageMac(target: string, binary: string, version: string) {
-    const arch = target.includes("aarch64") ? "apple-silicon" : "intel";
-    const appName = `${binary}.app`;
-
-    await $`mkdir -p ${appName}/Contents/MacOS`;
-    await $`cp target/${target}/release/${binary} ${appName}/Contents/MacOS/`;
-
-    if ((await $`test -d assets`.nothrow()).exitCode === 0) {
-        await $`cp -r assets ${appName}/Contents/MacOS/`;
-    }
-
-    const dmgName = `${binary}-macOS-${arch}-${version}.dmg`;
-    await $`rm -f ${dmgName}`;
-    await $`hdiutil create -fs HFS+ -volname "${binary}-${arch}" -srcfolder ${appName} ${dmgName}`;
-    console.log(`Created ${dmgName}`);
-}
-
-async function packageNative(target: string, binary: string, version?: string) {
-    if (!version) {
-        version = (await $`git rev-parse --short HEAD`.text()).trim();
-    }
-
-    if (target.includes("linux")) {
-        await packageLinux(target, binary, version);
-    } else if (target.includes("windows")) {
-        await packageWindows(target, binary, version);
-    } else if (target.includes("apple") || target.includes("darwin")) {
-        await packageMac(target, binary, version);
-    } else {
-        throw new Error(`Unsupported target for packaging: ${target}`);
-    }
-}
-
 async function checkShouldRelease() {
+    // If explicitly triggered by a tag or push (not schedule), we usually always want to release
+    // But the job logic in GHA might rely on this too.
+    // However, the requirement is specifically for SCHEDULED builds: "only if main branch got updates".
+
     const eventName = process.env.GITHUB_EVENT_NAME;
     if (eventName !== "schedule") {
         console.log("true");
@@ -127,10 +44,14 @@ async function checkShouldRelease() {
     }
 
     try {
+        // Fetch the latest release's target commit
+        // We assume 'gh' is installed and authenticated in the CI environment
+        // output format: title, tagName, targetCommitish
         const result = await $`gh release list --limit 1 --json targetCommitish`.text();
         const releases = JSON.parse(result);
 
         if (releases.length === 0) {
+            // No releases yet, so we should release
             console.log("true");
             return;
         }
@@ -144,7 +65,12 @@ async function checkShouldRelease() {
             console.log("true");
         }
     } catch (error) {
+        // If something fails (e.g. gh not found, no releases), default to true to be safe?
+        // Or false?
         console.error("Error checking release status:", error);
+        // Defaulting to true so we don't miss a release due to error,
+        // but arguably if we can't verify, we might fail.
+        // Let's print true but log error to stderr.
         console.log("true");
     }
 }
@@ -164,20 +90,10 @@ async function getVersion() {
         return;
     }
 
+    // Fallback for non-tag, non-schedule (e.g. manual dispatch or push to main without tag)
+    // Use short sha
     const sha = (await $`git rev-parse --short HEAD`.text()).trim();
     console.log(`dev-${sha}`);
-}
-
-async function test() {
-    await $`cargo test --workspace`;
-}
-
-async function clippy() {
-    await $`cargo clippy --workspace --all-targets --all-features -- -D warnings`;
-}
-
-async function fmt() {
-    await $`cargo fmt --all -- --check`;
 }
 
 const cli = cac("just");
@@ -224,32 +140,6 @@ cli.command("check-should-release", "Check if a release is needed")
 cli.command("get-version", "Get the version string")
     .action(async () => {
         await getVersion();
-    });
-
-cli.command("test", "Run tests")
-    .action(async () => {
-        await test();
-    });
-
-cli.command("clippy", "Run clippy")
-    .action(async () => {
-        await clippy();
-    });
-
-cli.command("fmt", "Run fmt")
-    .action(async () => {
-        await fmt();
-    });
-
-cli.command("build-native <target>", "Build native binary for target")
-    .action(async (target) => {
-        await buildNative(target);
-    });
-
-cli.command("package-native <target>", "Package native binary for target")
-    .option("--app-version <version>", "Version string")
-    .action(async (target, options) => {
-        await packageNative(target, DEFAULT_BINARY, options.appVersion);
     });
 
 cli.help();

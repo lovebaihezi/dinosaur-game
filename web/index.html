@@ -5,6 +5,7 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="description" content="Dinosaur game" />
+        <link data-trunk rel="rust" href="../crates/game/Cargo.toml" data-initializer="loader.js" />
         <link data-trunk rel="copy-dir" href="../crates/game/assets" />
         <link data-trunk rel="copy-file" href="restart-audio-context.js" />
         <link data-trunk rel="copy-file" href="_headers" />
@@ -23,13 +24,26 @@
                 display: flex;
                 justify-content: center;
                 align-items: center;
+                background-color: white;
             }
             canvas:focus {
                 outline: none;
             }
+            #loading {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-family: monospace;
+                font-size: 24px;
+                pointer-events: none;
+            }
         </style>
     </head>
     <body style="margin: 0px">
+        <div id="loading">
+            <span id="loading-text">Loading...</span>
+        </div>
         <canvas id="game"></canvas>
         <script src="restart-audio-context.js"></script>
     </body>

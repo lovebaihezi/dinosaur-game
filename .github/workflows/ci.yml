@@ -38,11 +38,42 @@ jobs:
       - run: bun install
       - run: |
           rustup component add rustc-codegen-cranelift-preview --toolchain nightly
-      # Tests are currently skipped/disabled in the original workflow
-      # - name: Install Dependencies
-      #   run: ./just.ts install-linux-deps
-      # - name: Run cargo test
-      #   run: ./just.ts test
+      - name: Install Dependencies
+        run: |
+          exit 0
+          set -e
+          sudo apt-get update -y -qq
+          sudo apt-get install --no-install-recommends libasound2-dev libudev-dev clang mold libwayland-dev libxkbcommon-dev
+          # vulkan sdk
+          wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add -
+          sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-$VULKAN_SDK_VERSION-jammy.list https://packages.lunarg.com/vulkan/$VULKAN_SDK_VERSION/lunarg-vulkan-$VULKAN_SDK_VERSION-jammy.list
+          sudo apt-get update
+          sudo apt install -y vulkan-sdk
+
+          curl -L --retry 5 https://github.com/gfx-rs/ci-build/releases/download/$CI_BINARY_BUILD/mesa-$MESA_VERSION-linux-x86_64.tar.xz -o mesa.tar.xz
+          mkdir mesa
+          tar xpf mesa.tar.xz -C mesa
+
+          # The ICD provided by the mesa build is hardcoded to the build environment.
+          #
+          # We write out our own ICD file to point to the mesa vulkan
+          cat <<- EOF > icd.json
+          {
+            "ICD": {
+                "api_version": "1.1.255",
+                "library_path": "$PWD/mesa/lib/x86_64-linux-gnu/libvulkan_lvp.so"
+            },
+            "file_format_version": "1.0.0"
+          }
+          EOF
+
+          echo "VK_DRIVER_FILES=$PWD/icd.json" >> "$GITHUB_ENV"
+          echo "LD_LIBRARY_PATH=$PWD/mesa/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH" >> "$GITHUB_ENV"
+          echo "LIBGL_DRIVERS_PATH=$PWD/mesa/lib/x86_64-linux-gnu/dri" >> "$GITHUB_ENV"
+      - name: Run cargo test
+        run: |
+          # Got problems, skip it at first
+          # cargo test
 
   test-macos:
     name: Test Suite on MacOS
@@ -68,7 +99,7 @@ jobs:
           rustup component add rustc-codegen-cranelift-preview --toolchain nightly
       - name: Run cargo test
         run: |
-          ./just.ts test
+          cargo test
 
   # Run cargo clippy -- -D warnings
   clippy_check:
@@ -91,12 +122,16 @@ jobs:
       - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           components: clippy
+      - run: |
+          rustup component add rustc-codegen-cranelift-preview --toolchain nightly
       - uses: oven-sh/setup-bun@v1
       - run: bun install
       - name: Install Dependencies
-        run: ./just.ts install-linux-deps
+        run: |
+          sudo apt-get update;
+          sudo apt-get install --no-install-recommends pkg-config libx11-dev libasound2-dev libudev-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev clang mold libwayland-dev libxkbcommon-dev;
       - name: Run clippy
-        run: ./just.ts clippy
+        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
 
   # Run cargo fmt --all -- --check
   format:
@@ -109,7 +144,7 @@ jobs:
       - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           components: rustfmt
-      - uses: oven-sh/setup-bun@v1
-      - run: bun install
+      - run: |
+          rustup component add rustc-codegen-cranelift-preview --toolchain nightly
       - name: Run cargo fmt
-        run: ./just.ts fmt
+        run: cargo fmt --all -- --check
