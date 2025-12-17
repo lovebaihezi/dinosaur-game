@@ -31,3 +31,4 @@ wasm/
 
 .env
 node_modules
+dist/
