@@ -24,8 +24,8 @@ async function buildWasm(env: Env = { binary: "dinosaur-game" }) {
   // We use trunk to build the project
   // Trunk handles assets and entry points via web/index.html
   // We explicitly output to 'dist' (default, but explicit is good)
-  // We specify the manifest path to the game crate
-  await $`RUSTFLAGS='--cfg getrandom_backend="wasm_js"' trunk build web/index.html --release --dist dist --manifest-path crates/game/Cargo.toml`;
+  // The manifest path is defined in web/index.html via <link data-trunk rel="rust" ...>
+  await $`RUSTFLAGS='--cfg getrandom_backend="wasm_js"' trunk build web/index.html --release --dist dist`;
 }
 
 async function buildRelease() {
