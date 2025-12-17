@@ -5,7 +5,7 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="description" content="Dinosaur game" />
-        <link data-trunk rel="rust" href="../crates/game/Cargo.toml" data-bin="dinosaur-game" />
+        <link data-trunk rel="rust" href="../crates/game/Cargo.toml" data-bin="dinosaur-game" data-wasm-opt="z" data-wasm-opt-params="--enable-bulk-memory --enable-sign-ext --enable-nontrapping-float-to-int" />
         <link data-trunk rel="copy-dir" href="../crates/game/assets" />
         <link data-trunk rel="copy-file" href="_headers" />
         <link data-trunk rel="copy-file" href="restart-audio-context.js" />
