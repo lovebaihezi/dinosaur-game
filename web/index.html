@@ -5,6 +5,10 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="description" content="Dinosaur game" />
+        <link data-trunk rel="rust" href="../crates/game/Cargo.toml" data-bin="dinosaur-game" data-wasm-opt="z" data-wasm-opt-params="--enable-bulk-memory --enable-sign-ext --enable-nontrapping-float-to-int" />
+        <link data-trunk rel="copy-dir" href="../crates/game/assets" />
+        <link data-trunk rel="copy-file" href="_headers" />
+        <link data-trunk rel="copy-file" href="restart-audio-context.js" />
         <style>
             html: {
                 margin: 0;
@@ -28,19 +32,6 @@
     </head>
     <body style="margin: 0px">
         <canvas width="1024" height="960" id="game"></canvas>
-        <script type="module">
-            import "./restart-audio-context.js";
-            import init from "./dinosaur-game.js";
-
-            init().catch((error) => {
-                if (
-                    !error.message.startsWith(
-                        "Using exceptions for control flow, don't mind me. This isn't actually an error!",
-                    )
-                ) {
-                    throw error;
-                }
-            });
-        </script>
+        <script type="module" src="restart-audio-context.js"></script>
     </body>
 </html>

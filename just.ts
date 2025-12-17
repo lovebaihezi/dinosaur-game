@@ -17,29 +17,19 @@ async function installLinuxDeps() {
 }
 
 async function installWasmDeps() {
+  if (process.platform === "linux" && process.env.CI) {
+    await installLinuxDeps();
+  }
   await Promise.all([
     $`rustup component add rustc-codegen-cranelift-preview --toolchain nightly`,
-    $`cargo install wasm-pack`,
+    // Trunk downloads wasm-bindgen by default, but we need trunk installed
+    $`cargo install trunk`,
   ]);
 }
 
-async function buildWasm(env: Env = { binary: DEFAULT_BINARY }) {
-  // We use wasm-pack to build the project
-  // We need to set the RUSTFLAGS to use the wasm_js backend for getrandom
-  await $`RUSTFLAGS='--cfg getrandom_backend="wasm_js"' wasm-pack build crates/game --target web --release --out-dir ../../wasm --out-name ${env.binary}`;
-}
-
-async function prepareWasmPackage(env: Env = { binary: DEFAULT_BINARY }) {
-  // Compress Wasm using brotli
-  // wasm-pack output is in wasm/ folder
-  await $`brotli wasm/${env.binary}_bg.wasm -o web/${env.binary}_bg.wasm`;
-  await $`mv wasm/${env.binary}.js web/`;
-  // Copy assets
-  await $`cp -r crates/game/assets web/`;
-  // Check assets folder exists under web
-  if ((await $`test -d web/assets`.nothrow()).exitCode !== 0) {
-    throw new Error("Assets folder not copied");
-  }
+async function buildWasm() {
+  // We use trunk to build the project
+  await $`trunk build web/index.html --release`;
 }
 
 async function buildRelease() {
@@ -223,16 +213,10 @@ cli.command("build-wasm", "Build wasm")
     await buildWasm();
   });
 
-cli.command("prepare-wasm-package", "Prepare wasm package")
-  .action(async () => {
-    await prepareWasmPackage();
-  });
-
 cli.command("web", "Web build")
   .action(async () => {
     await installWasmDeps();
     await buildWasm();
-    await prepareWasmPackage();
   });
 
 cli.command("check-should-release", "Check if a release is needed")
