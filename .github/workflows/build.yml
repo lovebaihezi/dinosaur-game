@@ -108,15 +108,9 @@ jobs:
           path: ${{ env.binary }}-linux-${{ needs.pre-release-check.outputs.version }}.zip
           name: linux
           retention-days: 1
-      - name: Upload binaries to release
-        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'schedule'
-        uses: softprops/action-gh-release@v2
-        with:
-          files: ${{ env.binary }}-linux-${{ needs.pre-release-check.outputs.version }}.zip
-          tag_name: ${{ needs.pre-release-check.outputs.version }}
 
   # Build for Windows
-  run-windows:
+  release-windows:
     needs: pre-release-check
     if: needs.pre-release-check.outputs.should_release == 'true'
     runs-on: windows-latest
@@ -143,15 +137,9 @@ jobs:
           path: ${{ env.binary }}-windows-${{ needs.pre-release-check.outputs.version }}.zip
           name: windows
           retention-days: 1
-      - name: Upload binaries to release
-        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'schedule'
-        uses: softprops/action-gh-release@v2
-        with:
-          files: ${{ env.binary }}-windows-${{ needs.pre-release-check.outputs.version }}.zip
-          tag_name: ${{ needs.pre-release-check.outputs.version }}
 
   # Build for MacOS x86_64
-  run-macOS-intel:
+  release-macOS-intel:
     needs: pre-release-check
     if: needs.pre-release-check.outputs.should_release == 'true'
     runs-on: macOS-latest
@@ -178,15 +166,9 @@ jobs:
           path: ${{ env.binary }}-macOS-intel-${{ needs.pre-release-check.outputs.version }}.dmg
           name: macOS-intel
           retention-days: 1
-      - name: Upload binaries to release
-        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'schedule'
-        uses: softprops/action-gh-release@v2
-        with:
-          files: ${{ env.binary }}-macOS-intel-${{ needs.pre-release-check.outputs.version }}.dmg
-          tag_name: ${{ needs.pre-release-check.outputs.version }}
 
   # Build for MacOS Apple Silicon
-  run-macOS-apple-silicon:
+  release-macOS-apple-silicon:
     needs: pre-release-check
     if: needs.pre-release-check.outputs.should_release == 'true'
     runs-on: macOS-latest
@@ -213,10 +195,27 @@ jobs:
           path: ${{ env.binary }}-macOS-apple-silicon-${{ needs.pre-release-check.outputs.version }}.dmg
           name: macOS-apple-silicon
           retention-days: 1
-
-      - name: Upload binaries to release
-        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'schedule'
+  release:
+    needs: [pre-release-check, release-linux, release-windows, release-macOS-intel, release-macOS-apple-silicon]
+    if: needs.pre-release-check.outputs.should_release == 'true' && (startsWith(github.ref, 'refs/tags/') || github.event_name == 'schedule')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+      - name: Get Commit Message
+        id: get_commit_message
+        run: echo "body=$(git log -1 --pretty=%B)" >> $GITHUB_OUTPUT
+      - name: Release
         uses: softprops/action-gh-release@v2
         with:
-          files: ${{ env.binary }}-macOS-apple-silicon-${{ needs.pre-release-check.outputs.version }}.dmg
+          name: Dino Game Nightly Build
           tag_name: ${{ needs.pre-release-check.outputs.version }}
+          body: ${{ steps.get_commit_message.outputs.body }}
+          files: |
+            artifacts/linux/*.zip
+            artifacts/windows/*.zip
+            artifacts/macOS-intel/*.dmg
+            artifacts/macOS-apple-silicon/*.dmg
