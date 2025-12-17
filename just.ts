@@ -17,6 +17,9 @@ async function installLinuxDeps() {
 }
 
 async function installWasmDeps() {
+  if (process.platform === "linux" && process.env.CI) {
+    await installLinuxDeps();
+  }
   await Promise.all([
     $`rustup component add rustc-codegen-cranelift-preview --toolchain nightly`,
     // Trunk downloads wasm-bindgen by default, but we need trunk installed
