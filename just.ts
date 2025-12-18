@@ -39,9 +39,15 @@ async function prepareWasmPackage() {
     throw new Error("dist directory not found. Please run build-wasm first.");
   }
   
-  // Remove old web/dist if it exists
-  if ((await $`test -d web/dist`.nothrow()).exitCode === 0) {
-    await $`rm -rf web/dist`;
+  // Validate web directory exists
+  if ((await $`test -d web`.nothrow()).exitCode !== 0) {
+    throw new Error("web directory not found. This command must be run from the repository root.");
+  }
+  
+  // Remove old web/dist if it exists (using path validation)
+  const webDistPath = "web/dist";
+  if ((await $`test -d ${webDistPath}`.nothrow()).exitCode === 0) {
+    await $`rm -rf ${webDistPath}`;
   }
   
   // Copy dist to web/dist
