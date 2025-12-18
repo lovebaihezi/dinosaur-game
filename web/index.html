@@ -5,12 +5,12 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="description" content="Dinosaur game" />
-        <link data-trunk rel="rust" href="../crates/game/Cargo.toml" data-bin="dinosaur-game" data-wasm-opt="z" data-wasm-opt-params="--enable-bulk-memory --enable-sign-ext --enable-nontrapping-float-to-int" />
+        <link data-trunk rel="rust" href="../crates/game/Cargo.toml" data-bin="dinosaur-game" data-wasm-opt="z" data-wasm-opt-params="--enable-bulk-memory --enable-sign-ext --enable-nontrapping-float-to-int" data-initializer="loader.js" />
         <link data-trunk rel="copy-dir" href="../crates/game/assets" />
         <link data-trunk rel="copy-file" href="_headers" />
         <link data-trunk rel="copy-file" href="restart-audio-context.js" />
         <style>
-            html: {
+            html {
                 margin: 0;
                 padding: 0;
                 border: 0;
@@ -24,13 +24,33 @@
                 display: flex;
                 justify-content: center;
                 align-items: center;
+                background-color: #f7f7f7;
             }
             canvas:focus {
                 outline: none;
             }
+            /* Loading Spinner Styles */
+            #loading-spinner {
+                border: 16px solid #f3f3f3;
+                border-top: 16px solid #535353;
+                border-radius: 50%;
+                width: 120px;
+                height: 120px;
+                animation: spin 2s linear infinite;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                z-index: 10;
+            }
+            @keyframes spin {
+                0% { transform: translate(-50%, -50%) rotate(0deg); }
+                100% { transform: translate(-50%, -50%) rotate(360deg); }
+            }
         </style>
     </head>
     <body style="margin: 0px">
+        <div id="loading-spinner"></div>
         <canvas width="1024" height="960" id="game"></canvas>
         <script type="module" src="restart-audio-context.js"></script>
     </body>
