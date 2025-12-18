@@ -32,6 +32,12 @@ async function buildWasm() {
   await $`trunk build web/index.html --release`;
 }
 
+async function prepareWasmPackage() {
+  // Copy built files from dist to web directory for deployment
+  await $`rm -rf web/dist`;
+  await $`cp -r dist web/`;
+}
+
 async function buildRelease() {
   await $`cargo b --release`;
 }
@@ -211,6 +217,11 @@ cli.command("install-wasm-deps", "Install wasm dependencies")
 cli.command("build-wasm", "Build wasm")
   .action(async () => {
     await buildWasm();
+  });
+
+cli.command("prepare-wasm-package", "Prepare wasm package for deployment")
+  .action(async () => {
+    await prepareWasmPackage();
   });
 
 cli.command("web", "Web build")

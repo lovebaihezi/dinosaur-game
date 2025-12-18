@@ -7,6 +7,10 @@ build = "build.rs"
 [lib]
 crate-type = ["cdylib", "rlib"]
 
+[[bin]]
+name = "dinosaur-game"
+path = "src/main.rs"
+
 [dependencies]
 bevy = { workspace = true }
 log = { workspace = true }
