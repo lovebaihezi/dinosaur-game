@@ -34,7 +34,17 @@ async function buildWasm() {
 
 async function prepareWasmPackage() {
   // Copy built files from dist to web directory for deployment
-  await $`rm -rf web/dist`;
+  // First check if dist directory exists
+  if ((await $`test -d dist`.nothrow()).exitCode !== 0) {
+    throw new Error("dist directory not found. Please run build-wasm first.");
+  }
+  
+  // Remove old web/dist if it exists
+  if ((await $`test -d web/dist`.nothrow()).exitCode === 0) {
+    await $`rm -rf web/dist`;
+  }
+  
+  // Copy dist to web/dist
   await $`cp -r dist web/`;
 }
 
