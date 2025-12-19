@@ -73,11 +73,11 @@ jobs:
         run: |
           CONFIG=""
           if [[ "${{ github.event_name }}" == "schedule" ]]; then
-            CONFIG="wrangler.nightly.toml"
+            CONFIG="wrangler.nightly.jsonc"
           elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
-            CONFIG="wrangler.prod.toml"
+            CONFIG="wrangler.prod.jsonc"
           elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            CONFIG="wrangler.main.toml"
+            CONFIG="wrangler.main.jsonc"
           fi
 
           if [[ -n "$CONFIG" ]]; then

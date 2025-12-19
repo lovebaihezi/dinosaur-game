@@ -1,0 +1,14 @@
+{
+  "name": "dinosaur-game",
+  "main": "worker.js",
+  "compatibility_date": "2024-09-23",
+  "assets": {
+    "directory": "./dist"
+  },
+  "routes": [
+    {
+      "pattern": "dino.lqxclqxc.com/*",
+      "zone_name": "lqxclqxc.com"
+    }
+  ]
+}
