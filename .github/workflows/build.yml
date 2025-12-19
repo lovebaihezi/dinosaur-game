@@ -87,6 +87,35 @@ jobs:
             echo "Skipping deployment for this event/ref: ${{ github.event_name }} / ${{ github.ref }}"
           fi
 
+      - name: Verify Deployment
+        run: |
+          URL=""
+          if [[ "${{ github.event_name }}" == "schedule" ]]; then
+            URL="https://dino-nightly.lqxclqxc.com"
+          elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            URL="https://dino.lqxclqxc.com"
+          elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            URL="https://dino-test.lqxclqxc.com"
+          fi
+
+          if [[ -n "$URL" ]]; then
+            echo "Verifying deployment at $URL"
+            echo "Sleeping for 10 seconds..."
+            sleep 10
+            echo "Fetching $URL..."
+            RESPONSE=$(curl -s -f "$URL")
+            if echo "$RESPONSE" | grep -q "<title>Dinosaur</title>"; then
+              echo "Verification Successful: Found '<title>Dinosaur</title>'"
+            else
+              echo "Verification Failed: Did not find '<title>Dinosaur</title>'"
+              echo "Response content:"
+              echo "$RESPONSE"
+              exit 1
+            fi
+          else
+            echo "Skipping verification (no URL matched)"
+          fi
+
   # Build for Linux
   release-linux:
     needs: pre-release-check
