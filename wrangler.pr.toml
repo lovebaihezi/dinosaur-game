@@ -1,0 +1,20 @@
+name = "dino-pr-router"
+main = "workers/pr-router.ts"
+compatibility_date = "2024-01-01"
+
+[observability]
+enabled = true
+
+[[r2_buckets]]
+binding = "ASSETS_BUCKET"
+bucket_name = "dino-assets"
+preview_bucket_name = "dino-assets-preview"
+
+# Routes will be handled via Cloudflare Dashboard or env vars in CI
+# but we can set a default here if we knew the account,
+# usually `workers_dev = true` is enough for testing.
+workers_dev = true
+
+routes = [
+	{ pattern = "dino-pr.lqxclqxc.com/*", zone_name = "lqxclqxc.com" }
+]

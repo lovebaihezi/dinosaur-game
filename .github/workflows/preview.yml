@@ -1,0 +1,46 @@
+name: Preview
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v1
+      - run: bun install
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          target: wasm32-unknown-unknown
+
+      - name: Install Wasm Deps
+        run: ./just.ts install-wasm-deps
+
+      - name: Build Wasm
+        run: ./just.ts build-wasm --public-url /pr/${{ github.sha }}/
+
+      - name: Upload to R2
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: ./just.ts upload-r2 ${{ github.sha }}
+
+      - name: Deploy Router Worker
+        # Only needed if the worker logic changes, but safe to run often.
+        # We use a separate config for PRs.
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx wrangler deploy --config wrangler.pr.toml
+
+      - name: Comment on PR
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: |
+            ### 🦕 Dino Game Preview Ready!
+
+            Preview URL: [https://dino-pr.lqxclqxc.com/pr/${{ github.sha }}/](https://dino-pr.lqxclqxc.com/pr/${{ github.sha }}/)
+
+            _Note: It might take a few seconds for R2 to propagate._

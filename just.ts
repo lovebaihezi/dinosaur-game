@@ -1,6 +1,7 @@
 #!/usr/bin/env bun
 import { $ } from "bun";
 import { cac } from "cac";
+import { join } from "node:path";
 
 // If you need env types similar to EnumType in cliffy, you can handle validation manually
 const VALID_ENVS = ["linux", "windows", "macos"];
@@ -27,9 +28,13 @@ async function installWasmDeps() {
   ]);
 }
 
-async function buildWasm() {
+async function buildWasm(publicUrl?: string) {
   // We use trunk to build the project
-  await $`trunk build web/index.html --release`;
+  const args = ["trunk", "build", "web/index.html", "--release"];
+  if (publicUrl) {
+    args.push("--public-url", publicUrl);
+  }
+  await $`${args}`;
 }
 
 async function buildRelease() {
@@ -183,6 +188,24 @@ async function fmt() {
     await $`cargo fmt --all -- --check`;
 }
 
+async function uploadR2(commitId: string) {
+    // Walk the dist directory and upload files to R2
+    const glob = new Bun.Glob("**/*");
+    for await (const file of glob.scan("dist")) {
+        const localPath = join("dist", file);
+        const r2Key = `pr/${commitId}/${file}`;
+        console.log(`Uploading ${localPath} to ${r2Key}...`);
+
+        // Using wrangler r2 object put
+        // We need to ensure we set the correct content type, but wrangler usually guesses it or we can pass it if needed.
+        // Wrangler CLI for R2 object put doesn't automatically recursive upload directories well in all versions,
+        // so we loop.
+
+        await $`npx wrangler r2 object put dino-assets/${r2Key} --file ${localPath}`;
+    }
+    console.log(`Uploaded all files to pr/${commitId}/`);
+}
+
 const cli = cac("just");
 
 cli
@@ -209,8 +232,9 @@ cli.command("install-wasm-deps", "Install wasm dependencies")
   });
 
 cli.command("build-wasm", "Build wasm")
-  .action(async () => {
-    await buildWasm();
+  .option("--public-url <url>", "Public URL for trunk")
+  .action(async (options) => {
+    await buildWasm(options.publicUrl);
   });
 
 cli.command("web", "Web build")
@@ -253,6 +277,11 @@ cli.command("package-native <target>", "Package native binary for target")
     .option("--app-version <version>", "Version string")
     .action(async (target, options) => {
         await packageNative(target, DEFAULT_BINARY, options.appVersion);
+    });
+
+cli.command("upload-r2 <commitId>", "Upload dist to R2")
+    .action(async (commitId) => {
+        await uploadR2(commitId);
     });
 
 cli.help();

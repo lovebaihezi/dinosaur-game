@@ -1,0 +1,8 @@
+name = "dino-nightly"
+compatibility_date = "2024-09-23"
+assets = { directory = "./dist" }
+
+# Route: dino-nightly.lqxclqxc.com
+routes = [
+	{ pattern = "dino-nightly.lqxclqxc.com", custom_domain = true }
+]
