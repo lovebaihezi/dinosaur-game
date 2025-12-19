@@ -66,14 +66,13 @@ jobs:
       - run: bun install
       - run: ./just.ts install-wasm-deps
       - run: ./just.ts build-wasm
-      - run: ./just.ts prepare-wasm-package
       - name: Deploy to Cloudflare Pages Preview
         uses: cloudflare/pages-action@v1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           projectName: dinosaur-game
-          directory: ./web
+          directory: ./dist
           # Optional parameters
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
           branch: ${{ github.event.pull_request.head.ref || 'main' }}

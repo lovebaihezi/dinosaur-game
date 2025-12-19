@@ -32,28 +32,6 @@ async function buildWasm() {
   await $`trunk build web/index.html --release`;
 }
 
-async function prepareWasmPackage() {
-  // Copy built files from dist to web directory for deployment
-  // First check if dist directory exists
-  if ((await $`test -d dist`.nothrow()).exitCode !== 0) {
-    throw new Error("dist directory not found. Please run build-wasm first.");
-  }
-  
-  // Validate web directory exists
-  if ((await $`test -d web`.nothrow()).exitCode !== 0) {
-    throw new Error("web directory not found. This command must be run from the repository root.");
-  }
-  
-  // Remove old web/dist if it exists (using path validation)
-  const webDistPath = "web/dist";
-  if ((await $`test -d ${webDistPath}`.nothrow()).exitCode === 0) {
-    await $`rm -rf ${webDistPath}`;
-  }
-  
-  // Copy dist to web/dist
-  await $`cp -r dist web/`;
-}
-
 async function buildRelease() {
   await $`cargo b --release`;
 }
@@ -233,11 +211,6 @@ cli.command("install-wasm-deps", "Install wasm dependencies")
 cli.command("build-wasm", "Build wasm")
   .action(async () => {
     await buildWasm();
-  });
-
-cli.command("prepare-wasm-package", "Prepare wasm package for deployment")
-  .action(async () => {
-    await prepareWasmPackage();
   });
 
 cli.command("web", "Web build")
