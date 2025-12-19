@@ -66,17 +66,55 @@ jobs:
       - run: bun install
       - run: ./just.ts install-wasm-deps
       - run: ./just.ts build-wasm
-      - name: Deploy to Cloudflare Pages Preview
-        uses: cloudflare/pages-action@v1
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: dinosaur-game
-          directory: ./dist
-          # Optional parameters
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ github.event.pull_request.head.ref || 'main' }}
-          wranglerVersion: "3"
+      - name: Deploy to Cloudflare Workers
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          CONFIG=""
+          if [[ "${{ github.event_name }}" == "schedule" ]]; then
+            CONFIG="wrangler.nightly.jsonc"
+          elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            CONFIG="wrangler.prod.jsonc"
+          elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            CONFIG="wrangler.main.jsonc"
+          fi
+
+          if [[ -n "$CONFIG" ]]; then
+            echo "Deploying using config: $CONFIG"
+            bunx wrangler deploy --config "$CONFIG"
+          else
+            echo "Skipping deployment for this event/ref: ${{ github.event_name }} / ${{ github.ref }}"
+          fi
+
+      - name: Verify Deployment
+        run: |
+          URL=""
+          if [[ "${{ github.event_name }}" == "schedule" ]]; then
+            URL="https://dino-nightly.lqxclqxc.com"
+          elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            URL="https://dino.lqxclqxc.com"
+          elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            URL="https://dino-test.lqxclqxc.com"
+          fi
+
+          if [[ -n "$URL" ]]; then
+            echo "Verifying deployment at $URL"
+            echo "Sleeping for 10 seconds..."
+            sleep 10
+            echo "Fetching $URL..."
+            RESPONSE=$(curl -s -f "$URL")
+            if echo "$RESPONSE" | grep -q "<title>Dinosaur</title>"; then
+              echo "Verification Successful: Found '<title>Dinosaur</title>'"
+            else
+              echo "Verification Failed: Did not find '<title>Dinosaur</title>'"
+              echo "Response content:"
+              echo "$RESPONSE"
+              exit 1
+            fi
+          else
+            echo "Skipping verification (no URL matched)"
+          fi
 
   # Build for Linux
   release-linux:
