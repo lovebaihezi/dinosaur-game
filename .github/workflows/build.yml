@@ -207,7 +207,12 @@ jobs:
           path: artifacts/
       - name: Get Commit Message
         id: get_commit_message
-        run: echo "body=$(git log -1 --pretty=%B)" >> $GITHUB_OUTPUT
+        run: |
+          {
+            echo 'body<<EOF'
+            git log -1 --pretty=%B
+            echo EOF
+          } >> "$GITHUB_OUTPUT"
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
