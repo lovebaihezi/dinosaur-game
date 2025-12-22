@@ -1,0 +1,14 @@
+[package]
+name = "dinosaur-backend"
+version = "0.0.1"
+edition = "2021"
+
+[dependencies]
+axum = "0.8.0"
+sqlx = { version = "0.8.3", features = ["runtime-tokio", "postgres"] }
+tokio = { version = "1.41.0", features = ["full"] }
+async-trait = "0.1.88"
+
+[dev-dependencies]
+tokio = { version = "1.41.0", features = ["full", "test-util"] }
+tower = { version = "0.5.2", features = ["util"] }

@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["crates/e2e", "crates/game"]
+members = ["crates/backend", "crates/e2e", "crates/game"]
 
 [profile.dev.package."*"]
 opt-level = 3
