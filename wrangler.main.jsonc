@@ -10,7 +10,8 @@
   "routes": [
     {
       "pattern": "dino-test.lqxclqxc.com",
-      "zone_name": "lqxclqxc.com"
+      "zone_name": "lqxclqxc.com",
+      "custom_domain": true
     }
   ]
 }
