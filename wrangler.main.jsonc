@@ -8,7 +8,7 @@
   },
   "routes": [
     {
-      "pattern": "dino-test.lqxclqxc.com*",
+      "pattern": "dino-test.lqxclqxc.com/*",
       "zone_name": "lqxclqxc.com"
     }
   ]
