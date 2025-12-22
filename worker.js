@@ -1,5 +1,7 @@
 export default {
   async fetch(request, env, ctx) {
-    return new Response('Not Found', { status: 404 });
+    // The assets binding is automatically provided by Cloudflare Workers
+    // when using the "assets" configuration in wrangler.jsonc
+    return env.ASSETS.fetch(request);
   },
 };
