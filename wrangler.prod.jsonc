@@ -4,11 +4,12 @@
   "compatibility_date": "2024-09-23",
   "assets": {
     "directory": "./dist",
-    "binding": "ASSETS"
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application"
   },
   "routes": [
     {
-      "pattern": "dino.lqxclqxc.com/*",
+      "pattern": "dino.lqxclqxc.com",
       "zone_name": "lqxclqxc.com"
     }
   ]
