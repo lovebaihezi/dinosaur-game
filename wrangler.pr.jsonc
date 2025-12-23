@@ -1,5 +1,5 @@
 {
-  "name": "dinosaur-game-internal",
+  "name": "dinosaur-game-pr",
   "main": "worker.js",
   "compatibility_date": "2024-09-23",
   "assets": {
@@ -9,7 +9,7 @@
   },
   "routes": [
     {
-      "pattern": "dino-internal.lqxclqxc.com",
+      "pattern": "dino-pr.lqxclqxc.com",
       "zone_name": "lqxclqxc.com",
       "custom_domain": true
     }
