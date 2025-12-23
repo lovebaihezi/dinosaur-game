@@ -168,8 +168,8 @@ jobs:
 
       - name: Build and Package
         run: |
-          ./just.ts build-native x86_64-pc-windows-msvc
-          ./just.ts package-native x86_64-pc-windows-msvc --app-version ${{ needs.pre-release-check.outputs.version }}
+          bun just.ts build-native x86_64-pc-windows-msvc
+          bun just.ts package-native x86_64-pc-windows-msvc --app-version ${{ needs.pre-release-check.outputs.version }}
 
       - name: Upload binaries to artifacts
         if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'schedule'
