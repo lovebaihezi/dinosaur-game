@@ -78,6 +78,8 @@ jobs:
             CONFIG="wrangler.prod.jsonc"
           elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
             CONFIG="wrangler.main.jsonc"
+          elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            CONFIG="wrangler.pr.jsonc"
           fi
 
           if [[ -n "$CONFIG" ]]; then
@@ -96,6 +98,8 @@ jobs:
             URL="https://dino.lqxclqxc.com"
           elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
             URL="https://dino-test.lqxclqxc.com"
+          elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            URL="https://dino-pr.lqxclqxc.com"
           fi
 
           if [[ -n "$URL" ]]; then
