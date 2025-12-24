@@ -59,6 +59,7 @@ fn fps_plugin() -> FpsOverlayPlugin {
             text_color: Color::BLACK,
             enabled: true,
             refresh_interval: Duration::from_millis(166),
+            // Frame time graph requires vertex storage features (supported by WebGPU)
             frame_time_graph_config: FrameTimeGraphConfig {
                 enabled: true,
                 min_fps: 60.,
