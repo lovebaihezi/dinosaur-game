@@ -62,10 +62,7 @@ fn fps_plugin() -> FpsOverlayPlugin {
             // Disable frame time graph on wasm32 as it requires vertex storage features
             // not available in WebGPU's downlevel mode (WebGL2 backend)
             frame_time_graph_config: FrameTimeGraphConfig {
-                #[cfg(not(target_arch = "wasm32"))]
-                enabled: true,
-                #[cfg(target_arch = "wasm32")]
-                enabled: false,
+                enabled: !cfg!(target_arch = "wasm32"),
                 min_fps: 60.,
                 target_fps: 144.,
             },
