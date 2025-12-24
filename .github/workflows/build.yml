@@ -254,10 +254,21 @@ jobs:
             git log -1 --pretty=%B
             echo EOF
           } >> "$GITHUB_OUTPUT"
+      - name: Determine Release Name
+        id: release_name
+        run: |
+          if [[ "${{ github.event_name }}" == "schedule" ]]; then
+            echo "name=Dino Game Nightly Build" >> "$GITHUB_OUTPUT"
+          elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            echo "name=Dino Game ${{ needs.pre-release-check.outputs.version }}" >> "$GITHUB_OUTPUT"
+          else
+            # Fallback for any other case (should not happen based on job conditions)
+            echo "name=Dino Game ${{ needs.pre-release-check.outputs.version }}" >> "$GITHUB_OUTPUT"
+          fi
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
-          name: Dino Game Nightly Build
+          name: ${{ steps.release_name.outputs.name }}
           tag_name: ${{ needs.pre-release-check.outputs.version }}
           body: ${{ steps.get_commit_message.outputs.body }}
           files: |
