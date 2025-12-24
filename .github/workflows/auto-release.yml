@@ -1,0 +1,89 @@
+name: Auto Create Stable Release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'crates/game/Cargo.toml'
+
+permissions:
+  contents: write
+
+jobs:
+  check-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # Need to fetch previous commit to compare
+
+      - name: Get current version
+        id: current_version
+        run: |
+          VERSION=$(grep -m 1 '^version = ' crates/game/Cargo.toml | sed 's/version = "\(.*\)"/\1/')
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Current version: $VERSION"
+
+      - name: Check if tag exists
+        id: check_tag
+        run: |
+          VERSION=${{ steps.current_version.outputs.version }}
+          if git rev-parse "refs/tags/$VERSION" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "Tag $VERSION already exists"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "Tag $VERSION does not exist"
+          fi
+
+      - name: Get previous version
+        id: previous_version
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          # Get the version from the previous commit
+          git checkout HEAD~1 -- crates/game/Cargo.toml 2>/dev/null || true
+          if [ -f crates/game/Cargo.toml ]; then
+            PREV_VERSION=$(grep -m 1 '^version = ' crates/game/Cargo.toml | sed 's/version = "\(.*\)"/\1/')
+            echo "version=$PREV_VERSION" >> "$GITHUB_OUTPUT"
+            echo "Previous version: $PREV_VERSION"
+          else
+            echo "version=none" >> "$GITHUB_OUTPUT"
+            echo "No previous version found"
+          fi
+          # Restore current version
+          git checkout HEAD -- crates/game/Cargo.toml
+
+      - name: Check if version changed
+        id: version_changed
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          CURRENT="${{ steps.current_version.outputs.version }}"
+          PREVIOUS="${{ steps.previous_version.outputs.version }}"
+          if [ "$CURRENT" != "$PREVIOUS" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "Version changed from $PREVIOUS to $CURRENT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Version unchanged"
+          fi
+
+      - name: Create and push tag
+        if: steps.check_tag.outputs.exists == 'false' && steps.version_changed.outputs.changed == 'true'
+        run: |
+          VERSION=${{ steps.current_version.outputs.version }}
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "$VERSION" -m "Release version $VERSION"
+          git push origin "$VERSION"
+          echo "Created and pushed tag: $VERSION"
+
+      - name: Output result
+        run: |
+          if [ "${{ steps.check_tag.outputs.exists }}" == "true" ]; then
+            echo "Tag already exists, skipping release creation"
+          elif [ "${{ steps.version_changed.outputs.changed }}" == "true" ]; then
+            echo "Version changed, tag created successfully"
+          else
+            echo "Version unchanged, no tag created"
+          fi
