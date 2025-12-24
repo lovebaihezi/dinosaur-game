@@ -116,16 +116,39 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            // Wait a moment for the tag to be fully available
-            await new Promise(resolve => setTimeout(resolve, 5000));
-            
-            await github.rest.actions.createWorkflowDispatch({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'build.yml',
-              ref: '${{ steps.current_version.outputs.version }}'
-            });
-            console.log('Triggered build workflow for tag ${{ steps.current_version.outputs.version }}');
+            const maxRetries = 3;
+            const retryDelay = 3000; // 3 seconds
+            const tagName = '${{ steps.current_version.outputs.version }}';
+            const commitSha = context.sha;
+
+            // Try to trigger the workflow with the tag ref, with retries
+            for (let attempt = 1; attempt <= maxRetries; attempt++) {
+              try {
+                console.log(`Attempt ${attempt}: Triggering build workflow for tag ${tagName} (commit: ${commitSha})`);
+
+                // Wait before attempting (except on first attempt)
+                if (attempt > 1) {
+                  await new Promise(resolve => setTimeout(resolve, retryDelay));
+                }
+
+                await github.rest.actions.createWorkflowDispatch({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  workflow_id: 'build.yml',
+                  ref: tagName
+                });
+
+                console.log(`Successfully triggered build workflow for tag ${tagName}`);
+                break;
+              } catch (error) {
+                console.log(`Attempt ${attempt} failed:`, error.message);
+                if (attempt === maxRetries) {
+                  console.log(`All attempts failed. The tag may not be available yet.`);
+                  console.log(`You may need to manually trigger the build workflow.`);
+                  // Don't fail the workflow, just warn
+                }
+              }
+            }
 
       - name: Output result
         run: |
