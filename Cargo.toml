@@ -70,7 +70,7 @@ bevy = { version = "0.17.2", default-features = false, features = [
     "smaa_luts",
     "sysinfo_plugin",
     "tonemapping_luts",
-    "webgl2",
+    "webgpu",
     "wayland",
     "debug",
     "zstd_rust",
