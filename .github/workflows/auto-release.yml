@@ -21,7 +21,11 @@ jobs:
       - name: Get current version
         id: current_version
         run: |
-          VERSION=$(grep -m 1 '^version\s*=' crates/game/Cargo.toml | sed -E 's/^version\s*=\s*["\x27]([^"\x27]+)["\x27]/\1/')
+          VERSION=$(grep -m 1 '^version\s*=' crates/game/Cargo.toml | sed -E "s/^version\s*=\s*[\"']([^\"']+)[\"']/\1/")
+          if [ -z "$VERSION" ]; then
+            echo "Error: Could not extract version from Cargo.toml"
+            exit 1
+          fi
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "Current version: $VERSION"
 
@@ -44,9 +48,14 @@ jobs:
           # Get the version from the previous commit using git show
           PREV_CONTENT=$(git show HEAD~1:crates/game/Cargo.toml 2>/dev/null || echo "")
           if [ -n "$PREV_CONTENT" ]; then
-            PREV_VERSION=$(echo "$PREV_CONTENT" | grep -m 1 '^version\s*=' | sed -E 's/^version\s*=\s*["\x27]([^"\x27]+)["\x27]/\1/')
-            echo "version=$PREV_VERSION" >> "$GITHUB_OUTPUT"
-            echo "Previous version: $PREV_VERSION"
+            PREV_VERSION=$(echo "$PREV_CONTENT" | grep -m 1 '^version\s*=' | sed -E "s/^version\s*=\s*[\"']([^\"']+)[\"']/\1/")
+            if [ -n "$PREV_VERSION" ]; then
+              echo "version=$PREV_VERSION" >> "$GITHUB_OUTPUT"
+              echo "Previous version: $PREV_VERSION"
+            else
+              echo "version=none" >> "$GITHUB_OUTPUT"
+              echo "No version found in previous Cargo.toml"
+            fi
           else
             echo "version=none" >> "$GITHUB_OUTPUT"
             echo "No previous version found"
