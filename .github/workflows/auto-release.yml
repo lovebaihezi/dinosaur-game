@@ -21,14 +21,14 @@ jobs:
       - name: Get current version
         id: current_version
         run: |
-          VERSION=$(grep -m 1 '^version = ' crates/game/Cargo.toml | sed 's/version = "\(.*\)"/\1/')
+          VERSION=$(grep -m 1 '^version\s*=' crates/game/Cargo.toml | sed -E 's/^version\s*=\s*["\x27]([^"\x27]+)["\x27]/\1/')
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "Current version: $VERSION"
 
       - name: Check if tag exists
         id: check_tag
         run: |
-          VERSION=${{ steps.current_version.outputs.version }}
+          VERSION="${{ steps.current_version.outputs.version }}"
           if git rev-parse "refs/tags/$VERSION" >/dev/null 2>&1; then
             echo "exists=true" >> "$GITHUB_OUTPUT"
             echo "Tag $VERSION already exists"
@@ -41,18 +41,16 @@ jobs:
         id: previous_version
         if: steps.check_tag.outputs.exists == 'false'
         run: |
-          # Get the version from the previous commit
-          git checkout HEAD~1 -- crates/game/Cargo.toml 2>/dev/null || true
-          if [ -f crates/game/Cargo.toml ]; then
-            PREV_VERSION=$(grep -m 1 '^version = ' crates/game/Cargo.toml | sed 's/version = "\(.*\)"/\1/')
+          # Get the version from the previous commit using git show
+          PREV_CONTENT=$(git show HEAD~1:crates/game/Cargo.toml 2>/dev/null || echo "")
+          if [ -n "$PREV_CONTENT" ]; then
+            PREV_VERSION=$(echo "$PREV_CONTENT" | grep -m 1 '^version\s*=' | sed -E 's/^version\s*=\s*["\x27]([^"\x27]+)["\x27]/\1/')
             echo "version=$PREV_VERSION" >> "$GITHUB_OUTPUT"
             echo "Previous version: $PREV_VERSION"
           else
             echo "version=none" >> "$GITHUB_OUTPUT"
             echo "No previous version found"
           fi
-          # Restore current version
-          git checkout HEAD -- crates/game/Cargo.toml
 
       - name: Check if version changed
         id: version_changed
@@ -71,7 +69,7 @@ jobs:
       - name: Create and push tag
         if: steps.check_tag.outputs.exists == 'false' && steps.version_changed.outputs.changed == 'true'
         run: |
-          VERSION=${{ steps.current_version.outputs.version }}
+          VERSION="${{ steps.current_version.outputs.version }}"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git tag -a "$VERSION" -m "Release version $VERSION"
