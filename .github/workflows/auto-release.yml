@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 jobs:
   check-version:
@@ -80,6 +81,16 @@ jobs:
             echo "Version unchanged"
           fi
 
+      - name: Get commit message for release notes
+        if: steps.check_tag.outputs.exists == 'false' && steps.version_changed.outputs.changed == 'true'
+        id: commit_message
+        run: |
+          {
+            echo 'body<<EOF'
+            git log -1 --pretty=%B
+            echo EOF
+          } >> "$GITHUB_OUTPUT"
+
       - name: Create and push tag
         if: steps.check_tag.outputs.exists == 'false' && steps.version_changed.outputs.changed == 'true'
         run: |
@@ -90,12 +101,61 @@ jobs:
           git push origin "$VERSION"
           echo "Created and pushed tag: $VERSION"
 
+      - name: Create GitHub Release
+        if: steps.check_tag.outputs.exists == 'false' && steps.version_changed.outputs.changed == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.current_version.outputs.version }}
+          name: Dino Game ${{ steps.current_version.outputs.version }}
+          body: ${{ steps.commit_message.outputs.body }}
+          draft: false
+          prerelease: false
+
+      - name: Trigger build workflow
+        if: steps.check_tag.outputs.exists == 'false' && steps.version_changed.outputs.changed == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const maxRetries = 3;
+            const retryDelay = 3000; // 3 seconds
+            const tagName = '${{ steps.current_version.outputs.version }}';
+            const commitSha = context.sha;
+
+            // Try to trigger the workflow with the tag ref, with retries
+            for (let attempt = 1; attempt <= maxRetries; attempt++) {
+              try {
+                console.log(`Attempt ${attempt}: Triggering build workflow for tag ${tagName} (commit: ${commitSha})`);
+
+                // Wait before attempting (except on first attempt)
+                if (attempt > 1) {
+                  await new Promise(resolve => setTimeout(resolve, retryDelay));
+                }
+
+                await github.rest.actions.createWorkflowDispatch({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  workflow_id: 'build.yml',
+                  ref: tagName
+                });
+
+                console.log(`Successfully triggered build workflow for tag ${tagName}`);
+                break;
+              } catch (error) {
+                console.log(`Attempt ${attempt} failed:`, error.message);
+                if (attempt === maxRetries) {
+                  console.log(`All attempts failed. The tag may not be available yet.`);
+                  console.log(`You may need to manually trigger the build workflow.`);
+                  // Don't fail the workflow, just warn
+                }
+              }
+            }
+
       - name: Output result
         run: |
           if [ "${{ steps.check_tag.outputs.exists }}" == "true" ]; then
             echo "Tag already exists, skipping release creation"
           elif [ "${{ steps.version_changed.outputs.changed }}" == "true" ]; then
-            echo "Version changed, tag created successfully"
+            echo "Version changed, release created and build workflow triggered"
           else
-            echo "Version unchanged, no tag created"
+            echo "Version unchanged, no release created"
           fi
