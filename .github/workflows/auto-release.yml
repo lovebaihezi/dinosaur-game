@@ -26,6 +26,11 @@ jobs:
             echo "Error: Could not extract version from Cargo.toml"
             exit 1
           fi
+          # Basic validation: version should match semver-like pattern
+          if ! echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.-]+)?$'; then
+            echo "Warning: Version '$VERSION' doesn't follow semantic versioning"
+            echo "Proceeding anyway, but please ensure version format is correct"
+          fi
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "Current version: $VERSION"
 
