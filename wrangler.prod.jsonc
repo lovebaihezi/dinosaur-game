@@ -1,7 +1,7 @@
 {
   "name": "dinosaur-game",
   "main": "worker.js",
-  "compatibility_date": "2024-09-23",
+  "compatibility_date": "2025-11-17",
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",
