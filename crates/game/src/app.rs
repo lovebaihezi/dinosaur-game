@@ -7,7 +7,6 @@ use crate::{
 };
 use bevy::{
     app::PluginGroupBuilder,
-    asset::{AssetMetaCheck, AssetPlugin},
     dev_tools::fps_overlay::{FpsOverlayConfig, FpsOverlayPlugin, FrameTimeGraphConfig},
     prelude::*,
     text::{FontSmoothing, LineHeight},
@@ -36,21 +35,17 @@ fn default_plugins(app_type: AppType) -> PluginGroupBuilder {
         }),
         AppType::RenderToImageTesting => None,
     };
-    let mut plugin = DefaultPlugins.set(WindowPlugin {
-        primary_window,
-        ..Default::default()
-    });
-    
-    // For WASM builds, disable meta file checks to prevent errors
-    // when .meta files don't exist (web deployments don't need them)
-    #[cfg(target_arch = "wasm32")]
-    {
-        plugin = plugin.set(AssetPlugin {
+    let plugin = DefaultPlugins
+        .set(WindowPlugin {
+            primary_window,
+            ..Default::default()
+        })
+        .set(AssetPlugin {
+            #[cfg(target_arch = "wasm32")]
             meta_check: AssetMetaCheck::Never,
             ..Default::default()
         });
-    }
-    
+
     match app_type {
         AppType::RenderToImageTesting => plugin
             .disable::<WinitPlugin>()
