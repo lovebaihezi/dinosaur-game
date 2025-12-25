@@ -14,6 +14,8 @@ use bevy::{
 };
 use bevy_kira_audio::prelude::AudioPlugin as KiraAudioPlugin;
 
+const GAME_VERSION: &str = env!("GAME_VERSION");
+
 pub struct Game {
     app: App,
 }
@@ -69,6 +71,34 @@ fn fps_plugin() -> FpsOverlayPlugin {
     }
 }
 
+#[derive(Component)]
+struct VersionTextUI;
+
+fn show_version(mut commands: Commands) {
+    commands
+        .spawn((
+            VersionTextUI,
+            Node {
+                position_type: PositionType::Absolute,
+                left: Val::Px(8.0),
+                bottom: Val::Px(8.0),
+                display: Display::Flex,
+                ..Default::default()
+            },
+            ZIndex::Global(1),
+        ))
+        .with_children(|parent| {
+            parent.spawn((
+                Text::new(format!("Version: {GAME_VERSION}")),
+                TextFont {
+                    font_size: 14.0,
+                    ..Default::default()
+                },
+                TextColor(Color::BLACK),
+            ));
+        });
+}
+
 impl Game {
     pub fn init(app_type: AppType) -> Self {
         let mut game = Game { app: App::new() };
@@ -86,6 +116,7 @@ impl Game {
                 speed_increment: 100,
                 max_game_speed: u64::MAX,
             })
+            .add_systems(Startup, show_version)
             .add_plugins((
                 DinoPlugin,
                 GameControlPlugin,
