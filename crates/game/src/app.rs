@@ -15,6 +15,10 @@ use bevy::{
 use bevy_kira_audio::prelude::AudioPlugin as KiraAudioPlugin;
 
 const GAME_VERSION: &str = env!("GAME_VERSION");
+const VERSION_OVERLAY_PADDING: f32 = 8.0;
+const VERSION_OVERLAY_FONT_SIZE: f32 = 14.0;
+const VERSION_OVERLAY_BACKGROUND_ALPHA: f32 = 0.7;
+const VERSION_OVERLAY_BACKGROUND_RGB: f32 = 1.0;
 
 pub struct Game {
     app: App,
@@ -80,18 +84,24 @@ fn show_version(mut commands: Commands) {
             VersionTextUI,
             Node {
                 position_type: PositionType::Absolute,
-                left: Val::Px(8.0),
-                bottom: Val::Px(8.0),
+                left: Val::Px(VERSION_OVERLAY_PADDING),
+                bottom: Val::Px(VERSION_OVERLAY_PADDING),
                 display: Display::Flex,
                 ..Default::default()
             },
+            BackgroundColor(Color::srgba(
+                VERSION_OVERLAY_BACKGROUND_RGB,
+                VERSION_OVERLAY_BACKGROUND_RGB,
+                VERSION_OVERLAY_BACKGROUND_RGB,
+                VERSION_OVERLAY_BACKGROUND_ALPHA,
+            )),
             ZIndex::Global(1),
         ))
         .with_children(|parent| {
             parent.spawn((
                 Text::new(format!("Version: {GAME_VERSION}")),
                 TextFont {
-                    font_size: 14.0,
+                    font_size: VERSION_OVERLAY_FONT_SIZE,
                     ..Default::default()
                 },
                 TextColor(Color::BLACK),
