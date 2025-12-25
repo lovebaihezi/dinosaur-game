@@ -5,6 +5,8 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="description" content="Dinosaur game" />
+        <!-- Load audio context fix script first to intercept AudioContext creation -->
+        <script src="restart-audio-context.js"></script>
         <link data-trunk rel="rust" href="../crates/game/Cargo.toml" data-bin="dinosaur-game" data-wasm-opt="z" data-wasm-opt-params="--enable-bulk-memory --enable-sign-ext --enable-nontrapping-float-to-int" />
         <link data-trunk rel="copy-dir" href="../crates/game/assets" />
         <link data-trunk rel="copy-file" href="_headers" />
@@ -32,6 +34,5 @@
     </head>
     <body style="margin: 0px">
         <canvas width="1024" height="960" id="game"></canvas>
-        <script src="restart-audio-context.js"></script>
     </body>
 </html>
