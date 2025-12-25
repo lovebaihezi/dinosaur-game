@@ -10,7 +10,7 @@ export default {
       const response = await env.ASSETS.fetch(request);
       // If the asset returns the SPA fallback (content-type: text/html),
       // it means the .meta file doesn't exist, so return 404
-      if (response.headers.get('content-type')?.includes('text/html')) {
+      if (response.headers.get('content-type')?.startsWith('text/html')) {
         return new Response('Not Found', { status: 404 });
       }
       return response;
