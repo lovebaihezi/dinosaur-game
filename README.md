@@ -16,7 +16,7 @@ You can download the latest native versions of the game from the [releases page]
 
 This project uses an automated release system:
 
-- **Stable Releases**: Created automatically when the version in `crates/game/Cargo.toml` is updated and pushed to the main branch. The workflow creates a version tag (e.g., `0.0.5`) which triggers builds for all platforms (Linux, Windows, macOS x86_64, macOS ARM64).
+- **Stable Releases**: Created automatically when the version in `crates/game/Cargo.toml` is updated and pushed to the main branch. The workflow creates a version tag (e.g., `0.1.0`) which triggers builds for all platforms (Linux, Windows, macOS x86_64, macOS ARM64).
 
 - **Nightly Releases**: Created automatically on weekdays (Monday-Friday) via scheduled workflow. Tagged with the format `nightly-YYYY-MM-DD`.
 
