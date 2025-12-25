@@ -47,7 +47,7 @@ fn default_plugins(app_type: AppType) -> PluginGroupBuilder {
     {
         plugin = plugin.set(AssetPlugin {
             meta_check: AssetMetaCheck::Never,
-            ..default()
+            ..Default::default()
         });
     }
     
