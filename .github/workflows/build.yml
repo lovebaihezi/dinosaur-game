@@ -180,35 +180,6 @@ jobs:
           name: windows
           retention-days: 1
 
-  # Build for MacOS x86_64
-  release-macOS-intel:
-    needs: pre-release-check
-    if: needs.pre-release-check.outputs.should_release == 'true'
-    runs-on: macOS-latest
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          lfs: ${{ env.use_git_lfs }}
-      - uses: actions-rust-lang/setup-rust-toolchain@v1
-        with:
-          target: x86_64-apple-darwin
-      - uses: oven-sh/setup-bun@v1
-      - run: bun install
-
-      - name: Build and Package
-        run: |
-          ./just.ts build-native x86_64-apple-darwin
-          ./just.ts package-native x86_64-apple-darwin --app-version ${{ needs.pre-release-check.outputs.version }}
-
-      - name: Upload binaries to artifacts
-        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'schedule'
-        uses: actions/upload-artifact@v4
-        with:
-          path: ${{ env.binary }}-macOS-intel-${{ needs.pre-release-check.outputs.version }}.dmg
-          name: macOS-intel
-          retention-days: 1
-
   # Build for MacOS Apple Silicon
   release-macOS-apple-silicon:
     needs: pre-release-check
@@ -238,7 +209,10 @@ jobs:
           name: macOS-apple-silicon
           retention-days: 1
   release:
-    needs: [pre-release-check, release-linux, release-windows, release-macOS-intel, release-macOS-apple-silicon]
+    permissions:
+      actions: read
+      contents: write
+    needs: [pre-release-check, release-linux, release-windows, release-macOS-apple-silicon]
     if: needs.pre-release-check.outputs.should_release == 'true' && (startsWith(github.ref, 'refs/tags/') || github.event_name == 'schedule')
     runs-on: ubuntu-latest
     steps:
@@ -275,5 +249,4 @@ jobs:
           files: |
             artifacts/linux/*.zip
             artifacts/windows/*.zip
-            artifacts/macOS-intel/*.dmg
             artifacts/macOS-apple-silicon/*.dmg
