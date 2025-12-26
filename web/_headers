@@ -1,8 +1,14 @@
 /*.wasm
     Content-Type: application/wasm
+    Content-Encoding: br
 
 /*.js
     Content-Type: application/javascript
+    Content-Encoding: br
+
+/*.css
+    Content-Type: text/css
+    Content-Encoding: br
 
 /assets/*.ogg
     Content-Type: audio/ogg

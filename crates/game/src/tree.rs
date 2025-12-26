@@ -1,5 +1,5 @@
 use bevy::{
-    app::{FixedUpdate, Plugin},
+    app::{Plugin, Update},
     ecs::query::With,
     math::Vec3,
     prelude::{Commands, Query, Res, ResMut},
@@ -15,7 +15,7 @@ pub struct TreePlugin;
 impl Plugin for TreePlugin {
     fn build(&self, app: &mut bevy::app::App) {
         app.add_systems(OnEnter(GameScreen::PlayScreen), setup_tree)
-            .add_systems(FixedUpdate, tree_move_animation)
+            .add_systems(Update, tree_move_animation)
             .add_systems(
                 OnEnter(GameScreen::GameOverScreen),
                 cleanup_component::<Tree>,
