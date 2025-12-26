@@ -9,3 +9,9 @@
 
 /assets/*.ogg.meta
     Content-Type: application/json
+
+# Force brotli encoding for .br files if accessed directly
+# Cloudflare Pages should handle negotiation automatically for .wasm/.js vs .wasm.br/.js.br
+# but we add this as requested.
+/*.br
+    Content-Encoding: brotli
