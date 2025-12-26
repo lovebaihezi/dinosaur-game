@@ -25,3 +25,46 @@ To create a new stable release:
 2. Commit and push to the main branch
 3. The automated workflow will create a tag and trigger the build process
 4. Binaries will be available on the releases page once builds complete
+
+## Contributing
+
+### Commit Message Convention
+
+This project follows the [Conventional Commits](https://www.conventionalcommits.org/) specification. Commit messages are enforced via a Git hook (using [lefthook](https://github.com/evilmartians/lefthook)).
+
+**Format:** `<type>(<optional scope>): <description>`
+
+**Allowed types:**
+- `feat` - A new feature
+- `fix` - A bug fix
+- `docs` - Documentation only changes
+- `style` - Changes that do not affect the meaning of the code
+- `refactor` - A code change that neither fixes a bug nor adds a feature
+- `perf` - A code change that improves performance
+- `test` - Adding missing tests or correcting existing tests
+- `build` - Changes that affect the build system or dependencies
+- `ci` - Changes to CI configuration files and scripts
+- `chore` - Other changes that don't modify src or test files
+- `revert` - Reverts a previous commit
+
+**Examples:**
+```
+feat: add user login feature
+fix(auth): resolve token expiration issue
+docs: update README with installation instructions
+```
+
+### Setup Git Hooks
+
+After cloning the repository, install lefthook to enable the commit message validation:
+
+```bash
+# Install lefthook (if not already installed)
+# macOS
+brew install lefthook
+# or using npm
+npm install -g lefthook
+
+# Install the hooks
+lefthook install
+```
