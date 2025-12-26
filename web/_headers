@@ -1,17 +1,17 @@
 /*.wasm
     Content-Type: application/wasm
+    Content-Encoding: br
 
 /*.js
     Content-Type: application/javascript
+    Content-Encoding: br
+
+/*.css
+    Content-Type: text/css
+    Content-Encoding: br
 
 /assets/*.ogg
     Content-Type: audio/ogg
 
 /assets/*.ogg.meta
     Content-Type: application/json
-
-# Force brotli encoding for .br files if accessed directly
-# Cloudflare Pages should handle negotiation automatically for .wasm/.js vs .wasm.br/.js.br
-# but we add this as requested.
-/*.br
-    Content-Encoding: brotli

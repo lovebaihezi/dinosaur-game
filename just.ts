@@ -31,17 +31,12 @@ async function buildWasm() {
   // We use trunk to build the project
   await $`trunk build web/index.html --release`;
   // Compress assets with brotli
-  // Check if brotli is available first to avoid failing if not installed in dev env
-  if ((await $`which brotli`.nothrow()).exitCode === 0) {
-      const distFiles = await $`find dist -name "*.wasm" -o -name "*.js" -o -name "*.css"`.text();
-      const files = distFiles.split("\n").filter(f => f.trim().length > 0);
-      for (const file of files) {
-          // Cloudflare Pages expects file.ext and file.ext.br side-by-side for content negotiation.
-          // We use -f (force) to overwrite existing .br files and -k (keep) to preserve the original input file.
-          await $`brotli -f -k ${file}`;
-      }
-  } else {
-      console.warn("Brotli not found, skipping compression");
+  const distFiles = await $`find dist -name "*.wasm" -o -name "*.js" -o -name "*.css"`.text();
+  const files = distFiles.split("\n").filter(f => f.trim().length > 0);
+  for (const file of files) {
+      // Compress and replace the original file with the brotli compressed version
+      await $`brotli -f ${file}`;
+      await $`mv ${file}.br ${file}`;
   }
 }
 
