@@ -1,5 +1,5 @@
 use bevy::{
-    app::{FixedUpdate, Plugin},
+    app::{Plugin, Update},
     ecs::query::With,
     math::Vec3,
     prelude::{Commands, Query, Res},
@@ -15,7 +15,7 @@ pub struct GroundPlugin;
 impl Plugin for GroundPlugin {
     fn build(&self, app: &mut bevy::app::App) {
         app.add_systems(OnEnter(GameScreen::PlayScreen), setup_ground)
-            .add_systems(FixedUpdate, update_ground)
+            .add_systems(Update, update_ground)
             .add_systems(
                 OnEnter(GameScreen::GameOverScreen),
                 cleanup_component::<Ground>,
