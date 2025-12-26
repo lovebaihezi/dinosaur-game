@@ -11,3 +11,42 @@ pre-commit:
       run: typos
     just:
       run: ./just.ts --help
+
+commit-msg:
+  commands:
+    conventional-commit:
+      run: |
+        # Read only the first line (subject) of the commit message
+        # The commit message file may contain multiple lines (subject + body)
+        commit_subject=$(head -1 "$1")
+        # Pattern for conventional commits: type(optional scope): description
+        # Types: feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert
+        # Scope allows alphanumeric, underscore, hyphen, dot, and slash
+        # Description must start with a non-whitespace character followed by more content
+        pattern='^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([a-zA-Z0-9_./-]+\))?: [^ ].+'
+        if ! echo "$commit_subject" | grep -qE "$pattern"; then
+          echo "ERROR: Commit message does not follow Conventional Commits format."
+          echo ""
+          echo "Expected format: <type>(<optional scope>): <description>"
+          echo ""
+          echo "Allowed types:"
+          echo "  feat     - A new feature"
+          echo "  fix      - A bug fix"
+          echo "  docs     - Documentation only changes"
+          echo "  style    - Changes that do not affect the meaning of the code"
+          echo "  refactor - A code change that neither fixes a bug nor adds a feature"
+          echo "  perf     - A code change that improves performance"
+          echo "  test     - Adding missing tests or correcting existing tests"
+          echo "  build    - Changes that affect the build system or dependencies"
+          echo "  ci       - Changes to CI configuration files and scripts"
+          echo "  chore    - Other changes that don't modify src or test files"
+          echo "  revert   - Reverts a previous commit"
+          echo ""
+          echo "Examples:"
+          echo "  feat: add user login feature"
+          echo "  fix(auth): resolve token expiration issue"
+          echo "  docs: update README with installation instructions"
+          echo ""
+          echo "Your commit message: $commit_subject"
+          exit 1
+        fi
