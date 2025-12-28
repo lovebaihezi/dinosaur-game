@@ -47,7 +47,7 @@ fn show_debug_window(
         return;
     }
 
-    let Some(ctx) = contexts.try_ctx_mut() else {
+    let Ok(ctx) = contexts.ctx_mut() else {
         return;
     };
 
