@@ -72,17 +72,7 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
-          CONFIG=""
-          if [[ "${{ github.event_name }}" == "schedule" ]]; then
-            CONFIG="wrangler.nightly.jsonc"
-          elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
-            CONFIG="wrangler.prod.jsonc"
-          elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            CONFIG="wrangler.main.jsonc"
-          elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            CONFIG="wrangler.pr.jsonc"
-          fi
-
+          CONFIG=$(./just.ts get-wrangler-config)
           if [[ -n "$CONFIG" ]]; then
             echo "Deploying using config: $CONFIG"
             bunx wrangler deploy --config "$CONFIG"
@@ -92,17 +82,7 @@ jobs:
 
       - name: Verify Deployment
         run: |
-          URL=""
-          if [[ "${{ github.event_name }}" == "schedule" ]]; then
-            URL="https://dino-nightly.lqxclqxc.com"
-          elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
-            URL="https://dino.lqxclqxc.com"
-          elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            URL="https://dino-test.lqxclqxc.com"
-          elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            URL="https://dino-pr.lqxclqxc.com"
-          fi
-
+          URL=$(./just.ts get-verify-url)
           if [[ -n "$URL" ]]; then
             echo "Verifying deployment at $URL"
             echo "Sleeping for 10 seconds..."
