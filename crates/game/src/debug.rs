@@ -4,7 +4,7 @@ use bevy::{
     input::ButtonInput,
     prelude::{KeyCode, Res, ResMut, Resource},
 };
-use bevy_egui::{EguiContexts, EguiPlugin, egui};
+use bevy_egui::{egui, EguiContexts, EguiPlugin};
 
 /// Bevy version string (hardcoded since bevy doesn't expose VERSION constant)
 const BEVY_VERSION: &str = "0.17";
