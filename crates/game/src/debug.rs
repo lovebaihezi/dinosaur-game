@@ -10,15 +10,9 @@ use bevy_egui::{egui, EguiContexts, EguiPlugin};
 const BEVY_VERSION: &str = "0.17";
 
 /// Resource to track whether the debug window is visible
-#[derive(Resource)]
+#[derive(Resource, Default)]
 pub struct DebugWindowState {
     pub visible: bool,
-}
-
-impl Default for DebugWindowState {
-    fn default() -> Self {
-        Self { visible: false }
-    }
 }
 
 pub struct DebugPlugin;
