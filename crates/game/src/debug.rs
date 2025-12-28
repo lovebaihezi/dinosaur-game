@@ -6,6 +6,9 @@ use bevy::{
 };
 use bevy_egui::{EguiContexts, EguiPlugin, egui};
 
+/// Bevy version string (hardcoded since bevy doesn't expose VERSION constant)
+const BEVY_VERSION: &str = "0.17";
+
 /// Resource to track whether the debug window is visible
 #[derive(Resource)]
 pub struct DebugWindowState {
@@ -22,7 +25,7 @@ pub struct DebugPlugin;
 
 impl Plugin for DebugPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
-        app.add_plugins(EguiPlugin)
+        app.add_plugins(EguiPlugin::default())
             .add_plugins(FrameTimeDiagnosticsPlugin::default())
             .init_resource::<DebugWindowState>()
             .add_systems(Update, (toggle_debug_window, show_debug_window));
@@ -44,7 +47,9 @@ fn show_debug_window(
         return;
     }
 
-    let ctx = contexts.ctx_mut();
+    let Some(ctx) = contexts.try_ctx_mut() else {
+        return;
+    };
 
     egui::Window::new("Performance & Info")
         .default_pos([10.0, 10.0])
@@ -87,7 +92,7 @@ fn show_debug_window(
             ui.separator();
 
             ui.label(format!("Game Version: {}", env!("CARGO_PKG_VERSION")));
-            ui.label(format!("Bevy Version: {}", bevy::VERSION));
+            ui.label(format!("Bevy Version: {}", BEVY_VERSION));
 
             ui.separator();
             ui.label("Press F1 to toggle this window");
