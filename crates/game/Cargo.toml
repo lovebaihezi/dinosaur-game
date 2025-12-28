@@ -16,6 +16,7 @@ bevy = { workspace = true }
 log = { workspace = true }
 bevy_kira_audio = { workspace = true }
 bevy_asset_loader = { workspace = true }
+bevy_egui = { workspace = true }
 rand = { workspace = true }
 webbrowser = { workspace = true }
 
