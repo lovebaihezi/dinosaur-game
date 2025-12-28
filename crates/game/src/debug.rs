@@ -65,7 +65,7 @@ fn show_debug_window(
                 }
             }
 
-            // Frame time (compute latency)
+            // Frame time (time per frame)
             if let Some(frame_time) =
                 diagnostics.get(&bevy::diagnostic::FrameTimeDiagnosticsPlugin::FRAME_TIME)
             {
