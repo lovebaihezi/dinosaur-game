@@ -331,8 +331,7 @@ cli.command("get-wrangler-config", "Get wrangler config file based on GitHub Act
         if (config) {
             console.log(config.wranglerConfig);
         } else {
-            // Output empty string if no config matches - caller should handle this
-            console.log("");
+            // Empty output indicates no matching environment - workflow uses this to skip deployment
         }
     });
 
@@ -342,8 +341,7 @@ cli.command("get-verify-url", "Get verification URL based on GitHub Actions cont
         if (config) {
             console.log(config.verifyUrl);
         } else {
-            // Output empty string if no URL matches - caller should handle this
-            console.log("");
+            // Empty output indicates no matching environment - workflow uses this to skip verification
         }
     });
 
