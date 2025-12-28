@@ -4,7 +4,7 @@ use bevy::{
     input::ButtonInput,
     prelude::{KeyCode, Res, ResMut, Resource},
 };
-use bevy_egui::{EguiContextPass, EguiPlugin, egui};
+use bevy_egui::{EguiContexts, EguiPlugin, egui};
 
 /// Resource to track whether the debug window is visible
 #[derive(Resource)]
@@ -22,13 +22,10 @@ pub struct DebugPlugin;
 
 impl Plugin for DebugPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
-        app.add_plugins(EguiPlugin {
-            enable_multipass_for_primary_context: true,
-        })
-        .add_plugins(FrameTimeDiagnosticsPlugin::default())
-        .init_resource::<DebugWindowState>()
-        .add_systems(EguiContextPass, show_debug_window)
-        .add_systems(Update, toggle_debug_window);
+        app.add_plugins(EguiPlugin)
+            .add_plugins(FrameTimeDiagnosticsPlugin::default())
+            .init_resource::<DebugWindowState>()
+            .add_systems(Update, (toggle_debug_window, show_debug_window));
     }
 }
 
@@ -39,7 +36,7 @@ fn toggle_debug_window(input: Res<ButtonInput<KeyCode>>, mut state: ResMut<Debug
 }
 
 fn show_debug_window(
-    mut contexts: bevy_egui::EguiContexts,
+    mut contexts: EguiContexts,
     diagnostics: Res<DiagnosticsStore>,
     state: Res<DebugWindowState>,
 ) {
