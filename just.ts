@@ -92,8 +92,8 @@ async function installWasmDeps() {
 async function buildWasm() {
   // We use trunk to build the project
   await $`trunk build web/index.html --release`;
-  // Compress assets with brotli
-  const distFiles = await $`find dist -name "*.wasm" -o -name "*.js" -o -name "*.css"`.text();
+  // Compress wasm files with brotli (only wasm, not js or css)
+  const distFiles = await $`find dist -name "*.wasm"`.text();
   const files = distFiles.split("\n").filter(f => f.trim().length > 0);
   for (const file of files) {
       // Compress and replace the original file with the brotli compressed version
