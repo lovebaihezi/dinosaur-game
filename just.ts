@@ -75,7 +75,7 @@ function getDeployConfig(): DeployEnvConfig | null {
 
 async function installLinuxDeps() {
   await $`sudo apt-get update`;
-  await $`sudo apt-get install -y --no-install-recommends pkg-config libx11-dev libasound2-dev libudev-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev clang mold libwayland-dev libxkbcommon-dev brotli`;
+  await $`sudo apt-get install -y --no-install-recommends pkg-config libx11-dev libasound2-dev libudev-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev clang mold libwayland-dev libxkbcommon-dev`;
 }
 
 async function installWasmDeps() {
@@ -92,14 +92,6 @@ async function installWasmDeps() {
 async function buildWasm() {
   // We use trunk to build the project
   await $`trunk build web/index.html --release`;
-  // Compress assets with brotli
-  const distFiles = await $`find dist -name "*.wasm" -o -name "*.js" -o -name "*.css"`.text();
-  const files = distFiles.split("\n").filter(f => f.trim().length > 0);
-  for (const file of files) {
-      // Compress and replace the original file with the brotli compressed version
-      await $`brotli -f ${file}`;
-      await $`mv ${file}.br ${file}`;
-  }
 }
 
 async function buildRelease() {
