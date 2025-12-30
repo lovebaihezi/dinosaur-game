@@ -31,7 +31,6 @@ bevy = { version = "0.17.2", default-features = false, features = [
     "bevy_asset",
     "bevy_color",
     "bevy_core_pipeline",
-    "bevy_input_focus",
     "bevy_log",
     "bevy_render",
     "bevy_sprite",
