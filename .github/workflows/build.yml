@@ -66,6 +66,7 @@ jobs:
       - uses: oven-sh/setup-bun@v1
       - run: bun install
       - run: ./just.ts install-wasm-deps
+      - run: ./just.ts install-wasm-opt
       - run: ./just.ts build-wasm
       - name: Deploy to Cloudflare Workers
         env:

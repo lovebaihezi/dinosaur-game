@@ -89,9 +89,31 @@ async function installWasmDeps() {
   ]);
 }
 
+async function installWasmOpt() {
+  // Install wasm-opt from binaryen for additional WASM optimization
+  const version = "version_119";
+  const platform = process.platform === "darwin" ? "macos" : process.platform;
+  const arch = process.arch === "arm64" ? "arm64" : "x86_64";
+  const tarName = `binaryen-${version}-${arch}-${platform}.tar.gz`;
+  const url = `https://github.com/WebAssembly/binaryen/releases/download/${version}/${tarName}`;
+  
+  await $`curl -L ${url} -o /tmp/binaryen.tar.gz`;
+  await $`tar -xzf /tmp/binaryen.tar.gz -C /tmp`;
+  await $`sudo cp /tmp/binaryen-${version}/bin/wasm-opt /usr/local/bin/`;
+  await $`rm -rf /tmp/binaryen.tar.gz /tmp/binaryen-${version}`;
+}
+
 async function buildWasm() {
   // We use trunk to build the project
   await $`trunk build web/index.html --release`;
+  
+  // Apply additional wasm-opt optimization for size reduction
+  const wasmFiles = await $`find dist -name "*.wasm"`.text();
+  const files = wasmFiles.split("\n").filter(f => f.trim().length > 0);
+  for (const file of files) {
+    console.log(`Optimizing ${file} with wasm-opt...`);
+    await $`wasm-opt -Oz ${file} -o ${file} --enable-bulk-memory --enable-sign-ext --enable-nontrapping-float-to-int`;
+  }
 }
 
 async function buildRelease() {
@@ -268,6 +290,11 @@ cli.command("install-linux-deps", "Install dependencies")
 cli.command("install-wasm-deps", "Install wasm dependencies")
   .action(async () => {
     await installWasmDeps();
+  });
+
+cli.command("install-wasm-opt", "Install wasm-opt from binaryen")
+  .action(async () => {
+    await installWasmOpt();
   });
 
 cli.command("build-wasm", "Build wasm")
