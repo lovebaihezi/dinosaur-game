@@ -75,7 +75,7 @@ function getDeployConfig(): DeployEnvConfig | null {
 
 async function installLinuxDeps() {
   await $`sudo apt-get update`;
-  await $`sudo apt-get install -y --no-install-recommends pkg-config libx11-dev libasound2-dev libudev-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev clang mold libwayland-dev libxkbcommon-dev brotli`;
+  await $`sudo apt-get install -y --no-install-recommends pkg-config libx11-dev libasound2-dev libudev-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev clang mold libwayland-dev libxkbcommon-dev`;
 }
 
 async function installWasmDeps() {
@@ -89,16 +89,47 @@ async function installWasmDeps() {
   ]);
 }
 
+async function installWasmOpt() {
+  // Install wasm-opt from binaryen for additional WASM optimization
+  // Using version_119 which includes -Oz optimization flag
+  const version = "version_119";
+  let platform = process.platform;
+  if (platform === "darwin") {
+    platform = "macos";
+  } else if (platform === "win32") {
+    platform = "windows";
+  }
+  const arch = process.arch === "arm64" ? "arm64" : "x86_64";
+  const tarName = `binaryen-${version}-${arch}-${platform}.tar.gz`;
+  const url = `https://github.com/WebAssembly/binaryen/releases/download/${version}/${tarName}`;
+  
+  await $`curl -L ${url} -o /tmp/binaryen.tar.gz`;
+  await $`tar -xzf /tmp/binaryen.tar.gz -C /tmp`;
+  
+  // Copy to /usr/local/bin only if we have permissions, otherwise use user directory
+  const binDir = process.env.CI ? "/usr/local/bin" : `${process.env.HOME}/.local/bin`;
+  if (!process.env.CI) {
+    await $`mkdir -p ${binDir}`;
+  } else {
+    await $`sudo cp /tmp/binaryen-${version}/bin/wasm-opt /usr/local/bin/`;
+  }
+  if (!process.env.CI) {
+    await $`cp /tmp/binaryen-${version}/bin/wasm-opt ${binDir}/`;
+  }
+  
+  await $`rm -rf /tmp/binaryen.tar.gz /tmp/binaryen-${version}`;
+}
+
 async function buildWasm() {
   // We use trunk to build the project
   await $`trunk build web/index.html --release`;
-  // Compress assets with brotli
-  const distFiles = await $`find dist -name "*.wasm" -o -name "*.js" -o -name "*.css"`.text();
-  const files = distFiles.split("\n").filter(f => f.trim().length > 0);
+  
+  // Apply additional wasm-opt optimization for size reduction
+  const wasmFiles = await $`find dist -name "*.wasm"`.text();
+  const files = wasmFiles.split("\n").filter(f => f.trim().length > 0);
   for (const file of files) {
-      // Compress and replace the original file with the brotli compressed version
-      await $`brotli -f ${file}`;
-      await $`mv ${file}.br ${file}`;
+    console.log(`Optimizing ${file} with wasm-opt...`);
+    await $`wasm-opt -Oz ${file} -o ${file} --enable-bulk-memory --enable-sign-ext --enable-nontrapping-float-to-int`;
   }
 }
 
@@ -276,6 +307,11 @@ cli.command("install-linux-deps", "Install dependencies")
 cli.command("install-wasm-deps", "Install wasm dependencies")
   .action(async () => {
     await installWasmDeps();
+  });
+
+cli.command("install-wasm-opt", "Install wasm-opt from binaryen")
+  .action(async () => {
+    await installWasmOpt();
   });
 
 cli.command("build-wasm", "Build wasm")
