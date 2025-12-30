@@ -91,15 +91,32 @@ async function installWasmDeps() {
 
 async function installWasmOpt() {
   // Install wasm-opt from binaryen for additional WASM optimization
+  // Using version_119 which includes -Oz optimization flag
   const version = "version_119";
-  const platform = process.platform === "darwin" ? "macos" : process.platform;
+  let platform = process.platform;
+  if (platform === "darwin") {
+    platform = "macos";
+  } else if (platform === "win32") {
+    platform = "windows";
+  }
   const arch = process.arch === "arm64" ? "arm64" : "x86_64";
   const tarName = `binaryen-${version}-${arch}-${platform}.tar.gz`;
   const url = `https://github.com/WebAssembly/binaryen/releases/download/${version}/${tarName}`;
   
   await $`curl -L ${url} -o /tmp/binaryen.tar.gz`;
   await $`tar -xzf /tmp/binaryen.tar.gz -C /tmp`;
-  await $`sudo cp /tmp/binaryen-${version}/bin/wasm-opt /usr/local/bin/`;
+  
+  // Copy to /usr/local/bin only if we have permissions, otherwise use user directory
+  const binDir = process.env.CI ? "/usr/local/bin" : `${process.env.HOME}/.local/bin`;
+  if (!process.env.CI) {
+    await $`mkdir -p ${binDir}`;
+  } else {
+    await $`sudo cp /tmp/binaryen-${version}/bin/wasm-opt /usr/local/bin/`;
+  }
+  if (!process.env.CI) {
+    await $`cp /tmp/binaryen-${version}/bin/wasm-opt ${binDir}/`;
+  }
+  
   await $`rm -rf /tmp/binaryen.tar.gz /tmp/binaryen-${version}`;
 }
 
