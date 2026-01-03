@@ -7,10 +7,13 @@
         <meta name="description" content="Dinosaur game" />
         <!-- Load audio context fix script first to intercept AudioContext creation -->
         <script src="restart-audio-context.js"></script>
+        <!-- WASM loader initializer for Trunk - handles loading screen and error display -->
+        <script type="module" data-trunk data-initializer src="wasm-loader.js"></script>
         <link data-trunk rel="rust" href="../crates/game/Cargo.toml" data-bin="dinosaur-game" data-wasm-opt="3" data-wasm-opt-params="--enable-bulk-memory --enable-sign-ext --enable-nontrapping-float-to-int" />
         <link data-trunk rel="copy-dir" href="../crates/game/assets" />
         <link data-trunk rel="copy-file" href="_headers" />
         <link data-trunk rel="copy-file" href="restart-audio-context.js" />
+        <link data-trunk rel="copy-file" href="wasm-loader.js" />
         <style>
             html {
                 margin: 0;
@@ -120,59 +123,5 @@
             <div class="error-details" id="error-details"></div>
         </div>
         <canvas width="1024" height="960" id="game"></canvas>
-        <script>
-            // Hide loading screen when WASM module is ready
-            function hideLoadingScreen() {
-                var loadingScreen = document.getElementById('loading-screen');
-                if (loadingScreen) {
-                    loadingScreen.style.display = 'none';
-                }
-            }
-
-            // Show error popup when WASM fails to load
-            function showErrorPopup(error) {
-                var loadingScreen = document.getElementById('loading-screen');
-                var errorOverlay = document.getElementById('error-overlay');
-                var errorPopup = document.getElementById('error-popup');
-                var errorDetails = document.getElementById('error-details');
-
-                if (loadingScreen) {
-                    loadingScreen.style.display = 'none';
-                }
-                if (errorOverlay) {
-                    errorOverlay.style.display = 'block';
-                }
-                if (errorPopup) {
-                    errorPopup.style.display = 'block';
-                }
-                if (errorDetails && error) {
-                    errorDetails.textContent = error.toString();
-                }
-            }
-
-            // Listen for WASM initialization events
-            window.addEventListener('wasm-loaded', hideLoadingScreen);
-            window.addEventListener('error', function(event) {
-                if (event.message) {
-                    var lowerMessage = event.message.toLowerCase();
-                    if (lowerMessage.includes('wasm') || lowerMessage.includes('webassembly')) {
-                        showErrorPopup(event.message);
-                    }
-                }
-            });
-
-            // Timeout to show error if loading takes too long
-            var loadingTimeout = setTimeout(function() {
-                var loadingScreen = document.getElementById('loading-screen');
-                if (loadingScreen && loadingScreen.style.display !== 'none') {
-                    showErrorPopup('Loading timed out. Your browser may not support WebAssembly or WebGPU.');
-                }
-            }, 60000); // 60 second timeout
-
-            // Clear timeout when loaded
-            window.addEventListener('wasm-loaded', function() {
-                clearTimeout(loadingTimeout);
-            });
-        </script>
     </body>
 </html>

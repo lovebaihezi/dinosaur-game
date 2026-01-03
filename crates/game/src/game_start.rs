@@ -6,40 +6,16 @@ pub struct GameStartPlugin;
 
 impl Plugin for GameStartPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            OnEnter(GameScreen::StartScreen),
-            (show_start_message, notify_wasm_loaded),
-        )
-        .add_systems(
-            FixedUpdate,
-            enter_play_by_space.run_if(in_state(GameScreen::StartScreen)),
-        )
-        .add_systems(
-            OnExit(GameScreen::StartScreen),
-            cleanup_component::<WelcomeTextUI>,
-        );
+        app.add_systems(OnEnter(GameScreen::StartScreen), show_start_message)
+            .add_systems(
+                FixedUpdate,
+                enter_play_by_space.run_if(in_state(GameScreen::StartScreen)),
+            )
+            .add_systems(
+                OnExit(GameScreen::StartScreen),
+                cleanup_component::<WelcomeTextUI>,
+            );
     }
-}
-
-/// Notify JavaScript that the WASM module has loaded successfully.
-/// This is used to hide the loading screen in the browser.
-#[cfg(target_arch = "wasm32")]
-fn notify_wasm_loaded() {
-    info!("WASM loaded, notifying JavaScript");
-
-    // Use web-sys to dispatch a custom event
-    if let Some(window) = web_sys::window() {
-        if let Ok(event) = web_sys::CustomEvent::new("wasm-loaded") {
-            if let Err(e) = window.dispatch_event(&event) {
-                warn!("Failed to dispatch wasm-loaded event: {:?}", e);
-            }
-        }
-    }
-}
-
-#[cfg(not(target_arch = "wasm32"))]
-fn notify_wasm_loaded() {
-    // No-op on non-WASM platforms
 }
 
 #[derive(Component)]
