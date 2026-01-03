@@ -153,8 +153,11 @@
             // Listen for WASM initialization events
             window.addEventListener('wasm-loaded', hideLoadingScreen);
             window.addEventListener('error', function(event) {
-                if (event.message && (event.message.includes('wasm') || event.message.includes('WebAssembly'))) {
-                    showErrorPopup(event.message);
+                if (event.message) {
+                    var lowerMessage = event.message.toLowerCase();
+                    if (lowerMessage.includes('wasm') || lowerMessage.includes('webassembly')) {
+                        showErrorPopup(event.message);
+                    }
                 }
             });
 

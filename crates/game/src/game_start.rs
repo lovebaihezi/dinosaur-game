@@ -30,7 +30,9 @@ fn notify_wasm_loaded() {
     // Use web-sys to dispatch a custom event
     if let Some(window) = web_sys::window() {
         if let Ok(event) = web_sys::CustomEvent::new("wasm-loaded") {
-            let _ = window.dispatch_event(&event);
+            if let Err(e) = window.dispatch_event(&event) {
+                warn!("Failed to dispatch wasm-loaded event: {:?}", e);
+            }
         }
     }
 }
