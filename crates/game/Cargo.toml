@@ -22,3 +22,4 @@ webbrowser = { workspace = true }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 getrandom = { workspace = true }
+web-sys = { version = "0.3", features = ["Window", "CustomEvent"] }
