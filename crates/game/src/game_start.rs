@@ -42,7 +42,7 @@ fn show_start_message(mut commands: Commands) {
             parent.spawn((
                 Text::new("Press Space/Touch/Click to Start!"),
                 TextFont {
-                    font_size: 48.0,
+                    font_size: 64.0,
                     ..Default::default()
                 },
                 TextLayout {
