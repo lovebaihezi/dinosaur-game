@@ -155,13 +155,6 @@ fn show_debug_window(
                     virtual_time.unpause();
                     next_screen.set(GameScreen::StartScreen);
                 }
-            });
-
-            ui.horizontal(|ui| {
-                if ui.button("Start Screen").clicked() {
-                    virtual_time.unpause();
-                    next_screen.set(GameScreen::StartScreen);
-                }
 
                 if ui.button("Play").clicked() {
                     virtual_time.unpause();
