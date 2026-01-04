@@ -56,6 +56,7 @@ fn dino_pos_fix_system(
 }
 
 /// Dino will jump when user press space, w, Up, k, or left mouse button
+#[allow(clippy::too_many_arguments)]
 fn dino_jump_system(
     mut dino_query: Query<&mut Dino>,
     keyboard: Res<ButtonInput<KeyCode>>,

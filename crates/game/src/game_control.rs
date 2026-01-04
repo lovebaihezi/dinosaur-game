@@ -19,6 +19,7 @@ impl Plugin for GameControlPlugin {
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn screen_changes(
     mut time: ResMut<Time<Virtual>>,
     window: Query<&Window>,
