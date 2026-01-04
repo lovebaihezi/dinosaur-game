@@ -8,7 +8,7 @@ use bevy::{
 };
 use bevy_egui::{egui, EguiContexts, EguiPlugin, EguiPrimaryContextPass};
 
-use crate::GameScreen;
+use crate::{GameConfig, GameScreen};
 
 /// Bevy version string (hardcoded since bevy doesn't expose VERSION constant)
 const BEVY_VERSION: &str = "0.17";
@@ -28,6 +28,8 @@ pub struct DebugWindowState {
     cached_frame_count: Option<u64>,
     /// Time since last performance update
     time_since_update: f32,
+    /// Status message for config operations
+    config_status: Option<String>,
 }
 
 impl Default for DebugWindowState {
@@ -38,6 +40,7 @@ impl Default for DebugWindowState {
             cached_frame_time: None,
             cached_frame_count: None,
             time_since_update: 0.0,
+            config_status: None,
         }
     }
 }
@@ -61,6 +64,7 @@ fn toggle_debug_window(input: Res<ButtonInput<KeyCode>>, mut state: ResMut<Debug
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn show_debug_window(
     mut contexts: EguiContexts,
     diagnostics: Res<DiagnosticsStore>,
@@ -69,6 +73,7 @@ fn show_debug_window(
     mut virtual_time: ResMut<Time<Virtual>>,
     cur_screen: Res<State<GameScreen>>,
     mut next_screen: ResMut<NextState<GameScreen>>,
+    mut config: ResMut<GameConfig>,
 ) {
     if !state.visible {
         return;
@@ -164,6 +169,82 @@ fn show_debug_window(
                     next_screen.set(GameScreen::PlayScreen);
                 }
             });
+
+            ui.separator();
+            ui.heading("Game Config");
+            ui.separator();
+
+            // Dino settings
+            ui.collapsing("Dino Settings", |ui| {
+                ui.horizontal(|ui| {
+                    ui.label("Width:");
+                    ui.add(egui::DragValue::new(&mut config.dino_width).range(10.0..=200.0).speed(1.0));
+                });
+                ui.horizontal(|ui| {
+                    ui.label("Height:");
+                    ui.add(egui::DragValue::new(&mut config.dino_height).range(10.0..=300.0).speed(1.0));
+                });
+                ui.horizontal(|ui| {
+                    ui.label("Jump Height:");
+                    ui.add(egui::DragValue::new(&mut config.dino_jump_height).range(50.0..=500.0).speed(1.0));
+                });
+                ui.horizontal(|ui| {
+                    ui.label("X Offset:");
+                    ui.add(egui::DragValue::new(&mut config.dino_x_offset).range(0.0..=0.5).speed(0.01));
+                });
+            });
+
+            // Tree settings
+            ui.collapsing("Tree Settings", |ui| {
+                ui.horizontal(|ui| {
+                    ui.label("Width:");
+                    ui.add(egui::DragValue::new(&mut config.tree_width).range(10.0..=150.0).speed(1.0));
+                });
+                ui.horizontal(|ui| {
+                    ui.label("Height:");
+                    ui.add(egui::DragValue::new(&mut config.tree_height).range(10.0..=200.0).speed(1.0));
+                });
+            });
+
+            // Ground settings
+            ui.collapsing("Ground Settings", |ui| {
+                ui.horizontal(|ui| {
+                    ui.label("Y Position:");
+                    ui.add(egui::DragValue::new(&mut config.ground_y_pos).range(-100.0..=100.0).speed(1.0));
+                });
+            });
+
+            ui.separator();
+
+            // Config export/import buttons
+            ui.horizontal(|ui| {
+                if ui.button("Export Config").clicked() {
+                    match config.save_to_file() {
+                        Ok(()) => {
+                            state.config_status = Some("Config exported to game_config.json".to_string());
+                        }
+                        Err(e) => {
+                            state.config_status = Some(format!("Export failed: {}", e));
+                        }
+                    }
+                }
+
+                if ui.button("Load Config").clicked() {
+                    let loaded = GameConfig::load_from_file();
+                    *config = loaded;
+                    state.config_status = Some("Config loaded from game_config.json".to_string());
+                }
+
+                if ui.button("Reset to Default").clicked() {
+                    *config = GameConfig::default();
+                    state.config_status = Some("Config reset to defaults".to_string());
+                }
+            });
+
+            // Show status message if any
+            if let Some(status) = &state.config_status {
+                ui.label(status);
+            }
 
             ui.separator();
             ui.heading("Version Info");

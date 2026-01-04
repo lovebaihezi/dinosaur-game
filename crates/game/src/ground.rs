@@ -8,7 +8,7 @@ use bevy::{
     transform::components::Transform,
 };
 
-use crate::{components::Ground, utils::cleanup_component, GameScreen, GameStatus};
+use crate::{components::Ground, utils::cleanup_component, GameConfig, GameScreen, GameStatus};
 
 pub struct GroundPlugin;
 
@@ -23,13 +23,13 @@ impl Plugin for GroundPlugin {
     }
 }
 
-fn setup_ground(mut commands: Commands, game_status: Res<GameStatus>) {
+fn setup_ground(mut commands: Commands, game_status: Res<GameStatus>, config: Res<GameConfig>) {
     // the ground width is the same as the window width
     // the ground height is 100 pixels
     // the ground x at 0, y at center of the window
     let window_width = game_status.window_width;
 
-    commands.spawn(Ground::new(window_width));
+    commands.spawn(Ground::new(&config, window_width));
 }
 
 /// Update the ground width, position on window resize

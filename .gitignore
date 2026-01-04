@@ -32,3 +32,6 @@ wasm/
 .env
 node_modules
 /dist
+
+# Game config file (user-specific)
+game_config.json

@@ -1,7 +1,7 @@
 use crate::{
     game_logic::GameLogicPlugin, setup_2d_camera, update_window_size, DebugPlugin, DinoPlugin,
-    GameControlPlugin, GameOverPlugin, GameScreen, GameStartPlugin, GameStatus, GroundPlugin,
-    SpeedControlInfo, TreePlugin,
+    GameConfig, GameControlPlugin, GameOverPlugin, GameScreen, GameStartPlugin, GameStatus,
+    GroundPlugin, SpeedControlInfo, TreePlugin,
 };
 use bevy::{app::PluginGroupBuilder, prelude::*, winit::WinitPlugin};
 use bevy_kira_audio::prelude::AudioPlugin as KiraAudioPlugin;
@@ -49,6 +49,8 @@ fn default_plugins(app_type: AppType) -> PluginGroupBuilder {
 impl Game {
     pub fn init(app_type: AppType) -> Self {
         let mut game = Game { app: App::new() };
+        // Load game config from file or use defaults
+        let game_config = GameConfig::load_from_file();
         game.app
             .add_plugins(default_plugins(app_type))
             .insert_resource(GameStatus {
@@ -57,6 +59,7 @@ impl Game {
                 window_width: 1920.0,
                 window_height: 1080.0,
             })
+            .insert_resource(game_config)
             .init_state::<GameScreen>()
             .insert_resource(ClearColor(Color::srgb(1.0, 1.0, 1.0)))
             .insert_resource(SpeedControlInfo {

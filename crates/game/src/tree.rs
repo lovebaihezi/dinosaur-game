@@ -3,12 +3,13 @@ use bevy::{
     ecs::query::With,
     math::Vec3,
     prelude::{Commands, Query, Res, ResMut},
+    sprite::Sprite,
     state::state::OnEnter,
     time::{Time, Virtual},
     transform::components::Transform,
 };
 
-use crate::{components::Tree, utils::cleanup_component, GameScreen, GameStatus, SpeedControlInfo};
+use crate::{components::Tree, utils::cleanup_component, GameConfig, GameScreen, GameStatus, SpeedControlInfo};
 
 pub struct TreePlugin;
 
@@ -23,31 +24,33 @@ impl Plugin for TreePlugin {
     }
 }
 
-fn setup_tree(mut commands: Commands, status: Res<GameStatus>) {
+fn setup_tree(mut commands: Commands, status: Res<GameStatus>, config: Res<GameConfig>) {
     let window_width = status.window_width;
-    let tree_pos = Vec3::new(window_width - Tree::WIDTH, Tree::WIDTH / 2.0 / 0.618, 0.0);
+    let tree_pos = Vec3::new(window_width - config.tree_width, config.tree_height / 2.0, 0.0);
 
-    commands.spawn(Tree::new(tree_pos));
+    commands.spawn(Tree::new(&config, tree_pos));
 }
 
 fn tree_move_animation(
-    mut tree_query: Query<&mut Transform, With<Tree>>,
+    mut tree_query: Query<(&mut Transform, &Sprite), With<Tree>>,
     time: Res<Time<Virtual>>,
     mut status: ResMut<GameStatus>,
     mut speed_control_info: ResMut<SpeedControlInfo>,
+    config: Res<GameConfig>,
 ) {
     if time.is_paused() {
         return;
     }
     let window_width = status.window_width;
-    for mut transform in tree_query.iter_mut() {
+    for (mut transform, sprite) in tree_query.iter_mut() {
+        let tree_width = sprite.custom_size.map(|s| s.x).unwrap_or(config.tree_width);
         transform.translation.x = if transform.translation.x < -window_width * 0.8 / 2.0 {
             update_game_speed(&mut status, &mut speed_control_info);
             window_width * 0.8 / 2.0
         } else {
             let more_hard_speed = (status.speed as f32).log2();
             transform.translation.x
-                - time.delta_secs() * (window_width / 3.0 + (Tree::WIDTH / 2.0) * more_hard_speed)
+                - time.delta_secs() * (window_width / 3.0 + (tree_width / 2.0) * more_hard_speed)
         };
     }
 }
