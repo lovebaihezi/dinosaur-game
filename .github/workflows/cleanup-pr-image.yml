@@ -4,11 +4,6 @@ on:
   pull_request:
     types: [closed]
 
-env:
-  GAR_LOCATION: us-central1
-  GAR_REPOSITORY: dinosaur-game
-  IMAGE_NAME: dinosaur-game
-
 jobs:
   cleanup:
     runs-on: ubuntu-latest
@@ -17,6 +12,15 @@ jobs:
       id-token: write
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v1
+
+      - name: Install dependencies
+        run: bun install
+
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
@@ -27,28 +31,10 @@ jobs:
         uses: google-github-actions/setup-gcloud@v2
 
       - name: Delete PR Docker image from Artifact Registry
-        run: |
-          set -euo pipefail
-          
-          PR_NUMBER=${{ github.event.pull_request.number }}
-          PROJECT_ID=${{ secrets.GCP_PROJECT_ID }}
-          IMAGE_TAG="pr-${PR_NUMBER}"
-          FULL_IMAGE_PATH="${GAR_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${GAR_REPOSITORY}/${IMAGE_NAME}:${IMAGE_TAG}"
-          
-          echo "Attempting to delete image: ${FULL_IMAGE_PATH}"
-          
-          # Check if the image exists before attempting to delete
-          if gcloud artifacts docker images describe "${FULL_IMAGE_PATH}" --project="${PROJECT_ID}" > /dev/null 2>&1; then
-            echo "Image found, deleting..."
-            if gcloud artifacts docker images delete "${FULL_IMAGE_PATH}" \
-              --project="${PROJECT_ID}" \
-              --delete-tags \
-              --quiet; then
-              echo "Successfully deleted image: ${FULL_IMAGE_PATH}"
-            else
-              echo "::error::Failed to delete image: ${FULL_IMAGE_PATH}"
-              exit 1
-            fi
-          else
-            echo "Image not found, skipping deletion: ${FULL_IMAGE_PATH}"
-          fi
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          GAR_LOCATION: us-central1
+          GAR_REPOSITORY: dinosaur-game
+          IMAGE_NAME: dinosaur-game
+        run: ./just.ts cleanup-pr-image

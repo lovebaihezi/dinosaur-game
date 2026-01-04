@@ -381,6 +381,80 @@ cli.command("get-verify-url", "Get verification URL based on GitHub Actions cont
         }
     });
 
+cli.command("cleanup-pr-image", "Delete PR Docker image from GCloud Artifact Registry")
+    .option("--pr-number <number>", "PR number")
+    .option("--project-id <id>", "GCP Project ID")
+    .option("--gar-location <location>", "Artifact Registry location", { default: "us-central1" })
+    .option("--gar-repository <repo>", "Artifact Registry repository name", { default: "dinosaur-game" })
+    .option("--image-name <name>", "Docker image name", { default: "dinosaur-game" })
+    .action(async (options) => {
+        const prNumber = options.prNumber || process.env.PR_NUMBER;
+        const projectId = options.projectId || process.env.GCP_PROJECT_ID;
+        const garLocation = options.garLocation || process.env.GAR_LOCATION || "us-central1";
+        const garRepository = options.garRepository || process.env.GAR_REPOSITORY || "dinosaur-game";
+        const imageName = options.imageName || process.env.IMAGE_NAME || "dinosaur-game";
+
+        if (!prNumber) {
+            console.error("Error: PR number is required (--pr-number or PR_NUMBER env var)");
+            process.exit(1);
+        }
+        if (!projectId) {
+            console.error("Error: Project ID is required (--project-id or GCP_PROJECT_ID env var)");
+            process.exit(1);
+        }
+
+        // Validate PR number contains only digits
+        if (!/^\d+$/.test(prNumber)) {
+            console.error("Error: PR number must contain only digits");
+            process.exit(1);
+        }
+
+        // Validate project ID format (alphanumeric, hyphens, 6-30 chars)
+        if (!/^[a-z][a-z0-9-]{4,28}[a-z0-9]$/.test(projectId)) {
+            console.error("Error: Invalid GCP project ID format");
+            process.exit(1);
+        }
+
+        // Validate GAR location format
+        if (!/^[a-z]+-[a-z]+\d*$/.test(garLocation)) {
+            console.error("Error: Invalid GAR location format");
+            process.exit(1);
+        }
+
+        // Validate repository and image names (alphanumeric, hyphens, underscores)
+        if (!/^[a-zA-Z0-9_-]+$/.test(garRepository)) {
+            console.error("Error: Invalid GAR repository name format");
+            process.exit(1);
+        }
+        if (!/^[a-zA-Z0-9_-]+$/.test(imageName)) {
+            console.error("Error: Invalid image name format");
+            process.exit(1);
+        }
+
+        const imageTag = `pr-${prNumber}`;
+        const fullImagePath = `${garLocation}-docker.pkg.dev/${projectId}/${garRepository}/${imageName}:${imageTag}`;
+
+        console.log(`Attempting to delete image: ${fullImagePath}`);
+
+        // Check if the image exists before attempting to delete
+        const describeResult = await $`gcloud artifacts docker images describe ${fullImagePath} --project=${projectId}`.nothrow();
+        
+        if (describeResult.exitCode === 0) {
+            console.log("Image found, deleting...");
+            const deleteResult = await $`gcloud artifacts docker images delete ${fullImagePath} --project=${projectId} --delete-tags --quiet`.nothrow();
+            
+            if (deleteResult.exitCode === 0) {
+                console.log(`Successfully deleted image: ${fullImagePath}`);
+            } else {
+                console.error(`Failed to delete image: ${fullImagePath}`);
+                console.error(deleteResult.stderr.toString());
+                process.exit(1);
+            }
+        } else {
+            console.log(`Image not found, skipping deletion: ${fullImagePath}`);
+        }
+    });
+
 cli.help();
 cli.version("0.1.0");
 
