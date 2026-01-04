@@ -31,7 +31,7 @@ fn setup_tree(mut commands: Commands, status: Res<GameStatus>, config: Res<GameC
     let window_width = status.window_width;
     let tree_pos = Vec3::new(
         window_width - config.tree_width,
-        config.tree_height / 2.0,
+        config.ground_y_pos + config.tree_height / 2.0,
         0.0,
     );
 
@@ -75,17 +75,21 @@ fn update_game_speed(status: &mut GameStatus, info: &mut SpeedControlInfo) {
     }
 }
 
-/// Update tree sprite size based on config changes in real-time
+/// Update tree sprite size and Y position based on config changes in real-time
 fn update_tree_sprite_from_config(
     mut query: Query<(&mut Sprite, &mut Transform), With<Tree>>,
     config: Res<GameConfig>,
 ) {
+    // Tree Y position is ground position plus half the tree height
+    let expected_y = config.ground_y_pos + config.tree_height / 2.0;
     for (mut sprite, mut transform) in query.iter_mut() {
         let new_size = bevy::math::Vec2::new(config.tree_width, config.tree_height);
         if sprite.custom_size != Some(new_size) {
             sprite.custom_size = Some(new_size);
-            // Update y position to keep tree on ground
-            transform.translation.y = config.tree_height / 2.0;
+        }
+        // Update y position to keep tree on ground
+        if transform.translation.y != expected_y {
+            transform.translation.y = expected_y;
         }
     }
 }

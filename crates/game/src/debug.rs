@@ -8,7 +8,7 @@ use bevy::{
 };
 use bevy_egui::{egui, EguiContexts, EguiPlugin, EguiPrimaryContextPass};
 
-use crate::{GameConfig, GameScreen};
+use crate::{GameConfig, GameScreen, GameStatus};
 
 /// Bevy version string (hardcoded since bevy doesn't expose VERSION constant)
 const BEVY_VERSION: &str = "0.17";
@@ -74,6 +74,7 @@ fn show_debug_window(
     cur_screen: Res<State<GameScreen>>,
     mut next_screen: ResMut<NextState<GameScreen>>,
     mut config: ResMut<GameConfig>,
+    game_status: Res<GameStatus>,
 ) {
     if !state.visible {
         return;
@@ -231,12 +232,13 @@ fn show_debug_window(
             });
 
             // Ground settings
+            let half_height = game_status.window_height / 2.0;
             ui.collapsing("Ground Settings", |ui| {
                 ui.horizontal(|ui| {
                     ui.label("Y Position:");
                     ui.add(
                         egui::DragValue::new(&mut config.ground_y_pos)
-                            .range(-100.0..=100.0)
+                            .range(-half_height..=half_height)
                             .speed(1.0),
                     );
                 });
