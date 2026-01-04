@@ -178,19 +178,35 @@ fn show_debug_window(
             ui.collapsing("Dino Settings", |ui| {
                 ui.horizontal(|ui| {
                     ui.label("Width:");
-                    ui.add(egui::DragValue::new(&mut config.dino_width).range(10.0..=200.0).speed(1.0));
+                    ui.add(
+                        egui::DragValue::new(&mut config.dino_width)
+                            .range(10.0..=200.0)
+                            .speed(1.0),
+                    );
                 });
                 ui.horizontal(|ui| {
                     ui.label("Height:");
-                    ui.add(egui::DragValue::new(&mut config.dino_height).range(10.0..=300.0).speed(1.0));
+                    ui.add(
+                        egui::DragValue::new(&mut config.dino_height)
+                            .range(10.0..=300.0)
+                            .speed(1.0),
+                    );
                 });
                 ui.horizontal(|ui| {
                     ui.label("Jump Height:");
-                    ui.add(egui::DragValue::new(&mut config.dino_jump_height).range(50.0..=500.0).speed(1.0));
+                    ui.add(
+                        egui::DragValue::new(&mut config.dino_jump_height)
+                            .range(50.0..=500.0)
+                            .speed(1.0),
+                    );
                 });
                 ui.horizontal(|ui| {
                     ui.label("X Offset:");
-                    ui.add(egui::DragValue::new(&mut config.dino_x_offset).range(0.0..=0.5).speed(0.01));
+                    ui.add(
+                        egui::DragValue::new(&mut config.dino_x_offset)
+                            .range(0.0..=0.5)
+                            .speed(0.01),
+                    );
                 });
             });
 
@@ -198,11 +214,19 @@ fn show_debug_window(
             ui.collapsing("Tree Settings", |ui| {
                 ui.horizontal(|ui| {
                     ui.label("Width:");
-                    ui.add(egui::DragValue::new(&mut config.tree_width).range(10.0..=150.0).speed(1.0));
+                    ui.add(
+                        egui::DragValue::new(&mut config.tree_width)
+                            .range(10.0..=150.0)
+                            .speed(1.0),
+                    );
                 });
                 ui.horizontal(|ui| {
                     ui.label("Height:");
-                    ui.add(egui::DragValue::new(&mut config.tree_height).range(10.0..=200.0).speed(1.0));
+                    ui.add(
+                        egui::DragValue::new(&mut config.tree_height)
+                            .range(10.0..=200.0)
+                            .speed(1.0),
+                    );
                 });
             });
 
@@ -210,7 +234,11 @@ fn show_debug_window(
             ui.collapsing("Ground Settings", |ui| {
                 ui.horizontal(|ui| {
                     ui.label("Y Position:");
-                    ui.add(egui::DragValue::new(&mut config.ground_y_pos).range(-100.0..=100.0).speed(1.0));
+                    ui.add(
+                        egui::DragValue::new(&mut config.ground_y_pos)
+                            .range(-100.0..=100.0)
+                            .speed(1.0),
+                    );
                 });
             });
 
@@ -221,7 +249,8 @@ fn show_debug_window(
                 if ui.button("Export Config").clicked() {
                     match config.save_to_file() {
                         Ok(()) => {
-                            state.config_status = Some("Config exported to game_config.json".to_string());
+                            state.config_status =
+                                Some("Config exported to game_config.json".to_string());
                         }
                         Err(e) => {
                             state.config_status = Some(format!("Export failed: {}", e));

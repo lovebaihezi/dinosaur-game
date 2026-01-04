@@ -82,9 +82,9 @@ impl GameConfig {
 
     /// Save config to file
     pub fn save_to_file(&self) -> Result<(), std::io::Error> {
-        let json = self.to_json().map_err(|e| {
-            std::io::Error::new(std::io::ErrorKind::InvalidData, e.to_string())
-        })?;
+        let json = self
+            .to_json()
+            .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e.to_string()))?;
         std::fs::write(Self::CONFIG_FILE, json)
     }
 }

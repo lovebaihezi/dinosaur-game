@@ -9,7 +9,10 @@ use bevy::{
     transform::components::Transform,
 };
 
-use crate::{components::Tree, utils::cleanup_component, GameConfig, GameScreen, GameStatus, SpeedControlInfo};
+use crate::{
+    components::Tree, utils::cleanup_component, GameConfig, GameScreen, GameStatus,
+    SpeedControlInfo,
+};
 
 pub struct TreePlugin;
 
@@ -26,7 +29,11 @@ impl Plugin for TreePlugin {
 
 fn setup_tree(mut commands: Commands, status: Res<GameStatus>, config: Res<GameConfig>) {
     let window_width = status.window_width;
-    let tree_pos = Vec3::new(window_width - config.tree_width, config.tree_height / 2.0, 0.0);
+    let tree_pos = Vec3::new(
+        window_width - config.tree_width,
+        config.tree_height / 2.0,
+        0.0,
+    );
 
     commands.spawn(Tree::new(&config, tree_pos));
 }

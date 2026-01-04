@@ -15,7 +15,10 @@ use crate::GameConfig;
 pub struct Ground;
 
 impl Ground {
-    pub fn new(config: &GameConfig, width: impl Mul<f32, Output = f32>) -> (Self, Sprite, Transform) {
+    pub fn new(
+        config: &GameConfig,
+        width: impl Mul<f32, Output = f32>,
+    ) -> (Self, Sprite, Transform) {
         (
             Self,
             Sprite {

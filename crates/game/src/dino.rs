@@ -53,7 +53,8 @@ fn dino_pos_fix_system(
     for (mut transform, sprite) in query.iter_mut() {
         let window_width = game_status.window_width;
         let dino_width = sprite.custom_size.map(|s| s.x).unwrap_or(config.dino_width);
-        transform.translation.x = -window_width / 2.0 + dino_width / 2.0 + config.dino_x_offset * window_width;
+        transform.translation.x =
+            -window_width / 2.0 + dino_width / 2.0 + config.dino_x_offset * window_width;
     }
 }
 
