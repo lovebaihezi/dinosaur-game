@@ -3,9 +3,12 @@ use bevy::{
     diagnostic::{DiagnosticsStore, FrameTimeDiagnosticsPlugin},
     input::ButtonInput,
     prelude::{KeyCode, Res, ResMut, Resource},
-    time::Time,
+    state::state::{NextState, State},
+    time::{Time, Virtual},
 };
-use bevy_egui::{egui, EguiContexts, EguiPlugin};
+use bevy_egui::{egui, EguiContexts, EguiPlugin, EguiPrimaryContextPass};
+
+use crate::GameScreen;
 
 /// Bevy version string (hardcoded since bevy doesn't expose VERSION constant)
 const BEVY_VERSION: &str = "0.17";
@@ -46,7 +49,9 @@ impl Plugin for DebugPlugin {
         app.add_plugins(EguiPlugin::default())
             .add_plugins(FrameTimeDiagnosticsPlugin::default())
             .init_resource::<DebugWindowState>()
-            .add_systems(Update, (toggle_debug_window, show_debug_window));
+            .add_systems(Update, toggle_debug_window)
+            // Use EguiPrimaryContextPass for proper multi-pass mode input handling
+            .add_systems(EguiPrimaryContextPass, show_debug_window);
     }
 }
 
@@ -61,6 +66,9 @@ fn show_debug_window(
     diagnostics: Res<DiagnosticsStore>,
     mut state: ResMut<DebugWindowState>,
     time: Res<Time>,
+    mut virtual_time: ResMut<Time<Virtual>>,
+    cur_screen: Res<State<GameScreen>>,
+    mut next_screen: ResMut<NextState<GameScreen>>,
 ) {
     if !state.visible {
         return;
@@ -123,6 +131,39 @@ fn show_debug_window(
             if let Some(frame_count) = state.cached_frame_count {
                 ui.label(format!("Frame Count: {}", frame_count));
             }
+
+            ui.separator();
+            ui.heading("Game State Control");
+            ui.separator();
+
+            let current_state = *cur_screen.get();
+            ui.label(format!("Current State: {:?}", current_state));
+
+            let is_paused = virtual_time.is_paused();
+            ui.label(format!("Game Paused: {}", is_paused));
+
+            ui.horizontal(|ui| {
+                if ui
+                    .button(if is_paused { "Resume" } else { "Pause" })
+                    .clicked()
+                {
+                    if is_paused {
+                        virtual_time.unpause();
+                    } else {
+                        virtual_time.pause();
+                    }
+                }
+
+                if ui.button("Restart").clicked() {
+                    virtual_time.unpause();
+                    next_screen.set(GameScreen::StartScreen);
+                }
+
+                if ui.button("Play").clicked() {
+                    virtual_time.unpause();
+                    next_screen.set(GameScreen::PlayScreen);
+                }
+            });
 
             ui.separator();
             ui.heading("Version Info");
