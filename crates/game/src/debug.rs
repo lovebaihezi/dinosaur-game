@@ -143,7 +143,10 @@ fn show_debug_window(
             ui.label(format!("Game Paused: {}", is_paused));
 
             ui.horizontal(|ui| {
-                if ui.button(if is_paused { "Resume" } else { "Pause" }).clicked() {
+                if ui
+                    .button(if is_paused { "Resume" } else { "Pause" })
+                    .clicked()
+                {
                     if is_paused {
                         virtual_time.unpause();
                     } else {
