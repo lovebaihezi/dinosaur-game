@@ -13,7 +13,10 @@ use bevy::{
 use bevy_egui::EguiContexts;
 use bevy_kira_audio::{Audio, AudioControl, AudioInstance};
 
-use crate::{components::Dino, utils::cleanup_component, DinoJumpMusic, GameScreen, GameStatus};
+use crate::{
+    components::Dino, utils::cleanup_component, utils::egui_wants_pointer, DinoJumpMusic,
+    GameScreen, GameStatus,
+};
 
 pub struct DinoPlugin;
 
@@ -67,14 +70,8 @@ fn dino_jump_system(
         return;
     }
 
-    // Check if egui wants pointer input (e.g., clicking on debug window)
-    let egui_wants_pointer = contexts
-        .ctx_mut()
-        .map(|ctx| ctx.wants_pointer_input())
-        .unwrap_or(false);
-
     // Only process mouse/touch if egui doesn't want the input
-    let pointer_input = if egui_wants_pointer {
+    let pointer_input = if egui_wants_pointer(&mut contexts) {
         false
     } else {
         mouse.just_pressed(MouseButton::Left) || touch.any_just_pressed()

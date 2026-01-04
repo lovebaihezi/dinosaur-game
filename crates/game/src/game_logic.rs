@@ -5,6 +5,7 @@ use bevy_egui::EguiContexts;
 
 use crate::components::Dino;
 use crate::components::Tree;
+use crate::utils::egui_wants_pointer;
 use crate::GameScreen;
 
 pub struct GameLogicPlugin;
@@ -53,14 +54,8 @@ fn back_to_play_while_game_over(
     touch: Res<Touches>,
     mut contexts: EguiContexts,
 ) {
-    // Check if egui wants pointer input (e.g., clicking on debug window)
-    let egui_wants_pointer = contexts
-        .ctx_mut()
-        .map(|ctx| ctx.wants_pointer_input())
-        .unwrap_or(false);
-
     // Only process mouse/touch if egui doesn't want the input
-    let pointer_input = if egui_wants_pointer {
+    let pointer_input = if egui_wants_pointer(&mut contexts) {
         false
     } else {
         touch.any_just_pressed() || mouse.just_pressed(MouseButton::Left)
