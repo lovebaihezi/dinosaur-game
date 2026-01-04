@@ -37,9 +37,7 @@ fn screen_changes(
     };
 
     if let Ok(window) = window.single() {
-        if window.focused
-            && (keyboard.just_pressed(KeyCode::Space) || pointer_input)
-        {
+        if window.focused && (keyboard.just_pressed(KeyCode::Space) || pointer_input) {
             if *cur_screen == GameScreen::UnfocusedPauseScreen {
                 time.unpause();
                 next_screen.set(GameScreen::PlayScreen);
