@@ -60,6 +60,16 @@ jobs:
       - uses: actions/checkout@v4
         with:
           lfs: ${{ env.use_git_lfs }}
+      - name: Cache Rust dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-wasm32-unknown-unknown-${{ hashFiles('**/Cargo.toml', '**/Cargo.lock') }}
       - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           target: wasm32-unknown-unknown
@@ -112,6 +122,16 @@ jobs:
       - uses: actions/checkout@v4
         with:
           lfs: ${{ env.use_git_lfs }}
+      - name: Cache Rust dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-x86_64-unknown-linux-gnu-${{ hashFiles('**/Cargo.toml', '**/Cargo.lock') }}
       - uses: oven-sh/setup-bun@v1
       - run: bun install
       - uses: actions-rust-lang/setup-rust-toolchain@v1
@@ -142,6 +162,16 @@ jobs:
       - uses: actions/checkout@v4
         with:
           lfs: ${{ env.use_git_lfs }}
+      - name: Cache Rust dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-x86_64-pc-windows-msvc-${{ hashFiles('**/Cargo.toml', '**/Cargo.lock') }}
       - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           target: x86_64-pc-windows-msvc
@@ -171,6 +201,16 @@ jobs:
       - uses: actions/checkout@v4
         with:
           lfs: ${{ env.use_git_lfs }}
+      - name: Cache Rust dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-aarch64-apple-darwin-${{ hashFiles('**/Cargo.toml', '**/Cargo.lock') }}
       - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           target: aarch64-apple-darwin
