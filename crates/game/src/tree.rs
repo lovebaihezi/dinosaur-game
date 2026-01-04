@@ -4,7 +4,7 @@ use bevy::{
     math::Vec3,
     prelude::{Commands, Query, Res, ResMut},
     sprite::Sprite,
-    state::state::OnEnter,
+    state::state::{OnEnter, OnExit},
     time::{Time, Virtual},
     transform::components::Transform,
 };
@@ -23,10 +23,7 @@ impl Plugin for TreePlugin {
                 Update,
                 (tree_move_animation, update_tree_sprite_from_config),
             )
-            .add_systems(
-                OnEnter(GameScreen::GameOverScreen),
-                cleanup_component::<Tree>,
-            );
+            .add_systems(OnExit(GameScreen::PlayScreen), cleanup_component::<Tree>);
     }
 }
 

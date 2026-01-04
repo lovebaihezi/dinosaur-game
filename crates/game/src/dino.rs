@@ -7,7 +7,10 @@ use bevy::{
         Assets, Commands, KeyCode, MouseButton, Query, Res, ResMut, Touches, Transform, With,
     },
     sprite::Sprite,
-    state::{condition::in_state, state::OnEnter},
+    state::{
+        condition::in_state,
+        state::{OnEnter, OnExit},
+    },
     time::{Time, Virtual},
 };
 use bevy_egui::EguiContexts;
@@ -34,7 +37,7 @@ impl Plugin for DinoPlugin {
         )
         .add_systems(OnEnter(GameScreen::PlayScreen), setup_dino)
         .add_systems(
-            OnEnter(GameScreen::GameOverScreen),
+            OnExit(GameScreen::PlayScreen),
             (cleanup_component::<Dino>, clean_dino_jump_music),
         );
     }

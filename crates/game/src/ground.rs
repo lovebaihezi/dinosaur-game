@@ -4,7 +4,7 @@ use bevy::{
     math::Vec3,
     prelude::{Commands, Query, Res},
     sprite::Sprite,
-    state::state::OnEnter,
+    state::state::{OnEnter, OnExit},
     transform::components::Transform,
 };
 
@@ -16,10 +16,7 @@ impl Plugin for GroundPlugin {
     fn build(&self, app: &mut bevy::app::App) {
         app.add_systems(OnEnter(GameScreen::PlayScreen), setup_ground)
             .add_systems(Update, (update_ground, update_ground_from_config))
-            .add_systems(
-                OnEnter(GameScreen::GameOverScreen),
-                cleanup_component::<Ground>,
-            );
+            .add_systems(OnExit(GameScreen::PlayScreen), cleanup_component::<Ground>);
     }
 }
 
