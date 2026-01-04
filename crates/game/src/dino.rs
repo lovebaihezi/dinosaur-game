@@ -10,6 +10,7 @@ use bevy::{
     state::{condition::in_state, state::OnEnter},
     time::{Time, Virtual},
 };
+use bevy_egui::EguiContexts;
 use bevy_kira_audio::{Audio, AudioControl, AudioInstance};
 
 use crate::{components::Dino, utils::cleanup_component, DinoJumpMusic, GameScreen, GameStatus};
@@ -60,16 +61,30 @@ fn dino_jump_system(
     time: Res<Time<Virtual>>,
     sound: Res<DinoJumpMusic>,
     audio: Res<Audio>,
+    mut contexts: EguiContexts,
 ) {
     if time.is_paused() {
         return;
     }
+
+    // Check if egui wants pointer input (e.g., clicking on debug window)
+    let egui_wants_pointer = contexts
+        .ctx_mut()
+        .map(|ctx| ctx.wants_pointer_input())
+        .unwrap_or(false);
+
+    // Only process mouse/touch if egui doesn't want the input
+    let pointer_input = if egui_wants_pointer {
+        false
+    } else {
+        mouse.just_pressed(MouseButton::Left) || touch.any_just_pressed()
+    };
+
     if keyboard.just_pressed(KeyCode::Space)
         || keyboard.just_pressed(KeyCode::KeyW)
         || keyboard.just_pressed(KeyCode::ArrowUp)
         || keyboard.just_pressed(KeyCode::KeyK)
-        || mouse.just_pressed(MouseButton::Left)
-        || touch.any_just_pressed()
+        || pointer_input
     {
         for mut dino in dino_query.iter_mut() {
             if dino.in_air_start_time.is_some() {

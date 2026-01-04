@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_egui::EguiContexts;
 
 use crate::{utils::cleanup_component, GameScreen};
 
@@ -58,11 +59,23 @@ fn restart_game_by_space(
     touches: Res<Touches>,
     cur_screen: Res<State<GameScreen>>,
     mut next_state: ResMut<NextState<GameScreen>>,
+    mut contexts: EguiContexts,
 ) {
+    // Check if egui wants pointer input (e.g., clicking on debug window)
+    let egui_wants_pointer = contexts
+        .ctx_mut()
+        .map(|ctx| ctx.wants_pointer_input())
+        .unwrap_or(false);
+
+    // Only process mouse/touch if egui doesn't want the input
+    let pointer_input = if egui_wants_pointer {
+        false
+    } else {
+        mouse.just_pressed(MouseButton::Left) || touches.any_just_pressed()
+    };
+
     if *cur_screen == GameScreen::GameOverScreen
-        && (keyboard.just_pressed(KeyCode::Space)
-            || mouse.just_pressed(MouseButton::Left)
-            || touches.any_just_pressed())
+        && (keyboard.just_pressed(KeyCode::Space) || pointer_input)
     {
         info!("Restart Game");
         next_state.set(GameScreen::StartScreen);
