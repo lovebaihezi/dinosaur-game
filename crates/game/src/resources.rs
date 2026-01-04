@@ -2,6 +2,9 @@ use bevy::prelude::*;
 use bevy_kira_audio::AudioSource;
 use serde::{Deserialize, Serialize};
 
+/// Golden ratio constant used for proportional sizing
+const GOLDEN_RATIO: f32 = 0.618;
+
 #[derive(Debug, Default, Resource)]
 pub struct GameStatus {
     pub score: u64,
@@ -45,11 +48,11 @@ impl Default for GameConfig {
         let tree_width = 30.0;
         Self {
             dino_width,
-            dino_height: dino_width / 0.618, // ~80.9
-            dino_jump_height: dino_width / 0.618 * 2.4, // ~194.2
+            dino_height: dino_width / GOLDEN_RATIO, // ~80.9
+            dino_jump_height: dino_width / GOLDEN_RATIO * 2.4, // ~194.2
             dino_x_offset: 0.2,
             tree_width,
-            tree_height: tree_width / 0.618, // ~48.5
+            tree_height: tree_width / GOLDEN_RATIO, // ~48.5
             ground_y_pos: 0.0,
         }
     }
