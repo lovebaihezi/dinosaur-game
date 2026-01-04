@@ -13,6 +13,8 @@ const hideLoadingScreen = () => {
   const loadingScreen = document.getElementById('loading-screen');
   if (loadingScreen) {
     loadingScreen.style.display = 'none';
+    // Also disable pointer events as a fallback to ensure UI is interactable
+    loadingScreen.style.pointerEvents = 'none';
   }
 };
 
