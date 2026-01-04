@@ -1,5 +1,7 @@
 use bevy::prelude::*;
+use bevy_egui::EguiContexts;
 
+use crate::utils::egui_wants_pointer;
 use crate::{utils::cleanup_component, GameScreen};
 
 pub struct GameOverPlugin;
@@ -58,11 +60,17 @@ fn restart_game_by_space(
     touches: Res<Touches>,
     cur_screen: Res<State<GameScreen>>,
     mut next_state: ResMut<NextState<GameScreen>>,
+    mut contexts: EguiContexts,
 ) {
+    // Only process mouse/touch if egui doesn't want the input
+    let pointer_input = if egui_wants_pointer(&mut contexts) {
+        false
+    } else {
+        mouse.just_pressed(MouseButton::Left) || touches.any_just_pressed()
+    };
+
     if *cur_screen == GameScreen::GameOverScreen
-        && (keyboard.just_pressed(KeyCode::Space)
-            || mouse.just_pressed(MouseButton::Left)
-            || touches.any_just_pressed())
+        && (keyboard.just_pressed(KeyCode::Space) || pointer_input)
     {
         info!("Restart Game");
         next_state.set(GameScreen::StartScreen);

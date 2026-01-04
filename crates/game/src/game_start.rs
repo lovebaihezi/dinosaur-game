@@ -1,5 +1,7 @@
 use bevy::prelude::*;
+use bevy_egui::EguiContexts;
 
+use crate::utils::egui_wants_pointer;
 use crate::{utils::cleanup_component, GameScreen};
 
 pub struct GameStartPlugin;
@@ -59,11 +61,16 @@ fn enter_play_by_space(
     mouse: Res<ButtonInput<MouseButton>>,
     touches: Res<Touches>,
     mut next_screen: ResMut<NextState<GameScreen>>,
+    mut contexts: EguiContexts,
 ) {
-    if keyboard.just_pressed(KeyCode::Space)
-        || touches.any_just_pressed()
-        || mouse.just_pressed(MouseButton::Left)
-    {
+    // Only process mouse/touch if egui doesn't want the input
+    let pointer_input = if egui_wants_pointer(&mut contexts) {
+        false
+    } else {
+        touches.any_just_pressed() || mouse.just_pressed(MouseButton::Left)
+    };
+
+    if keyboard.just_pressed(KeyCode::Space) || pointer_input {
         info!("Start Playing");
         next_screen.set(GameScreen::PlayScreen);
     }

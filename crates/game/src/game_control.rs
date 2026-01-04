@@ -6,7 +6,9 @@ use bevy::{
     time::{Time, Virtual},
     window::Window,
 };
+use bevy_egui::EguiContexts;
 
+use crate::utils::egui_wants_pointer;
 use crate::GameScreen;
 
 pub struct GameControlPlugin;
@@ -17,6 +19,7 @@ impl Plugin for GameControlPlugin {
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn screen_changes(
     mut time: ResMut<Time<Virtual>>,
     window: Query<&Window>,
@@ -25,13 +28,17 @@ fn screen_changes(
     touches: Res<Touches>,
     cur_screen: Res<State<GameScreen>>,
     mut next_screen: ResMut<NextState<GameScreen>>,
+    mut contexts: EguiContexts,
 ) {
+    // Only process mouse/touch if egui doesn't want the input
+    let pointer_input = if egui_wants_pointer(&mut contexts) {
+        false
+    } else {
+        touches.any_just_pressed() || mouse.just_pressed(MouseButton::Left)
+    };
+
     if let Ok(window) = window.single() {
-        if window.focused
-            && (keyboard.just_pressed(KeyCode::Space)
-                || touches.any_just_pressed()
-                || mouse.just_pressed(MouseButton::Left))
-        {
+        if window.focused && (keyboard.just_pressed(KeyCode::Space) || pointer_input) {
             if *cur_screen == GameScreen::UnfocusedPauseScreen {
                 time.unpause();
                 next_screen.set(GameScreen::PlayScreen);

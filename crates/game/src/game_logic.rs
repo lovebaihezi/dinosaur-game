@@ -1,9 +1,11 @@
 use bevy::math::bounding::Aabb2d;
 use bevy::math::bounding::IntersectsVolume;
 use bevy::prelude::*;
+use bevy_egui::EguiContexts;
 
 use crate::components::Dino;
 use crate::components::Tree;
+use crate::utils::egui_wants_pointer;
 use crate::GameScreen;
 
 pub struct GameLogicPlugin;
@@ -50,11 +52,17 @@ fn back_to_play_while_game_over(
     keyboard: Res<ButtonInput<KeyCode>>,
     mouse: Res<ButtonInput<MouseButton>>,
     touch: Res<Touches>,
+    mut contexts: EguiContexts,
 ) {
+    // Only process mouse/touch if egui doesn't want the input
+    let pointer_input = if egui_wants_pointer(&mut contexts) {
+        false
+    } else {
+        touch.any_just_pressed() || mouse.just_pressed(MouseButton::Left)
+    };
+
     if *cur_screen == GameScreen::GameOverScreen
-        && (keyboard.just_pressed(KeyCode::Space)
-            || touch.any_just_pressed()
-            || mouse.just_pressed(MouseButton::Left))
+        && (keyboard.just_pressed(KeyCode::Space) || pointer_input)
     {
         next_screen.set(GameScreen::PlayScreen);
     }
