@@ -15,7 +15,7 @@ pub struct GroundPlugin;
 impl Plugin for GroundPlugin {
     fn build(&self, app: &mut bevy::app::App) {
         app.add_systems(OnEnter(GameScreen::PlayScreen), setup_ground)
-            .add_systems(Update, update_ground)
+            .add_systems(Update, (update_ground, update_ground_from_config))
             .add_systems(
                 OnEnter(GameScreen::GameOverScreen),
                 cleanup_component::<Ground>,
@@ -41,5 +41,17 @@ fn update_ground(
     for (mut transform, sprite) in query.iter_mut() {
         let sprite_width = sprite.custom_size.unwrap().x;
         transform.scale = Vec3::new(window_width * 0.8 / sprite_width, 1.0, 1.0);
+    }
+}
+
+/// Update ground Y position based on config changes in real-time
+fn update_ground_from_config(
+    mut query: Query<&mut Transform, With<Ground>>,
+    config: Res<GameConfig>,
+) {
+    for mut transform in query.iter_mut() {
+        if transform.translation.y != config.ground_y_pos {
+            transform.translation.y = config.ground_y_pos;
+        }
     }
 }

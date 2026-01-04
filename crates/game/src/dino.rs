@@ -24,7 +24,12 @@ impl Plugin for DinoPlugin {
     fn build(&self, app: &mut bevy::app::App) {
         app.add_systems(
             Update,
-            (dino_pos_fix_system, dino_jump_system, dino_jump_animation)
+            (
+                dino_pos_fix_system,
+                dino_jump_system,
+                dino_jump_animation,
+                update_dino_sprite_from_config,
+            )
                 .run_if(in_state(GameScreen::PlayScreen)),
         )
         .add_systems(OnEnter(GameScreen::PlayScreen), setup_dino)
@@ -126,6 +131,19 @@ fn dino_jump_animation(
                 x.sin() * config.dino_jump_height + config.dino_height / 2.0
             };
             transform.translation.y = y;
+        }
+    }
+}
+
+/// Update dino sprite size based on config changes in real-time
+fn update_dino_sprite_from_config(
+    mut query: Query<&mut Sprite, With<Dino>>,
+    config: Res<GameConfig>,
+) {
+    for mut sprite in query.iter_mut() {
+        let new_size = bevy::math::Vec2::new(config.dino_width, config.dino_height);
+        if sprite.custom_size != Some(new_size) {
+            sprite.custom_size = Some(new_size);
         }
     }
 }

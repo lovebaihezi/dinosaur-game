@@ -19,7 +19,10 @@ pub struct TreePlugin;
 impl Plugin for TreePlugin {
     fn build(&self, app: &mut bevy::app::App) {
         app.add_systems(OnEnter(GameScreen::PlayScreen), setup_tree)
-            .add_systems(Update, tree_move_animation)
+            .add_systems(
+                Update,
+                (tree_move_animation, update_tree_sprite_from_config),
+            )
             .add_systems(
                 OnEnter(GameScreen::GameOverScreen),
                 cleanup_component::<Tree>,
@@ -72,5 +75,20 @@ fn update_game_speed(status: &mut GameStatus, info: &mut SpeedControlInfo) {
         } else {
             new_speed
         };
+    }
+}
+
+/// Update tree sprite size based on config changes in real-time
+fn update_tree_sprite_from_config(
+    mut query: Query<(&mut Sprite, &mut Transform), With<Tree>>,
+    config: Res<GameConfig>,
+) {
+    for (mut sprite, mut transform) in query.iter_mut() {
+        let new_size = bevy::math::Vec2::new(config.tree_width, config.tree_height);
+        if sprite.custom_size != Some(new_size) {
+            sprite.custom_size = Some(new_size);
+            // Update y position to keep tree on ground
+            transform.translation.y = config.tree_height / 2.0;
+        }
     }
 }
