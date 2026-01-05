@@ -116,6 +116,8 @@ fn dino_jump_animation(
     if time.is_paused() {
         return;
     }
+    // Base Y position is ground position plus half the dino height
+    let base_y = config.ground_y_pos + config.dino_height / 2.0;
     for (mut transform, mut dino) in query.iter_mut() {
         if let Some(start_time) = dino.in_air_start_time {
             let elapsed = time.elapsed() - start_time.elapsed();
@@ -127,13 +129,16 @@ fn dino_jump_animation(
                     }
                 }
                 dino.in_air_start_time = None;
-                config.dino_height / 2.0
+                base_y
             } else {
                 let x = elapsed.as_millis() as f64 / 500.0 * std::f64::consts::PI;
                 let x = x as f32;
-                x.sin() * config.dino_jump_height + config.dino_height / 2.0
+                x.sin() * config.dino_jump_height + base_y
             };
             transform.translation.y = y;
+        } else {
+            // When not jumping, keep dino at base Y position (follows ground)
+            transform.translation.y = base_y;
         }
     }
 }
