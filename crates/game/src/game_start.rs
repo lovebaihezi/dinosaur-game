@@ -12,17 +12,17 @@ impl Plugin for GameStartPlugin {
         app.add_systems(OnEnter(GameScreen::StartScreen), setup_start_screen_dino)
             .add_systems(
                 Update,
-                (update_start_dino_position, update_start_dino_sprite_from_config)
+                (
+                    update_start_dino_position,
+                    update_start_dino_sprite_from_config,
+                )
                     .run_if(in_state(GameScreen::StartScreen)),
             )
             .add_systems(
                 FixedUpdate,
                 enter_play_by_space.run_if(in_state(GameScreen::StartScreen)),
             )
-            .add_systems(
-                OnExit(GameScreen::StartScreen),
-                cleanup_component::<Dino>,
-            );
+            .add_systems(OnExit(GameScreen::StartScreen), cleanup_component::<Dino>);
     }
 }
 
@@ -73,7 +73,7 @@ fn enter_play_by_space(
     } else {
         touches.any_just_pressed()
     };
-    
+
     let mouse_input = if egui_wants_pointer(&mut contexts) {
         false
     } else {
@@ -110,7 +110,7 @@ fn enter_play_by_space(
             next_screen.set(GameScreen::PlayScreen);
         }
     }
-    
+
     // Mouse click starts the game directly (not touch, which turns dino red first)
     if mouse_input {
         info!("Start Playing via mouse click");
