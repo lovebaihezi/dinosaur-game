@@ -32,7 +32,11 @@ impl Dino {
                 custom_size: Some(size),
                 ..default()
             },
-            Transform::from_translation(Vec3::new(0.0, config.ground_y_pos + config.dino_height / 2.0, 0.0)),
+            Transform::from_translation(Vec3::new(
+                0.0,
+                config.ground_y_pos + config.dino_height / 2.0,
+                0.0,
+            )),
         )
     }
 }
