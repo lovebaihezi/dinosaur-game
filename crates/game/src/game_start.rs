@@ -80,9 +80,9 @@ fn enter_play_by_space(
         mouse.just_pressed(MouseButton::Left)
     };
 
-    // If touch input detected, turn dino red
+    // If touch input detected, turn dino red (only one dino expected on start screen)
     if touch_input {
-        for (mut dino, mut sprite) in dino_query.iter_mut() {
+        if let Ok((mut dino, mut sprite)) = dino_query.single_mut() {
             if !dino.is_touched {
                 dino.is_touched = true;
                 sprite.color = DINO_TOUCHED_COLOR;
@@ -91,26 +91,21 @@ fn enter_play_by_space(
         }
     }
 
-    // Space key resets dino to default color (begin state)
+    // Space key resets dino to default color (begin state) or starts game
     if keyboard.just_pressed(KeyCode::Space) {
-        // Check if dino is touched (red) - if so, reset to default
-        let mut any_touched = false;
-        for (dino, _) in dino_query.iter() {
+        if let Ok((mut dino, mut sprite)) = dino_query.single_mut() {
             if dino.is_touched {
-                any_touched = true;
-                break;
-            }
-        }
-        
-        if any_touched {
-            // Reset dino to default state
-            for (mut dino, mut sprite) in dino_query.iter_mut() {
+                // Reset dino to default state
                 dino.is_touched = false;
                 sprite.color = DINO_DEFAULT_COLOR;
                 info!("Dino reset to default state");
+            } else {
+                // Start playing
+                info!("Start Playing");
+                next_screen.set(GameScreen::PlayScreen);
             }
         } else {
-            // Start playing
+            // No dino found, just start playing
             info!("Start Playing");
             next_screen.set(GameScreen::PlayScreen);
         }
