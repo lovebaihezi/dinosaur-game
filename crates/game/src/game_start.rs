@@ -1,59 +1,62 @@
 use bevy::prelude::*;
 use bevy_egui::EguiContexts;
 
+use crate::components::{Dino, DINO_DEFAULT_COLOR, DINO_TOUCHED_COLOR};
 use crate::utils::egui_wants_pointer;
-use crate::{utils::cleanup_component, GameScreen};
+use crate::{utils::cleanup_component, GameConfig, GameScreen, GameStatus};
 
 pub struct GameStartPlugin;
 
 impl Plugin for GameStartPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameScreen::StartScreen), show_start_message)
+        app.add_systems(OnEnter(GameScreen::StartScreen), setup_start_screen_dino)
+            .add_systems(
+                Update,
+                (update_start_dino_position, update_start_dino_sprite_from_config)
+                    .run_if(in_state(GameScreen::StartScreen)),
+            )
             .add_systems(
                 FixedUpdate,
                 enter_play_by_space.run_if(in_state(GameScreen::StartScreen)),
             )
             .add_systems(
                 OnExit(GameScreen::StartScreen),
-                cleanup_component::<WelcomeTextUI>,
+                cleanup_component::<Dino>,
             );
     }
 }
 
-#[derive(Component)]
-struct WelcomeTextUI;
+/// Spawn dino on ground at start screen
+fn setup_start_screen_dino(mut commands: Commands, config: Res<GameConfig>) {
+    info!("Setting up dino on start screen");
+    commands.spawn(Dino::new(&config));
+}
 
-fn show_start_message(mut commands: Commands) {
-    info!("Showing start message");
-    commands
-        .spawn((
-            WelcomeTextUI,
-            Node {
-                display: Display::Flex,
-                flex_direction: FlexDirection::Column,
-                justify_content: JustifyContent::Center,
-                align_items: AlignItems::Center,
-                row_gap: Val::Px(16.0),
-                column_gap: Val::Px(16.0),
-                width: Val::Percent(100.0),
-                height: Val::Percent(100.0),
-                ..Default::default()
-            },
-        ))
-        .with_children(|parent| {
-            parent.spawn((
-                Text::new("Press Space/Touch/Click to Start!"),
-                TextFont {
-                    font_size: 64.0,
-                    ..Default::default()
-                },
-                TextLayout {
-                    justify: Justify::Center,
-                    ..Default::default()
-                },
-                TextColor(Color::BLACK),
-            ));
-        });
+/// Keep dino positioned correctly on start screen
+fn update_start_dino_position(
+    mut query: Query<(&mut Transform, &Sprite), With<Dino>>,
+    game_status: Res<GameStatus>,
+    config: Res<GameConfig>,
+) {
+    for (mut transform, sprite) in query.iter_mut() {
+        let window_width = game_status.window_width;
+        let dino_width = sprite.custom_size.map(|s| s.x).unwrap_or(config.dino_width);
+        transform.translation.x =
+            -window_width / 2.0 + dino_width / 2.0 + config.dino_x_offset * window_width;
+    }
+}
+
+/// Update dino sprite size based on config changes in real-time for start screen
+fn update_start_dino_sprite_from_config(
+    mut query: Query<&mut Sprite, With<Dino>>,
+    config: Res<GameConfig>,
+) {
+    for mut sprite in query.iter_mut() {
+        let new_size = bevy::math::Vec2::new(config.dino_width, config.dino_height);
+        if sprite.custom_size != Some(new_size) {
+            sprite.custom_size = Some(new_size);
+        }
+    }
 }
 
 fn enter_play_by_space(
@@ -61,17 +64,61 @@ fn enter_play_by_space(
     mouse: Res<ButtonInput<MouseButton>>,
     touches: Res<Touches>,
     mut next_screen: ResMut<NextState<GameScreen>>,
+    mut dino_query: Query<(&mut Dino, &mut Sprite)>,
     mut contexts: EguiContexts,
 ) {
     // Only process mouse/touch if egui doesn't want the input
-    let pointer_input = if egui_wants_pointer(&mut contexts) {
+    let touch_input = if egui_wants_pointer(&mut contexts) {
         false
     } else {
-        touches.any_just_pressed() || mouse.just_pressed(MouseButton::Left)
+        touches.any_just_pressed()
+    };
+    
+    let mouse_input = if egui_wants_pointer(&mut contexts) {
+        false
+    } else {
+        mouse.just_pressed(MouseButton::Left)
     };
 
-    if keyboard.just_pressed(KeyCode::Space) || pointer_input {
-        info!("Start Playing");
+    // If touch input detected, turn dino red
+    if touch_input {
+        for (mut dino, mut sprite) in dino_query.iter_mut() {
+            if !dino.is_touched {
+                dino.is_touched = true;
+                sprite.color = DINO_TOUCHED_COLOR;
+                info!("Dino touched - turning red");
+            }
+        }
+    }
+
+    // Space key resets dino to default color (begin state)
+    if keyboard.just_pressed(KeyCode::Space) {
+        // Check if dino is touched (red) - if so, reset to default
+        let mut any_touched = false;
+        for (dino, _) in dino_query.iter() {
+            if dino.is_touched {
+                any_touched = true;
+                break;
+            }
+        }
+        
+        if any_touched {
+            // Reset dino to default state
+            for (mut dino, mut sprite) in dino_query.iter_mut() {
+                dino.is_touched = false;
+                sprite.color = DINO_DEFAULT_COLOR;
+                info!("Dino reset to default state");
+            }
+        } else {
+            // Start playing
+            info!("Start Playing");
+            next_screen.set(GameScreen::PlayScreen);
+        }
+    }
+    
+    // Mouse click starts the game directly (not touch, which turns dino red first)
+    if mouse_input {
+        info!("Start Playing via mouse click");
         next_screen.set(GameScreen::PlayScreen);
     }
 }
