@@ -3,7 +3,7 @@ use bevy::math::bounding::IntersectsVolume;
 use bevy::prelude::*;
 use bevy_egui::EguiContexts;
 
-use crate::components::Dino;
+use crate::components::{Dino, DINO_TOUCHED_COLOR};
 use crate::components::Tree;
 use crate::utils::egui_wants_pointer;
 use crate::GameScreen;
@@ -23,12 +23,12 @@ impl Plugin for GameLogicPlugin {
 }
 
 fn dino_touched_tree(
-    dino_query: Query<(&Transform, &Sprite), With<Dino>>,
-    tree_query: Query<(&Sprite, &Transform), With<Tree>>,
+    mut dino_query: Query<(&Transform, &mut Sprite, &mut Dino)>,
+    tree_query: Query<(&Sprite, &Transform), (With<Tree>, Without<Dino>)>,
     mut next_screen: ResMut<NextState<GameScreen>>,
 ) {
-    for ((dino_transform, dino_sprite), (tree_sprite, tree_transform)) in
-        dino_query.iter().zip(tree_query.iter())
+    for ((dino_transform, mut dino_sprite, mut dino), (tree_sprite, tree_transform)) in
+        dino_query.iter_mut().zip(tree_query.iter())
     {
         let aabb_dino = Aabb2d::new(
             dino_transform.translation.xy(),
@@ -41,6 +41,9 @@ fn dino_touched_tree(
         );
 
         if aabb_tree.intersects(&aabb_dino) {
+            // Turn dino red when touched
+            dino.is_touched = true;
+            dino_sprite.color = DINO_TOUCHED_COLOR;
             next_screen.set(GameScreen::GameOverScreen);
         }
     }
