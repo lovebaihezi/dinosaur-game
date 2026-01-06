@@ -1,5 +1,4 @@
 import { Octokit } from "@octokit/rest";
-import { appendFileSync } from "fs";
 
 /**
  * CI Feedback Bot - Collects failures from CI workflow runs and posts feedback to PRs
@@ -187,8 +186,7 @@ export function buildCommentBody(
   if (skippedJobs.length > 0) {
     commentBody += `---\n\n`;
     commentBody += `⚠️ **Note:** The following jobs have failed 3+ times and will no longer trigger auto-feedback:\n`;
-    commentBody +=
-      skippedJobs.map((j) => `- \`${j.name}\``).join("\n") + "\n\n";
+    commentBody += skippedJobs.map((j) => `- \`${j.name}\``).join("\n") + "\n\n";
   }
 
   commentBody += `---\n\n`;
@@ -201,19 +199,8 @@ export function buildCommentBody(
  * Post-job feedback function - runs within the CI workflow itself
  * This approach has direct access to PR context, avoiding PR detection issues
  */
-export async function runPostJobFeedback(
-  options: PostJobFeedbackOptions,
-): Promise<void> {
-  const {
-    token,
-    owner,
-    repo,
-    prNumber,
-    jobName,
-    runId,
-    headSha,
-    workflowRunUrl,
-  } = options;
+export async function runPostJobFeedback(options: PostJobFeedbackOptions): Promise<void> {
+  const { token, owner, repo, prNumber, jobName, runId, headSha, workflowRunUrl } = options;
 
   const octokit = new Octokit({ auth: token });
 
@@ -230,9 +217,7 @@ export async function runPostJobFeedback(
   const job = jobsData.jobs.find((j) => j.name === jobName);
   if (!job) {
     const availableJobs = jobsData.jobs.map((j) => j.name).join(", ");
-    console.log(
-      `Job "${jobName}" not found in workflow run. Available jobs: ${availableJobs}`,
-    );
+    console.log(`Job "${jobName}" not found in workflow run. Available jobs: ${availableJobs}`);
     return;
   }
 
@@ -269,9 +254,7 @@ export async function runPostJobFeedback(
 
   // Skip if this job has already failed 3+ times
   if (failureCount >= 3) {
-    console.log(
-      `Job "${jobName}" has already failed ${failureCount} times. Skipping feedback.`,
-    );
+    console.log(`Job "${jobName}" has already failed ${failureCount} times. Skipping feedback.`);
     return;
   }
 
@@ -292,19 +275,7 @@ export async function runPostJobFeedback(
     body: commentBody,
   });
 
-  console.log(
-    `Posted CI feedback comment for job "${jobName}" on PR #${prNumber}`,
-  );
-}
-
-/**
- * Set output for GitHub Actions
- */
-function setOutput(name: string, value: string): void {
-  console.log(`${name}=${value}`);
-  if (process.env.GITHUB_OUTPUT) {
-    appendFileSync(process.env.GITHUB_OUTPUT, `${name}=${value}\n`);
-  }
+  console.log(`Posted CI feedback comment for job "${jobName}" on PR #${prNumber}`);
 }
 
 /**
@@ -329,9 +300,7 @@ export function runPostJobFeedbackCLI(): void {
     process.exit(1);
   }
   if (!githubRepository || !githubRepository.includes("/")) {
-    console.error(
-      "GITHUB_REPOSITORY is required and must be in format 'owner/repo'",
-    );
+    console.error("GITHUB_REPOSITORY is required and must be in format 'owner/repo'");
     process.exit(1);
   }
   const repo = githubRepository.split("/")[1];

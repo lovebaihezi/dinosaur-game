@@ -22,14 +22,14 @@ runs:
         path: |
           ~/.bun/install/cache
           scripts/node_modules
-        key: ${{ runner.os }}-bun-scripts-${{ hashFiles('scripts/package.json') }}
+        key: ${{ runner.os }}-bun-scripts-${{ hashFiles('scripts/bun.lock') }}
         restore-keys: |
           ${{ runner.os }}-bun-scripts-
 
     - name: Install Scripts Dependencies
       shell: bash
       working-directory: scripts
-      run: bun install --no-save
+      run: bun install --frozen-lockfile
 
     - name: Post CI Feedback
       shell: bash

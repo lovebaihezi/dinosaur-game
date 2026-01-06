@@ -5,10 +5,7 @@ import { runPostJobFeedbackCLI } from "./gh-actions/ci-feedback.ts";
 const cli = cac("scripts");
 
 cli
-  .command(
-    "ci-feedback-post-job",
-    "Post CI failure feedback from within a job (post-job approach)",
-  )
+  .command("ci-feedback-post-job", "Post CI failure feedback from within a job (post-job approach)")
   .action(() => {
     runPostJobFeedbackCLI();
   });
