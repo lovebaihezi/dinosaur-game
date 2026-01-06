@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+  pull-requests: write
+
 env:
   CARGO_TERM_COLOR: always
   # Variable Above comes from wgpu ci
@@ -44,6 +48,13 @@ jobs:
       # - name: Run cargo test
       #   run: ./just.ts test
 
+      - name: Post CI Feedback on Failure
+        if: failure() && github.event_name == 'pull_request'
+        uses: ./.github/actions/ci-feedback
+        with:
+          github-token: ${{ secrets.COPILOT_INVOKER_TOKEN }}
+          job-name: "Test Suite on Linux AMD64 Ubuntu"
+
   test-macos:
     name: Test Suite on MacOS
     runs-on: macOS-latest
@@ -69,6 +80,13 @@ jobs:
       - name: Run cargo test
         run: |
           ./just.ts test
+
+      - name: Post CI Feedback on Failure
+        if: failure() && github.event_name == 'pull_request'
+        uses: ./.github/actions/ci-feedback
+        with:
+          github-token: ${{ secrets.COPILOT_INVOKER_TOKEN }}
+          job-name: "Test Suite on MacOS"
 
   # Run cargo clippy -- -D warnings
   clippy_check:
@@ -98,6 +116,13 @@ jobs:
       - name: Run clippy
         run: ./just.ts clippy
 
+      - name: Post CI Feedback on Failure
+        if: failure() && github.event_name == 'pull_request'
+        uses: ./.github/actions/ci-feedback
+        with:
+          github-token: ${{ secrets.COPILOT_INVOKER_TOKEN }}
+          job-name: "Clippy"
+
   # Run cargo fmt --all -- --check
   format:
     name: Format
@@ -113,3 +138,10 @@ jobs:
       - run: bun install
       - name: Run cargo fmt
         run: ./just.ts fmt
+
+      - name: Post CI Feedback on Failure
+        if: failure() && github.event_name == 'pull_request'
+        uses: ./.github/actions/ci-feedback
+        with:
+          github-token: ${{ secrets.COPILOT_INVOKER_TOKEN }}
+          job-name: "Format"
