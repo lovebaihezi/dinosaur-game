@@ -20,8 +20,44 @@ env:
   use_git_lfs: false
 
 jobs:
-  pre-release-check:
+  # Lint and format check for scripts
+  lint-scripts:
+    name: Lint Scripts
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - name: Cache Bun
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.bun/install/cache
+            scripts/node_modules
+          key: ${{ runner.os }}-bun-scripts-${{ hashFiles('scripts/bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-scripts-
+      - name: Install dependencies
+        working-directory: scripts
+        run: bun install --frozen-lockfile
+      - name: Run lint
+        working-directory: scripts
+        run: bun run lint
+      - name: Run format check
+        working-directory: scripts
+        run: bun run format
+      - name: Run typecheck
+        working-directory: scripts
+        run: bun run typecheck
+
+  pre-release-check:
+    needs: lint-scripts
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
     outputs:
       should_release: ${{ steps.check.outputs.should_release }}
       version: ${{ steps.version.outputs.version }}
