@@ -85,7 +85,8 @@ async function installWasmDeps() {
   await Promise.all([
     $`rustup component add rustc-codegen-cranelift-preview --toolchain nightly`,
     // Trunk downloads wasm-bindgen by default, but we need trunk installed
-    $`cargo install trunk`,
+    // Use --force to overwrite if already installed (handles CI cache scenarios)
+    $`cargo install trunk --force`,
   ]);
 }
 
