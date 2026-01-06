@@ -184,6 +184,7 @@ fn update_game_over_ui(
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn restart_game_by_space(
     keyboard: Res<ButtonInput<KeyCode>>,
     mouse: Res<ButtonInput<MouseButton>>,

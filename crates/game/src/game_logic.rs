@@ -49,6 +49,7 @@ fn dino_touched_tree(
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn back_to_play_while_game_over(
     cur_screen: Res<State<GameScreen>>,
     mut next_screen: ResMut<NextState<GameScreen>>,
