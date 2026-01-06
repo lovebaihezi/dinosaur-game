@@ -6,7 +6,7 @@ use bevy_egui::EguiContexts;
 use crate::components::{Dino, DINO_TOUCHED_COLOR};
 use crate::components::Tree;
 use crate::utils::egui_wants_pointer;
-use crate::GameScreen;
+use crate::{BlurAnimationState, GameScreen};
 
 pub struct GameLogicPlugin;
 
@@ -56,7 +56,15 @@ fn back_to_play_while_game_over(
     mouse: Res<ButtonInput<MouseButton>>,
     touch: Res<Touches>,
     mut contexts: EguiContexts,
+    blur_state: Option<Res<BlurAnimationState>>,
 ) {
+    // Only allow restart after blur animation completes
+    if let Some(state) = blur_state {
+        if !state.completed {
+            return;
+        }
+    }
+
     // Only process mouse/touch if egui doesn't want the input
     let pointer_input = if egui_wants_pointer(&mut contexts) {
         false

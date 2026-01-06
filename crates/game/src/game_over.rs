@@ -2,10 +2,16 @@ use bevy::prelude::*;
 use bevy_egui::EguiContexts;
 
 use crate::utils::egui_wants_pointer;
-use crate::{utils::cleanup_component, BlurAnimationState, GameConfig, GameScreen, GameStatus};
+use crate::{utils::cleanup_component, BlurAnimationState, GameConfig, GameScreen};
 
 /// Retry icon unicode character (clockwise arrow)
 const RETRY_ICON: &str = "⟳";
+
+/// Exponent for ease-out animation curve (higher = faster start, slower end)
+const EASE_OUT_POWER: i32 = 2;
+
+/// Maximum blur overlay size in percent (200% covers full screen when centered at 50%)
+const MAX_BLUR_SIZE_PERCENT: f32 = 200.0;
 
 pub struct GameOverPlugin;
 
@@ -147,11 +153,10 @@ fn update_blur_animation(
     // Update blur overlay size - expand from center
     for mut node in blur_query.iter_mut() {
         // Use easing function for smooth animation (ease-out)
-        let eased_progress = 1.0 - (1.0 - blur_state.progress).powi(2);
+        let eased_progress = 1.0 - (1.0 - blur_state.progress).powi(EASE_OUT_POWER);
 
         // Calculate size: starts at 0%, ends at enough to cover the full screen from center
-        // Using 200% ensures full coverage when expanding from center (50%, 50%)
-        let size = eased_progress * 200.0;
+        let size = eased_progress * MAX_BLUR_SIZE_PERCENT;
 
         // Center the expanding circle by offsetting left and top
         let offset = 50.0 - size / 2.0;
