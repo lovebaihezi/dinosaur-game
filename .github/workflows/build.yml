@@ -24,6 +24,8 @@ jobs:
   lint-scripts:
     name: Lint Scripts
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
@@ -54,6 +56,8 @@ jobs:
   pre-release-check:
     needs: lint-scripts
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     outputs:
       should_release: ${{ steps.check.outputs.should_release }}
       version: ${{ steps.version.outputs.version }}
