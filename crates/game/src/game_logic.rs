@@ -3,8 +3,8 @@ use bevy::math::bounding::IntersectsVolume;
 use bevy::prelude::*;
 use bevy_egui::EguiContexts;
 
-use crate::components::{Dino, DINO_TOUCHED_COLOR};
 use crate::components::Tree;
+use crate::components::{Dino, DINO_TOUCHED_COLOR};
 use crate::utils::egui_wants_pointer;
 use crate::{BlurAnimationState, GameScreen};
 
