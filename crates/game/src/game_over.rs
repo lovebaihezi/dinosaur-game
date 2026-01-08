@@ -101,7 +101,7 @@ fn setup_game_over(mut commands: Commands) {
                         border: UiRect::all(Val::Px(4.0)),
                         ..Default::default()
                     },
-                    BorderColor(Color::BLACK),
+                    BorderColor::all(Color::BLACK),
                     BorderRadius::all(Val::Px(16.0)),
                     BackgroundColor(Color::linear_rgba(1.0, 1.0, 1.0, 0.95)),
                 ))
