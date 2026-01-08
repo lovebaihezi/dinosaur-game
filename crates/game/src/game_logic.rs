@@ -22,6 +22,7 @@ impl Plugin for GameLogicPlugin {
     }
 }
 
+#[allow(clippy::type_complexity)]
 fn dino_touched_tree(
     mut dino_query: Query<(&Transform, &mut Sprite, &mut Dino)>,
     tree_query: Query<(&Sprite, &Transform), (With<Tree>, Without<Dino>)>,
