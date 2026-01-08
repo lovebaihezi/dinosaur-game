@@ -292,7 +292,15 @@ export function runPostJobFeedbackCLI(): void {
   const workflowRunUrl = process.env.WORKFLOW_RUN_URL;
 
   if (!token) {
-    console.error("GITHUB_TOKEN is required");
+    console.error("GITHUB_TOKEN is required but was not provided or is empty.");
+    console.error("");
+    console.error("This usually means the COPILOT_INVOKER_TOKEN secret is not set in your repository.");
+    console.error("To set it up:");
+    console.error("  1. Create a Personal Access Token (PAT) with 'pull-requests: write' permission");
+    console.error("  2. Go to your repo Settings → Secrets → Actions");
+    console.error("  3. Add a new secret named 'COPILOT_INVOKER_TOKEN' with your PAT");
+    console.error("");
+    console.error("See the ci-feedback-post-job command help for detailed setup instructions.");
     process.exit(1);
   }
   if (!owner) {
