@@ -244,6 +244,18 @@ fn show_debug_window(
                 });
             });
 
+            // Animation settings
+            ui.collapsing("Animation Settings", |ui| {
+                ui.horizontal(|ui| {
+                    ui.label("Blur Duration (s):");
+                    ui.add(
+                        egui::DragValue::new(&mut config.blur_animation_duration)
+                            .range(0.1..=3.0)
+                            .speed(0.05),
+                    );
+                });
+            });
+
             ui.separator();
 
             // Config export/import buttons
