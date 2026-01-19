@@ -99,11 +99,21 @@ jobs:
     permissions:
       contents: read
       deployments: write
+    env:
+      RUSTC_WRAPPER: sccache
+      SCCACHE_BUCKET: ${{ secrets.SCCACHE_BUCKET }}
+      SCCACHE_ENDPOINT: ${{ secrets.SCCACHE_ENDPOINT }}
+      SCCACHE_REGION: auto
+      SCCACHE_S3_USE_SSL: "true"
+      AWS_ACCESS_KEY_ID: ${{ secrets.SCCACHE_AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.SCCACHE_AWS_SECRET_ACCESS_KEY }}
 
     steps:
       - uses: actions/checkout@v4
         with:
           lfs: ${{ env.use_git_lfs }}
+      - name: Set up sccache
+        uses: mozilla-actions/sccache-action@v0.0.9
       - name: Cache Rust dependencies
         uses: actions/cache@v4
         with:
@@ -155,17 +165,30 @@ jobs:
           else
             echo "Skipping verification (no URL matched)"
           fi
+      - name: Show sccache stats
+        if: always()
+        run: sccache --show-stats
 
   # Build for Linux
   release-linux:
     needs: pre-release-check
     if: needs.pre-release-check.outputs.should_release == 'true'
     runs-on: ubuntu-latest
+    env:
+      RUSTC_WRAPPER: sccache
+      SCCACHE_BUCKET: ${{ secrets.SCCACHE_BUCKET }}
+      SCCACHE_ENDPOINT: ${{ secrets.SCCACHE_ENDPOINT }}
+      SCCACHE_REGION: auto
+      SCCACHE_S3_USE_SSL: "true"
+      AWS_ACCESS_KEY_ID: ${{ secrets.SCCACHE_AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.SCCACHE_AWS_SECRET_ACCESS_KEY }}
 
     steps:
       - uses: actions/checkout@v4
         with:
           lfs: ${{ env.use_git_lfs }}
+      - name: Set up sccache
+        uses: mozilla-actions/sccache-action@v0.0.9
       - name: Cache Rust dependencies
         uses: actions/cache@v4
         with:
@@ -195,17 +218,30 @@ jobs:
           path: ${{ env.binary }}-linux-${{ needs.pre-release-check.outputs.version }}.zip
           name: linux
           retention-days: 1
+      - name: Show sccache stats
+        if: always()
+        run: sccache --show-stats
 
   # Build for Windows
   release-windows:
     needs: pre-release-check
     if: needs.pre-release-check.outputs.should_release == 'true'
     runs-on: windows-latest
+    env:
+      RUSTC_WRAPPER: sccache
+      SCCACHE_BUCKET: ${{ secrets.SCCACHE_BUCKET }}
+      SCCACHE_ENDPOINT: ${{ secrets.SCCACHE_ENDPOINT }}
+      SCCACHE_REGION: auto
+      SCCACHE_S3_USE_SSL: "true"
+      AWS_ACCESS_KEY_ID: ${{ secrets.SCCACHE_AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.SCCACHE_AWS_SECRET_ACCESS_KEY }}
 
     steps:
       - uses: actions/checkout@v4
         with:
           lfs: ${{ env.use_git_lfs }}
+      - name: Set up sccache
+        uses: mozilla-actions/sccache-action@v0.0.9
       - name: Cache Rust dependencies
         uses: actions/cache@v4
         with:
@@ -234,17 +270,30 @@ jobs:
           path: ${{ env.binary }}-windows-${{ needs.pre-release-check.outputs.version }}.zip
           name: windows
           retention-days: 1
+      - name: Show sccache stats
+        if: always()
+        run: sccache --show-stats
 
   # Build for MacOS Apple Silicon
   release-macOS-apple-silicon:
     needs: pre-release-check
     if: needs.pre-release-check.outputs.should_release == 'true'
     runs-on: macOS-latest
+    env:
+      RUSTC_WRAPPER: sccache
+      SCCACHE_BUCKET: ${{ secrets.SCCACHE_BUCKET }}
+      SCCACHE_ENDPOINT: ${{ secrets.SCCACHE_ENDPOINT }}
+      SCCACHE_REGION: auto
+      SCCACHE_S3_USE_SSL: "true"
+      AWS_ACCESS_KEY_ID: ${{ secrets.SCCACHE_AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.SCCACHE_AWS_SECRET_ACCESS_KEY }}
 
     steps:
       - uses: actions/checkout@v4
         with:
           lfs: ${{ env.use_git_lfs }}
+      - name: Set up sccache
+        uses: mozilla-actions/sccache-action@v0.0.9
       - name: Cache Rust dependencies
         uses: actions/cache@v4
         with:
@@ -273,6 +322,9 @@ jobs:
           path: ${{ env.binary }}-macOS-apple-silicon-${{ needs.pre-release-check.outputs.version }}.dmg
           name: macOS-apple-silicon
           retention-days: 1
+      - name: Show sccache stats
+        if: always()
+        run: sccache --show-stats
   release:
     permissions:
       actions: read
