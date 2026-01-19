@@ -211,7 +211,7 @@ export async function runPostJobFeedback(options: PostJobFeedbackOptions): Promi
   const authorLower = prAuthor?.toLowerCase() ?? "";
   const isCopilotPR = authorLower === "copilot" || authorLower === "copilot[bot]";
   if (!isCopilotPR && prIsDraft) {
-    console.log(`Skipping feedback for draft PR #${prNumber} (author: ${prAuthor}, not opened by copilot bot)`);
+    console.log(`Skipping feedback for draft PR #${prNumber} (author: ${prAuthor}). Only non-draft PRs or Copilot PRs receive feedback.`);
     return;
   }
 
