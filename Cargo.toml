@@ -25,7 +25,7 @@ codegen-units = 1
 strip = true
 
 [workspace.dependencies]
-bevy = { version = "0.17.2", default-features = false, features = [
+bevy = { version = "0.18.0", default-features = false, features = [
     "std",
     "async_executor",
     "bevy_asset",
@@ -49,9 +49,9 @@ bevy = { version = "0.17.2", default-features = false, features = [
     "x11",
     "zstd_rust",
 ] }
-bevy_kira_audio = { version = "0.24", features = ["android_shared_stdcxx", "ogg"] }
-bevy_asset_loader = { version = "0.24.0-rc.1" }
-bevy_egui = { version = "0.38.1", default-features = false, features = ["render", "default_fonts"] }
+bevy_kira_audio = { version = "0.25.0", features = ["android_shared_stdcxx", "ogg"] }
+bevy_asset_loader = { version = "0.25.0" }
+bevy_egui = { version = "0.39.0", default-features = false, features = ["render", "default_fonts"] }
 rand = { version = "0.8.3" }
 webbrowser = { version = "1", features = ["hardened"] }
 
