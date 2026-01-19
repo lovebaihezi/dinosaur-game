@@ -42,4 +42,7 @@ runs:
         # Use PR head SHA; fallback to github.sha for non-PR events (though this action is PR-only)
         HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         WORKFLOW_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        # PR metadata for filtering (only post feedback for copilot PRs or non-draft PRs)
+        PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+        PR_IS_DRAFT: ${{ github.event.pull_request.draft }}
       run: bun run main.ts ci-feedback-post-job

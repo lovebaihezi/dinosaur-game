@@ -19,6 +19,8 @@ interface PostJobFeedbackOptions {
   runId: number;
   headSha: string;
   workflowRunUrl: string;
+  prAuthor?: string;
+  prIsDraft?: boolean;
 }
 
 /**
@@ -200,7 +202,17 @@ export function buildCommentBody(
  * This approach has direct access to PR context, avoiding PR detection issues
  */
 export async function runPostJobFeedback(options: PostJobFeedbackOptions): Promise<void> {
-  const { token, owner, repo, prNumber, jobName, runId, headSha, workflowRunUrl } = options;
+  const { token, owner, repo, prNumber, jobName, runId, headSha, workflowRunUrl, prAuthor, prIsDraft } = options;
+
+  // Check if we should post feedback based on PR author and draft status
+  // Only post feedback for:
+  // 1. PRs opened by copilot bot (copilot[bot])
+  // 2. Non-draft PRs
+  const isCopilotPR = prAuthor === "copilot[bot]";
+  if (!isCopilotPR && prIsDraft) {
+    console.log(`Skipping feedback for draft PR #${prNumber} (not opened by copilot bot)`);
+    return;
+  }
 
   const octokit = new Octokit({ auth: token });
 
@@ -290,6 +302,8 @@ export function runPostJobFeedbackCLI(): void {
   const runIdStr = process.env.RUN_ID;
   const headSha = process.env.HEAD_SHA;
   const workflowRunUrl = process.env.WORKFLOW_RUN_URL;
+  const prAuthor = process.env.PR_AUTHOR;
+  const prIsDraftStr = process.env.PR_IS_DRAFT;
 
   if (!token) {
     console.error("GITHUB_TOKEN is required but was not provided or is empty.");
@@ -347,6 +361,9 @@ export function runPostJobFeedbackCLI(): void {
     process.exit(1);
   }
 
+  // Parse draft status (GitHub Actions passes "true" or "false" as strings)
+  const prIsDraft = prIsDraftStr === "true";
+
   runPostJobFeedback({
     token,
     owner,
@@ -356,6 +373,8 @@ export function runPostJobFeedbackCLI(): void {
     runId,
     headSha,
     workflowRunUrl,
+    prAuthor,
+    prIsDraft,
   }).catch((error) => {
     console.error("Post-job CI Feedback failed:", error);
     process.exit(1);
