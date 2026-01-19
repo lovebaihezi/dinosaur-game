@@ -206,11 +206,12 @@ export async function runPostJobFeedback(options: PostJobFeedbackOptions): Promi
 
   // Check if we should post feedback based on PR author and draft status
   // Only post feedback for:
-  // 1. PRs opened by copilot bot (copilot[bot])
+  // 1. PRs opened by copilot bot (login can be "Copilot", "copilot", or "copilot[bot]")
   // 2. Non-draft PRs
-  const isCopilotPR = prAuthor === "copilot[bot]";
+  const authorLower = prAuthor?.toLowerCase() ?? "";
+  const isCopilotPR = authorLower === "copilot" || authorLower === "copilot[bot]";
   if (!isCopilotPR && prIsDraft) {
-    console.log(`Skipping feedback for draft PR #${prNumber} (not opened by copilot bot)`);
+    console.log(`Skipping feedback for draft PR #${prNumber} (author: ${prAuthor}, not opened by copilot bot)`);
     return;
   }
 
