@@ -19,6 +19,8 @@ interface PostJobFeedbackOptions {
   runId: number;
   headSha: string;
   workflowRunUrl: string;
+  prAuthor?: string;
+  prIsDraft?: boolean;
 }
 
 /**
@@ -200,7 +202,31 @@ export function buildCommentBody(
  * This approach has direct access to PR context, avoiding PR detection issues
  */
 export async function runPostJobFeedback(options: PostJobFeedbackOptions): Promise<void> {
-  const { token, owner, repo, prNumber, jobName, runId, headSha, workflowRunUrl } = options;
+  const {
+    token,
+    owner,
+    repo,
+    prNumber,
+    jobName,
+    runId,
+    headSha,
+    workflowRunUrl,
+    prAuthor,
+    prIsDraft,
+  } = options;
+
+  // Check if we should post feedback based on PR author and draft status
+  // Only post feedback for:
+  // 1. PRs opened by copilot bot (login can be "Copilot", "copilot", or "copilot[bot]")
+  // 2. Non-draft PRs
+  const authorLower = prAuthor?.toLowerCase() ?? "";
+  const isCopilotPR = authorLower === "copilot" || authorLower === "copilot[bot]";
+  if (!isCopilotPR && prIsDraft) {
+    console.log(
+      `Skipping feedback for draft PR #${prNumber} (author: ${prAuthor}). Only non-draft PRs or Copilot PRs receive feedback.`,
+    );
+    return;
+  }
 
   const octokit = new Octokit({ auth: token });
 
@@ -290,9 +316,23 @@ export function runPostJobFeedbackCLI(): void {
   const runIdStr = process.env.RUN_ID;
   const headSha = process.env.HEAD_SHA;
   const workflowRunUrl = process.env.WORKFLOW_RUN_URL;
+  const prAuthor = process.env.PR_AUTHOR;
+  const prIsDraftStr = process.env.PR_IS_DRAFT;
 
   if (!token) {
-    console.error("GITHUB_TOKEN is required");
+    console.error("GITHUB_TOKEN is required but was not provided or is empty.");
+    console.error("");
+    console.error(
+      "This usually means the COPILOT_INVOKER_TOKEN secret is not set in your repository.",
+    );
+    console.error("To set it up:");
+    console.error(
+      "  1. Create a Personal Access Token (PAT) with 'pull-requests: write' permission",
+    );
+    console.error("  2. Go to your repo Settings → Secrets → Actions");
+    console.error("  3. Add a new secret named 'COPILOT_INVOKER_TOKEN' with your PAT");
+    console.error("");
+    console.error("See the ci-feedback-post-job command help for detailed setup instructions.");
     process.exit(1);
   }
   if (!owner) {
@@ -339,6 +379,9 @@ export function runPostJobFeedbackCLI(): void {
     process.exit(1);
   }
 
+  // Parse draft status (GitHub Actions passes "true" or "false" as strings)
+  const prIsDraft = prIsDraftStr === "true";
+
   runPostJobFeedback({
     token,
     owner,
@@ -348,6 +391,8 @@ export function runPostJobFeedbackCLI(): void {
     runId,
     headSha,
     workflowRunUrl,
+    prAuthor,
+    prIsDraft,
   }).catch((error) => {
     console.error("Post-job CI Feedback failed:", error);
     process.exit(1);
