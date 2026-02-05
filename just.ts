@@ -232,6 +232,24 @@ async function checkShouldRelease() {
     }
 
     try {
+        const now = new Date();
+        const todayUtc = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+        const yesterdayUtc = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 1));
+        const since = yesterdayUtc.toISOString();
+        const until = todayUtc.toISOString();
+
+        const yesterdayCommits = (await $`git log --since=${since} --until=${until} --pretty=%H -n 1`.text()).trim();
+        if (!yesterdayCommits) {
+            console.log("false");
+            return;
+        }
+    } catch (error) {
+        console.error("Error checking commit history for yesterday:", error);
+        console.log("false");
+        return;
+    }
+
+    try {
         const result = await $`gh release list --limit 1 --json targetCommitish`.text();
         const releases = JSON.parse(result);
 
