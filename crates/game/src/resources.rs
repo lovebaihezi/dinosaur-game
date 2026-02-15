@@ -39,6 +39,13 @@ pub struct GameConfig {
     pub tree_height: f32,
     /// Ground Y position (0.0 is center of screen)
     pub ground_y_pos: f32,
+    /// Blur animation duration in seconds (how long the blur expands from center)
+    #[serde(default = "default_blur_animation_duration")]
+    pub blur_animation_duration: f32,
+}
+
+fn default_blur_animation_duration() -> f32 {
+    0.5
 }
 
 impl Default for GameConfig {
@@ -54,6 +61,7 @@ impl Default for GameConfig {
             tree_width,
             tree_height: tree_width / GOLDEN_RATIO, // ~48.5
             ground_y_pos: 0.0,
+            blur_animation_duration: default_blur_animation_duration(),
         }
     }
 }
@@ -86,5 +94,23 @@ impl GameConfig {
             .to_json()
             .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e.to_string()))?;
         std::fs::write(Self::CONFIG_FILE, json)
+    }
+}
+
+/// Resource to track the blur animation state during game over transition
+#[derive(Debug, Resource)]
+pub struct BlurAnimationState {
+    /// Current progress of the blur animation (0.0 to 1.0)
+    pub progress: f32,
+    /// Whether the animation has completed
+    pub completed: bool,
+}
+
+impl Default for BlurAnimationState {
+    fn default() -> Self {
+        Self {
+            progress: 0.0,
+            completed: false,
+        }
     }
 }
